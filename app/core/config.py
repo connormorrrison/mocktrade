@@ -3,14 +3,13 @@
 from pydantic_settings import BaseSettings
 import os
 from dotenv import load_dotenv
+from typing import ClassVar
 
 load_dotenv()
 
 class Settings(BaseSettings):
-    PROJECT_NAME = "Stock Trading Simulator"
-    VERSION = "1.0.0"
-    API_V1_STR = "/api/v1"
-    ALPHA_VANTAGE_API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
-    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./sql_app.db")
+    PROJECT_NAME: ClassVar[str] = "Stock Trading Simulator"
+    ALPHA_VANTAGE_API_KEY: str = os.getenv("ALPHA_VANTAGE_API_KEY", "")
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./sql_app.db")
 
 settings = Settings()
