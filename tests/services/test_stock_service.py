@@ -14,7 +14,7 @@ from fastapi import HTTPException
 async def test_get_stock_price():
     stock_service = StockService()
     try:
-        result = await stock_service.get_stock_price("AAPL")
+        result = await stock_service.get_stock_info("AAPL")
         
         # Assert all required keys are present
         assert "symbol" in result, "Expected key 'symbol' in result"
