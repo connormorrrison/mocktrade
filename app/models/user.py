@@ -1,6 +1,6 @@
 # app/models/user.py
 
-from sqlalchemy import Column, Integer, String, Float, DateTime
+from sqlalchemy import Boolean, Column, Integer, String, Float, DateTime, func
 from app.db.base import Base
 from datetime import datetime, timezone
 
@@ -9,9 +9,10 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
+    username = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     first_name = Column(String)
     last_name = Column(String)
-    cash_balance = Column(Float, default=10000.00)  # Start with $10,000
-    created_at = Column(DateTime, default=datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
+    cash_balance = Column(Float, default=100000.0)  # Start with $100k
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
