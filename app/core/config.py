@@ -9,7 +9,9 @@ load_dotenv()
 
 class Settings(BaseSettings):
     PROJECT_NAME: ClassVar[str] = "Stock Trading Simulator"
-    ALPHA_VANTAGE_API_KEY: str = os.getenv("ALPHA_VANTAGE_API_KEY", "")
+    SECRET_KEY: str = os.getenv("SECRET_KEY")
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./sql_app.db")
 
 settings = Settings()
