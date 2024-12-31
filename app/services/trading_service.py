@@ -1,13 +1,11 @@
 # app/services/trading_service.py
+
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from typing import Dict, Any
+from typing import Dict, Any, List
 from app.services.stock_service import StockService
 from app.crud.trading import TradingCRUD
-from app.db.base import SessionLocal
-# Update these imports to use the models package
 from app.models import User, Position, Transaction
-from app.db.base import Base
 
 class TradingService:
     def __init__(self):
@@ -86,6 +84,70 @@ class TradingService:
 
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
+
+    async def get_portfolio_summary(self, db: Session, user_id: int) -> Dict[str, Any]:
+        """
+        Get user's portfolio with current values
+        """
+        try:
+            positions = await self.crud.get_user_portfolio(db, user_id)
+            
+            # Get current user
+            user = db.query(User).filter(User.id == user_id).first()
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+
+            portfolio_value = 0
+            position_details = []
+
+            for position in positions:
+                # Get current price
+                quote = await self.stock_service.get_stock_price(position.symbol)
+                current_price = quote["current_price"]
+                current_value = current_price * position.shares
+                
+                position_details.append({
+                    "symbol": position.symbol,
+                    "shares": position.shares,
+                    "average_price": position.average_price,
+                    "current_price": current_price,
+                    "current_value": current_value,
+                    "unrealized_pl": current_value - (position.average_price * position.shares),
+                    "unrealized_pl_percent": ((current_price - position.average_price) / position.average_price) * 100
+                })
+                
+                portfolio_value += current_value
+
+            return {
+                "cash_balance": user.cash_balance,
+                "portfolio_value": portfolio_value,
+                "total_value": portfolio_value + user.cash_balance,
+                "total_pl": portfolio_value - sum(p["shares"] * p["average_price"] for p in position_details),
+                "positions": position_details
+            }
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    async def get_user_transactions(self, db: Session, user_id: int) -> List[Dict[str, Any]]:
+        """
+        Get user's transaction history
+        """
+        try:
+            transactions = await self.crud.get_user_transactions(db, user_id)
+            return [
+                {
+                    "id": t.id,
+                    "symbol": t.symbol,
+                    "transaction_type": t.transaction_type,
+                    "shares": t.shares,
+                    "price": t.price,
+                    "total_amount": t.total_amount,
+                    "created_at": t.created_at
+                }
+                for t in transactions
+            ]
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
 # # Test functions
 # async def setup_test_db():
