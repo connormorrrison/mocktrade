@@ -1,13 +1,13 @@
 # app/services/trading_service.py
-
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from typing import Dict, Any
 from app.services.stock_service import StockService
 from app.crud.trading import TradingCRUD
 from app.db.base import SessionLocal
-from app.models.trading import User, Position, Transaction, Base
-from app.db.base import engine
+# Update these imports to use the models package
+from app.models import User, Position, Transaction
+from app.db.base import Base
 
 class TradingService:
     def __init__(self):

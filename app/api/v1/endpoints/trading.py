@@ -1,33 +1,49 @@
 # app/api/v1/endpoints/trading.py
 
-from fastapi import APIRouter, HTTPException
-from app.services.stock_service import StockService
-from app.services.portfolio_service import PortfolioService
+from fastapi import APIRouter, Depends, HTTPException
+from app.services.trading_service import TradingService
+from app.services.auth_service import AuthService
+from app.schemas.trading import OrderCreate
 from typing import Dict, Any, List
+from sqlalchemy.orm import Session
+from app.db.base import get_db
 
 router = APIRouter()
-stock_service = StockService()
-portfolio_service = PortfolioService()
+trading_service = TradingService()
 
-# Stock data endpoints
-@router.get("/stocks/{symbol}/price")
-async def get_stock_price(symbol: str) -> Dict[str, Any]:
+@router.post("/orders")
+async def create_order(
+    order: OrderCreate,
+    current_user = Depends(AuthService.get_current_user),
+    db: Session = Depends(get_db)
+) -> Dict[str, Any]:
     """
-    Get current stock price for trading
+    Place a buy/sell order
     """
-    return await stock_service.get_stock_price(symbol)
+    return await trading_service.execute_trade(
+        db=db,
+        user_id=current_user.id,
+        symbol=order.symbol,
+        shares=order.shares,
+        transaction_type=order.transaction_type
+    )
 
-@router.get("/stocks/{symbol}/history")
-async def get_stock_history(symbol: str, timeframe: str = "1d") -> Dict[str, Any]:
+@router.get("/portfolio")
+async def get_portfolio(
+    current_user = Depends(AuthService.get_current_user),
+    db: Session = Depends(get_db)
+) -> Dict[str, Any]:
     """
-    Get historical price data for charting
+    Get current user's portfolio summary
     """
-    return await stock_service.get_stock_history(symbol, timeframe)
+    return await trading_service.get_portfolio_summary(db, current_user.id)
 
-# Portfolio endpoints
-@router.post("/portfolio/summary")
-async def get_portfolio_summary(positions: List[Dict[str, Any]]) -> Dict[str, Any]:
+@router.get("/transactions")
+async def get_transactions(
+    current_user = Depends(AuthService.get_current_user),
+    db: Session = Depends(get_db)
+) -> List[Dict[str, Any]]:
     """
-    Get current portfolio value and performance
+    Get user's transaction history
     """
-    return await portfolio_service.get_portfolio_summary(positions)
+    return await trading_service.get_user_transactions(db, current_user.id)
