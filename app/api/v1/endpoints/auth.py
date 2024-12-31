@@ -4,41 +4,58 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
+import logging
 from app.db.base import get_db
 from app.core.security import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
 from app.services.auth_service import AuthService
 from app.schemas.auth import Token, UserCreate, User
 
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
 
-"""Endpoint to register a new user"""
 @router.post("/register", response_model=User)
 async def register(user_data: UserCreate, db: Session = Depends(get_db)):
     """Register a new user"""
-    return await AuthService.create_user(db, user_data)
+    try:
+        logger.info(f"Attempting to register user with email: {user_data.email}")
+        return await AuthService.create_user(db, user_data)
+    except Exception as e:
+        logger.error(f"Error during registration: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
 
-"""Endpoint to log in a user and return a JWT token"""
 @router.post("/login", response_model=Token)
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
     """Login user and return JWT token"""
-    user = await AuthService.authenticate_user(db, form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
+    try:
+        user = await AuthService.authenticate_user(db, form_data.username, form_data.password)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect email or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": user.email}, expires_delta=access_token_expires
         )
-    
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer"}
+        return {"access_token": access_token, "token_type": "bearer"}
+    except Exception as e:
+        logger.error(f"Error during login: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
 
-"""Endpoint to get information about the currently logged in user"""
 @router.get("/me", response_model=User)
 async def read_users_me(
     current_user: User = Depends(AuthService.get_current_user)
