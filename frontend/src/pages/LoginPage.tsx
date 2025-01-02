@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react"
+import { useNavigate } from 'react-router-dom'
 import mockTradeLogo from '../assets/MockTrade-logo-v1-size1.jpeg'
 
 export default function LoginPage() {
+  const navigate = useNavigate()  // Add this line
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -58,7 +60,8 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Enter your email"
+                  //placeholder="Enter your email"
+                  placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -83,7 +86,8 @@ export default function LoginPage() {
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
+                    //placeholder="Enter your password"
+                    placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -124,7 +128,7 @@ export default function LoginPage() {
           <CardFooter className="flex justify-center pb-8 text-sm text-gray-600">
             <span>Don't have an account?</span>
             <span
-              onClick={() => alert('Sign up functionality')}
+              onClick={() => navigate('/register')}  // Replace this line
               className="ml-2 text-blue-600 hover:text-blue-800 cursor-pointer"
             >
               Sign up
