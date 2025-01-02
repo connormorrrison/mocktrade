@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react"
 import { useNavigate } from 'react-router-dom'
+import { authApi } from '../services/api'
 import mockTradeLogo from '../assets/MockTrade-logo-v1-size1.jpeg'
 
 export default function LoginPage() {
@@ -22,14 +23,13 @@ export default function LoginPage() {
     setError('')
     setIsLoading(true)
     try {
-      console.log('Attempting login with:', { email, password })
-      // Simulated delay
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      throw new Error('Invalid credentials')
+      const data = await authApi.login(email, password)
+      // Store the token
+      localStorage.setItem('token', data.access_token)
+      // Navigate to dashboard (we'll create this later)
+      navigate('/dashboard')
     } catch (error) {
       setError('Invalid email or password. Please try again.')
-    } finally {
-      setIsLoading(false)
     }
   }
 

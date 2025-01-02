@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react"
 import { useNavigate } from 'react-router-dom'
+import { authApi } from '../services/api'  // Add this line
 import mockTradeLogo from '../assets/MockTrade-logo-v1-size1.jpeg'
 
 export default function RegisterPage() {
@@ -34,21 +35,35 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-
-    // Basic validation
+  
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match')
       return
     }
-
+  
     setIsLoading(true)
     try {
-      console.log('Attempting registration with:', formData)
-      // Simulated delay
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      // We'll implement actual registration later
+      const registrationData = {
+        email: formData.email,
+        username: formData.username,
+        password: formData.password,
+        first_name: formData.firstName,
+        last_name: formData.lastName
+      }
+      
+      console.log('Registration data being sent:', registrationData)  // Debug log
+      
+      await authApi.register(registrationData)
+      
+      console.log('Registration successful, attempting login')  // Debug log
+      
+      const loginResponse = await authApi.login(formData.email, formData.password)
+      localStorage.setItem('token', loginResponse.access_token)
+      
+      navigate('/dashboard')
     } catch (error) {
-      setError('Registration failed. Please try again.')
+      console.error('Registration error:', error)
+      setError(error instanceof Error ? error.message : 'Registration failed. Please try again.')
     } finally {
       setIsLoading(false)
     }
