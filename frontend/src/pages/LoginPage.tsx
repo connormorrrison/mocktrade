@@ -45,7 +45,7 @@ export default function LoginPage() {
                 className="h-24 w-auto"
               />
               <p className="text-center -mt-2 text-gray-600 text-sm">
-                Develop trading skills and test strategies, risk-free, only on MockTrade.
+                Develop trading skills and test market strategies, risk-free, only on MockTrade.
               </p>
             </div>
           </CardHeader>

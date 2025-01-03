@@ -69,7 +69,7 @@ export default function TradePage() {
   };
 
   return (
-    <div className="p-8 w-full">
+    <div className="p-8 w-full mt-10">
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-3xl font-normal">Trade</CardTitle>

@@ -1,17 +1,22 @@
-// src/components/Profile.tsx (example path)
-
 import React from 'react';
 
-export default function Profile() {
+interface ProfileProps {
+  firstName: string;
+  lastName: string;
+  username: string;
+  profileImageUrl?: string;
+}
+
+export default function Profile({ firstName, lastName, username, profileImageUrl }: ProfileProps) {
   return (
-    <div className="absolute top-4 right-4">
+    <div className="absolute top-8 right-8">
       <div className="flex items-center space-x-2">
         <div className="flex flex-col items-end">
-          <span className="text-sm font-medium text-gray-700">John Smith</span>
-          <span className="text-xs text-gray-500">@johnsmith</span>
+          <span className="text-sm font-medium text-gray-700">{firstName} {lastName}</span>
+          <span className="text-xs text-gray-500">@{username}</span>
         </div>
         <img
-          src="/api/placeholder/32/32"
+          src={profileImageUrl || "/default-profile.png"}
           alt="Profile"
           className="h-10 w-10 rounded-full border border-gray-300"
         />

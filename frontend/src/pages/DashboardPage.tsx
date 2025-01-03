@@ -172,8 +172,14 @@ export default function DashboardPage() {
         {renderContent()}
       </main>
 
-      {/* 2) Profile component in the top-right corner */}
-      <Profile />
+      {/* Profile component */}
+      <Profile
+        firstName={userData.first_name}
+        lastName={userData.last_name}
+        username={userData.username}
+        profileImageUrl={userData.profile_image_url}
+      />
+
 
       {/* Absolutely positioned copyright */}
       <div className="absolute bottom-0 left-0 w-full py-4 text-center text-sm text-gray-600">
