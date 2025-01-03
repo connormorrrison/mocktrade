@@ -16,9 +16,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import mockTradeLogo from '../assets/MockTrade-logo-v1-size1.001.png';
 import TradePage from './TradePage'; // Import the TradePage component
+
+// 1) Import the Profile component
+import Profile from '@/components/Profile'; 
 
 const menuItems = [
   {
@@ -91,14 +93,10 @@ export default function DashboardPage() {
     switch (currentPage) {
       case 'home':
         return (
-          <Card className="bg-white shadow-md flex flex-col justify-center items-center">
-            <CardHeader>
-              <CardTitle className="text-4xl text-center font-normal">Welcome back, {userData.first_name}</CardTitle>
-            </CardHeader>
-            <CardContent className="text-center">
-              <p>The market is up today</p>
-            </CardContent>
-          </Card>
+          <div className="flex flex-col justify-center items-center h-full">
+            <h1 className="text-4xl text-center font-normal text-blue-600 mb-4">Welcome back, {userData.first_name}</h1>
+            <p className="text-center text-lg text-gray-600">The market is up today</p>
+          </div>
         );
       case 'trade':
         return <TradePage />;
@@ -136,7 +134,7 @@ export default function DashboardPage() {
               <Button
                 key={item.title}
                 className={`w-full justify-start bg-white text-gray-700 hover:bg-blue-100 ${item.className} ${
-                  currentPage === item.page ? "bg-white font-semibold bg-blue-100" : ""
+                  currentPage === item.page ? "bg-blue-100 font-semibold" : ""
                 }`}
                 onClick={() => setCurrentPage(item.page)}
               >
@@ -173,6 +171,9 @@ export default function DashboardPage() {
       <main className="flex-1 bg-white w-full p-8 pb-20">
         {renderContent()}
       </main>
+
+      {/* 2) Profile component in the top-right corner */}
+      <Profile />
 
       {/* Absolutely positioned copyright */}
       <div className="absolute bottom-0 left-0 w-full py-4 text-center text-sm text-gray-600">
