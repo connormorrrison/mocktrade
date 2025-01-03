@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react"
 import { useNavigate } from 'react-router-dom'
 import { authApi } from '../services/api'
-import mockTradeLogo from '../assets/MockTrade-logo-v1-size1.jpeg'
+import mockTradeLogo from '../assets/MockTrade-logo-v1-size1.001.png'
 
 export default function LoginPage() {
   const navigate = useNavigate()  // Add this line
@@ -41,8 +41,8 @@ export default function LoginPage() {
             <div className="flex flex-col items-center">
               <img
                 src={mockTradeLogo}
-                alt="MockTrade Logo"
-                className="h-14 w-auto"
+                alt="MockTrade"
+                className="h-24 w-auto"
               />
             </div>
           </CardHeader>
