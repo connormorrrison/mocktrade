@@ -1,3 +1,4 @@
+// src/pages/DashboardPage.tsx
 import React, { useState, useEffect } from 'react';
 import { 
   Home, 
@@ -16,7 +17,8 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import mockTradeLogo from '../assets/MockTrade-logo-v1-size1.001.png'
+import mockTradeLogo from '../assets/MockTrade-logo-v1-size1.001.png';
+import TradePage from './TradePage'; // Import the TradePage component
 
 const menuItems = [
   {
@@ -80,8 +82,34 @@ export default function DashboardPage() {
 
   if (!userData) return <div>Loading...</div>;
 
+  const renderContent = () => {
+    switch (currentPage) {
+      case 'home':
+        return (
+          <Card className="bg-white shadow-md flex flex-col justify-center items-center">
+            <CardHeader>
+              <CardTitle className="text-3xl text-center">Welcome back, {userData.first_name}</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p>The market is up today</p>
+            </CardContent>
+          </Card>
+        );
+      case 'trade':
+        return <TradePage />;
+      case 'portfolio':
+        return <div>Portfolio content coming soon</div>;
+      case 'transactions':
+        return <div>Transactions content coming soon</div>;
+      case 'profile':
+        return <div>Profile content coming soon</div>;
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex w-full min-h-screen bg-gray-50">
       {/* Sidebar */}
       <aside className="w-80 border-r bg-white flex flex-col">
         {/* Logo */}
@@ -101,15 +129,15 @@ export default function DashboardPage() {
             <p className="text-sm font-medium text-gray-500 mb-2 px-2">Menu</p>
             {menuItems.map((item) => (
               <Button
-              key={item.title}
-              className={`w-full justify-start bg-white text-gray-700 hover:bg-blue-100 ${
-                currentPage === item.page ? "bg-white font-bold bg-blue-100" : ""
-              }`}
-              onClick={() => setCurrentPage(item.page)}
-            >
-              <item.icon className="mr-2 h-4 w-4" />
-              <span>{item.title}</span>
-            </Button>
+                key={item.title}
+                className={`w-full justify-start bg-white text-gray-700 hover:bg-blue-100 ${
+                  currentPage === item.page ? "bg-white font-bold bg-blue-100" : ""
+                }`}
+                onClick={() => setCurrentPage(item.page)}
+              >
+                <item.icon className="mr-2 h-4 w-4" />
+                <span>{item.title}</span>
+              </Button>
             ))}
           </div>
         </nav>
@@ -137,15 +165,8 @@ export default function DashboardPage() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 items-center justify-center p-12">
-        <Card className="bg-white shadow-md flex flex-col justify-center items-center">
-          <CardHeader>
-            <CardTitle className="text-3xl text-center">Welcome back, {userData.first_name}</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
-            <p>The market is up today</p>
-          </CardContent>
-        </Card>
+      <main className="flex-1 bg-white w-full">
+        {renderContent()}
       </main>
     </div>
   );

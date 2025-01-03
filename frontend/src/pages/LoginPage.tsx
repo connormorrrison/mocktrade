@@ -44,6 +44,9 @@ export default function LoginPage() {
                 alt="MockTrade"
                 className="h-24 w-auto"
               />
+              <p className="text-center -mt-2 text-gray-600 text-sm">
+                Develop trading skills and test strategies before participating in real markets.
+              </p>
             </div>
           </CardHeader>
           <CardContent className="px-8 pb-8">
