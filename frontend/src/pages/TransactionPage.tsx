@@ -225,11 +225,6 @@ export default function TradePage() {
           </div>
         </CardContent>
       </Card>
-
-     {/* Absolutely positioned copyright */}
-     <div className="absolute bottom-0 left-0 w-full py-4 text-center text-sm text-gray-600">
-        © 2025 MockTrade
-      </div>
     </div>
   );
 }

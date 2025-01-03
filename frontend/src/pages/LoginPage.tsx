@@ -45,7 +45,7 @@ export default function LoginPage() {
                 className="h-24 w-auto"
               />
               <p className="text-center -mt-2 text-gray-600 text-sm">
-                Develop trading skills and test strategies before participating in real markets.
+                Develop trading skills and test strategies, risk-free, only on MockTrade.
               </p>
             </div>
           </CardHeader>
@@ -140,7 +140,7 @@ export default function LoginPage() {
         </Card>
       </div>
       {/* Absolutely positioned copyright */}
-      <div className="absolute bottom-0 left-0 w-full py-6 text-center text-sm text-gray-600">
+      <div className="absolute bottom-0 left-0 w-full py-4 text-center text-sm text-gray-600">
         © 2025 MockTrade
       </div>
     </div>

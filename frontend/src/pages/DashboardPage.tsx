@@ -53,7 +53,6 @@ const menuItems = [
   }
 ];
 
-
 export default function DashboardPage() {
   const [userData, setUserData] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState('home');
@@ -94,7 +93,7 @@ export default function DashboardPage() {
         return (
           <Card className="bg-white shadow-md flex flex-col justify-center items-center">
             <CardHeader>
-              <CardTitle className="text-3xl text-center">Welcome back, {userData.first_name}</CardTitle>
+              <CardTitle className="text-4xl text-center font-normal">Welcome back, {userData.first_name}</CardTitle>
             </CardHeader>
             <CardContent className="text-center">
               <p>The market is up today</p>
@@ -115,29 +114,29 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex w-full min-h-screen bg-gray-50">
+    <div className="relative flex w-full min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <aside className="w-60 border-r bg-white flex flex-col">
+      <aside className="w-64 border-r bg-white flex flex-col">
         {/* Logo */}
-        <div className="p-4 border-b">
+        <div className="p-4">
           <div className="flex items-center justify-center">
             <img 
               src={mockTradeLogo}
               alt="MockTrade" 
-              className="h-24 w-auto" 
+              className="h-28 w-auto" 
             />
           </div>
         </div>
         
         {/* Navigation */}
         <nav className="flex-1 p-4">
-          <div className="space-y-1">
+          <div className="space-y-3">
             <p className="text-sm font-medium text-gray-500 mb-2 px-2">Menu</p>
             {menuItems.map((item) => (
               <Button
                 key={item.title}
-                className={`w-full justify-start bg-white text-gray-700 hover:bg-blue-100 ${
-                  currentPage === item.page ? "bg-white font-bold bg-blue-100" : ""
+                className={`w-full justify-start bg-white text-gray-700 hover:bg-blue-100 ${item.className} ${
+                  currentPage === item.page ? "bg-white font-semibold bg-blue-100" : ""
                 }`}
                 onClick={() => setCurrentPage(item.page)}
               >
@@ -171,9 +170,14 @@ export default function DashboardPage() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 bg-white w-full">
+      <main className="flex-1 bg-white w-full p-8 pb-20">
         {renderContent()}
       </main>
+
+      {/* Absolutely positioned copyright */}
+      <div className="absolute bottom-0 left-0 w-full py-4 text-center text-sm text-gray-600">
+        © 2025 MockTrade
+      </div>
     </div>
   );
 }
