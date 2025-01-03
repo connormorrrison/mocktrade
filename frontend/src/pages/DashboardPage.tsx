@@ -24,29 +24,35 @@ const menuItems = [
   {
     title: "Home",
     icon: Home,
-    page: 'home'
+    page: 'home',
+    className: 'font-normal'
   },
   {
     title: "Portfolio",
     icon: PieChart,
-    page: 'portfolio'
+    page: 'portfolio',
+    className: 'font-normal'
   },
   {
     title: "Trade",
     icon: ArrowRightLeft,
-    page: 'trade'
+    page: 'trade',
+    className: 'font-normal'
   },
   {
     title: "Transactions",
     icon: FileText,
-    page: 'transactions'
+    page: 'transactions',
+    className: 'font-normal'
   },
   {
     title: "Profile",
     icon: User,
-    page: 'profile'
+    page: 'profile',
+    className: 'font-normal'
   }
 ];
+
 
 export default function DashboardPage() {
   const [userData, setUserData] = useState<any>(null);
@@ -111,7 +117,7 @@ export default function DashboardPage() {
   return (
     <div className="flex w-full min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <aside className="w-80 border-r bg-white flex flex-col">
+      <aside className="w-60 border-r bg-white flex flex-col">
         {/* Logo */}
         <div className="p-4 border-b">
           <div className="flex items-center justify-center">
