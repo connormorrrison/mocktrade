@@ -253,30 +253,34 @@ const handleSubmitOrder = async () => {
             {/* Action Section */}
             {price && !error && (
               <div>
-                          <label className="block text-sm text-gray-500 mb-2 -mt-2">Action</label>
-                          <div className="flex gap-2">
-                            <Button 
-                              variant="outline"
-                              className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
-                                ${action === 'buy' 
-                                  ? 'bg-green-600 text-white border-green-600 hover:bg-green-600 hover:border-green-600' 
-                                  : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-green-600 hover:text-white hover:border-green-600'}`}
-                              onClick={() => setAction('buy')}
-                            >
-                              Buy
-                            </Button>
-                            <Button 
-                              variant="outline"
-                              className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
-                                ${action === 'sell' 
-                                  ? 'bg-red-600 text-white border-red-600 hover:bg-red-600 hover:border-red-600' 
-                                  : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-red-600 hover:text-white hover:border-red-600'}`}
-                              onClick={() => setAction('sell')}
-                            >
-                              Sell
-                            </Button>
-                          </div>
-                        </div>)}
+                <label className="block text-sm text-gray-500 mb-2 -mt-2">Action</label>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline"
+                    className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
+                      ${action === 'buy' 
+                        ? 'bg-green-600 text-white border-green-600 hover:bg-green-600 hover:border-green-600' 
+                        : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-green-600 hover:text-white hover:border-green-600'}`}
+                    onClick={() => setAction('buy')}
+                  >
+                    Buy
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
+                      ${action === 'sell' 
+                        ? 'bg-red-600 text-white border-red-600 hover:bg-red-600 hover:border-red-600' 
+                        : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-red-600 hover:text-white hover:border-red-600'}`}
+                    onClick={() => setAction('sell')}
+                  >
+                    Sell
+                  </Button>
+                </div>
+                <div className="mt-4 text-sm text-gray-600">
+                  You own {sharesOwned.toLocaleString()} {sharesOwned === 1 ? 'share' : 'shares'} of {displaySymbol}
+                </div>
+              </div>
+            )}
 
             {/* Order Form */}
             <div className="flex flex-col space-y-6 h-full">

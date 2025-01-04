@@ -4,6 +4,17 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.services.auth_service import AuthService
 
+
+import logging
+from app.core.config import settings
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Add this near the top after imports
+logger.info(f"Starting application with DATABASE_URL: {settings.DATABASE_URL}")
+
+
 app = FastAPI(
     title="Stock Trading Simulator",
     description="A mock trading platform for learning stock trading",

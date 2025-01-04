@@ -8,6 +8,8 @@ from typing import Generator
 # Create SQLAlchemy engine
 engine = create_engine(settings.DATABASE_URL)
 
+print(f"Initializing database with URL: {settings.DATABASE_URL}")
+
 # Create SessionLocal class
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -25,3 +27,9 @@ def get_db() -> Generator:
         yield db
     finally:
         db.close()
+
+
+import sys
+import os
+print("Python path:", sys.path)
+print("Current directory:", os.getcwd())
