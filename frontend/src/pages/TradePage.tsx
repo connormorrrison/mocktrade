@@ -71,6 +71,8 @@ export default function TradePage() {
       setError(err.message || 'Unable to fetch stock price');
       setPrice(null);
       setSharesOwned(0);
+      setQuantity('');  // Reset quantity when stock becomes invalid
+      setAction(null);  // Also reset the action when stock becomes invalid
     } finally {
       setIsLoading(false);
     }
@@ -285,7 +287,7 @@ const handleSubmitOrder = async () => {
               <label className="block text-sm text-gray-500 mb-2 -mt-2">Quantity</label>
               <Input 
                 type="number" 
-                className="text-lg"
+                className={`text-lg ${action === 'buy' && price && quantity && (price * Number(quantity)) > availableCash ? 'border-red-500' : ''}`}
                 value={quantity || ''}
                 placeholder=""
                 onChange={(e) => {
@@ -310,6 +312,12 @@ const handleSubmitOrder = async () => {
                 <p className="text-sm text-gray-500 mt-1">
                   Maximum available to sell: {sharesOwned} shares
                 </p>
+              )}
+              {action === 'buy' && price && quantity && (price * Number(quantity)) > availableCash && (
+                <div className="flex items-center text-red-500 mt-6">
+                  <AlertCircle className="mr-2 h-5 w-5" />
+                  <span>Insufficient available cash to complete the trade</span>
+                </div>
               )}
             </div>
           )}
@@ -352,7 +360,15 @@ const handleSubmitOrder = async () => {
               <Button 
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-2"
                 onClick={handleSubmitOrder}
-                disabled={!symbol || !quantity || !price || Number(quantity) < 1 || !Number.isInteger(Number(quantity))}
+                disabled={
+                  !symbol || 
+                  !quantity || 
+                  !price || 
+                  Number(quantity) < 1 || 
+                  !Number.isInteger(Number(quantity)) ||
+                  (action === 'buy' && price * Number(quantity) > availableCash) ||
+                  (action === 'sell' && Number(quantity) > sharesOwned)
+                }
               >
                 Submit Order
               </Button>
