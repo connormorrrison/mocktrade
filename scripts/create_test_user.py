@@ -9,15 +9,15 @@ async def create_test_user():
     db = SessionLocal()
     try:
         # Check if user exists
-        test_user = db.query(User).filter(User.email == "test4@email.com").first()
+        test_user = db.query(User).filter(User.email == "johnsmith@email.com").first()
         if not test_user:
             test_user = User(
-                email="test4@email.com",
-                username="test4",
-                first_name="Test4",
-                last_name="User",
-                hashed_password=get_password_hash("password123"),
-                cash_balance=100000.0,
+                email="johnsmith@email.com",
+                username="johnsmith",
+                first_name="John",
+                last_name="Smith",
+                hashed_password=get_password_hash("Armadyne1"),
+                cash_balance=100000.0,  # $100,000 starting balance
                 is_active=True
             )
             db.add(test_user)
