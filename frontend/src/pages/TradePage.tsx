@@ -232,7 +232,7 @@ const handleSubmitOrder = async () => {
                   {formatMoney(price)}
                 </p>
                 {sharesOwned > 0 && (
-                  <p className="text-sm text-gray-600 ml-2 mt-1">
+                  <p className="text-sm text-gray-600 ml-2">
                     You own {sharesOwned.toLocaleString()} {sharesOwned === 1 ? 'share' : 'shares'} of {displaySymbol}
                   </p>
                 )}
@@ -437,11 +437,6 @@ const handleSubmitOrder = async () => {
           </div>
         </CardContent>
       </Card>
-
-     {/* Absolutely positioned copyright */}
-     <div className="absolute bottom-0 left-0 w-full py-4 text-center text-sm text-gray-600">
-        © 2025 MockTrade
-      </div>
     </div>
   );
 }

@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import mockTradeLogo from '../assets/MockTrade-logo-v1-size1.001.png';
 import TradePage from './TradePage'; // Import the TradePage component
+import PortfolioPage from './PortfolioPage';
 
 // 1) Import the Profile component
 import Profile from '@/components/Profile'; 
@@ -95,13 +96,13 @@ export default function DashboardPage() {
         return (
           <div className="flex flex-col justify-center items-center h-full">
             <h1 className="text-4xl text-center font-normal text-blue-600 mb-4">Welcome back, {userData.first_name}</h1>
-            <p className="text-center text-lg text-gray-600">The market is up today</p>
+            <p className="text-center text-lg text-gray-600">Happy trading</p>
           </div>
         );
       case 'trade':
         return <TradePage />;
       case 'portfolio':
-        return <div>Portfolio content coming soon</div>;
+        return <PortfolioPage />;
       case 'transactions':
         return <div>Transactions content coming soon</div>;
       case 'profile':
@@ -112,9 +113,9 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="relative flex w-full min-h-screen bg-gray-50">
+    <div className="flex w-full min-h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-64 border-r bg-white flex flex-col">
+      <aside className="w-64 border-r bg-white flex flex-col fixed h-screen">
         {/* Logo */}
         <div className="p-4">
           <div className="flex flex-col items-center justify-center">
@@ -166,23 +167,25 @@ export default function DashboardPage() {
           </DropdownMenu>
         </div>
       </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 bg-gray-50 w-full p-8 pb-20">
-        {renderContent()}
-      </main>
-
-      {/* Profile component */}
-      <Profile
-        firstName={userData.first_name}
-        lastName={userData.last_name}
-        username={userData.username}
-        profileImageUrl={userData.profile_image_url}
-      />
-
-      {/* Absolutely positioned copyright */}
-      <div className="absolute bottom-0 left-0 w-full py-4 text-center text-sm text-gray-600">
-        © 2025 MockTrade
+  
+      {/* Main content wrapper */}
+      <div className="flex-1 flex flex-col min-h-screen ml-64 overflow-y-auto">
+        <main className="flex-1 bg-gray-50 w-full p-8">
+          {renderContent()}
+        </main>
+  
+        {/* Profile component */}
+        <Profile
+          firstName={userData.first_name}
+          lastName={userData.last_name}
+          username={userData.username}
+          profileImageUrl={userData.profile_image_url}
+        />
+  
+        {/* Footer with copyright */}
+        <footer className="w-full py-4 text-center text-sm text-gray-600 bg-gray-50">
+          © 2025 MockTrade
+        </footer>
       </div>
     </div>
   );
