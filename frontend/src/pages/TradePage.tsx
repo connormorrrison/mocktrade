@@ -14,30 +14,38 @@ import {
 
 export default function TradePage() {
   const [symbol, setSymbol] = useState('');
-  const [action, setAction] = useState('buy');
+  const [action, setAction] = useState(null);  // Initialize to null for no selection
   const [quantity, setQuantity] = useState('');
   const [price, setPrice] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [displaySymbol, setDisplaySymbol] = useState(''); // New state to hold the symbol for price display
 
   const fetchStockPrice = async () => {
     if (!symbol) {
       setError('Please enter a stock symbol');
       return;
     }
-
+  
     setIsLoading(true);
     setError(null);
-
+  
     try {
-      // Simulated price fetching - replace with actual API call
-      const response = await fetch(`/api/stock-price?symbol=${symbol}`);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:8000/api/v1/stocks/quote/${symbol.toUpperCase()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
       if (!response.ok) {
-        throw new Error('Failed to fetch stock price');
+        throw new Error('Invalid stock symbol');
       }
+  
       const data = await response.json();
-      setPrice(data.price);
+      setPrice(data.current_price);
+      setDisplaySymbol(symbol.toUpperCase()); // Set displaySymbol to the successfully fetched symbol
     } catch (err) {
       setError(err.message || 'Unable to fetch stock price');
       setPrice(null);
@@ -45,6 +53,7 @@ export default function TradePage() {
       setIsLoading(false);
     }
   };
+  
 
   const handleSubmitOrder = () => {
     // Validate order
@@ -57,16 +66,37 @@ export default function TradePage() {
     setIsConfirmDialogOpen(true);
   };
 
-  const confirmOrder = () => {
-    // Actual order submission logic would go here
-    console.log('Submitting order', { symbol, action, quantity, price });
-    // Reset form or show success message
-    setIsConfirmDialogOpen(false);
-    // Reset form state
-    setSymbol('');
-    setQuantity('');
-    setPrice(null);
-  };
+  const confirmOrder = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:8000/api/v1/trading/orders', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          symbol: symbol,
+          shares: Number(quantity),
+          transaction_type: action.toUpperCase()
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Trade failed');
+      }
+
+      // Clear form and show success
+      setSymbol('');
+      setQuantity('');
+      setPrice(null);
+      setIsConfirmDialogOpen(false);
+      alert('Order executed successfully!'); // We can replace this with a better notification later
+    } catch (err: any) {
+      setError(err.message || 'Failed to execute trade');
+    }
+};
 
   return (
     <div className="p-8 w-full mt-10">
@@ -76,22 +106,52 @@ export default function TradePage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
+            
             {/* Search Section */}
             <div className="flex gap-2 mb-6">
-              <Input 
-                placeholder="Enter symbol (e.g., AAPL)" 
+              <Input
+                placeholder="Enter symbol (e.g., AAPL)"
                 value={symbol}
-                onChange={(e) => setSymbol(e.target.value.toUpperCase())}
+                onChange={(e) => {
+                  const newValue = e.target.value.toUpperCase();
+                  setSymbol(newValue);
+                  if (!newValue) { // If input is cleared
+                    setPrice(null); // Clear the price
+                    setError(null); // Clear any errors
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    fetchStockPrice();
+                  }
+                }}
                 className={error && !symbol ? 'border-red-500' : ''}
               />
-              <Button 
-                onClick={fetchStockPrice} 
+              <Button
+                onClick={fetchStockPrice}
                 disabled={isLoading}
               >
                 <Search className="mr-2 h-4 w-4" />
                 {isLoading ? 'Searching...' : 'Search'}
               </Button>
             </div>
+
+            {/* Stock Price Display - Shows up after search */}
+            {price && !error && (
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg transition-all duration-200 ease-in-out">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm text-gray-500 ml-2">Market Price for {displaySymbol}</p> {/* Use displaySymbol */}
+                  <p className="text-2xl font-bold ml-2">${price}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500 mr-2">Market Status</p>
+                  <p className="text-green-600 font-medium mr-2 animate-pulse">Live</p>
+                </div>
+              </div>
+            </div>
+)}
+
 
             {/* Error Handling */}
             {error && (
@@ -100,29 +160,28 @@ export default function TradePage() {
                 <span>{error}</span>
               </div>
             )}
+            
 
             {/* Action Section */}
             <div>
               <label className="block text-sm text-gray-500 mb-2">Action</label>
               <div className="flex gap-2">
-                <Button 
-                  variant={action === 'buy' ? 'default' : 'outline'}
-                  className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                    action === 'buy' 
-                      ? 'bg-green-600 text-white border-green-700 hover:bg-green-800 focus:ring-green-500' 
-                      : 'bg-white text-green-500 border-green-500 hover:bg-green-50 focus:ring-green-500'
-                  }`}
+              <Button 
+                  variant="outline"
+                  className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
+                    ${action === 'buy' 
+                      ? 'bg-green-600 text-white border-green-600 hover:bg-green-600 hover:border-green-600' 
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-green-600 hover:text-white hover:border-green-600'}`}
                   onClick={() => setAction('buy')}
                 >
                   Buy
                 </Button>
                 <Button 
-                  variant={action === 'sell' ? 'default' : 'outline'}
-                  className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                    action === 'buy' 
-                      ? 'bg-red-600 text-white border-red-700 hover:bg-red-800 focus:ring-red-500' 
-                      : 'bg-white text-red-500 border-red-500 hover:bg-red-50 focus:ring-red-500'
-                  }`}
+                  variant="outline"
+                  className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
+                    ${action === 'sell' 
+                      ? 'bg-red-600 text-white border-red-600 hover:bg-red-600 hover:border-red-600' 
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-red-600 hover:text-white hover:border-red-600'}`}
                   onClick={() => setAction('sell')}
                 >
                   Sell

@@ -117,7 +117,7 @@ export default function DashboardPage() {
       <aside className="w-64 border-r bg-white flex flex-col">
         {/* Logo */}
         <div className="p-4">
-          <div className="flex items-center justify-center">
+          <div className="flex flex-col items-center justify-center">
             <img 
               src={mockTradeLogo}
               alt="MockTrade" 
@@ -168,7 +168,7 @@ export default function DashboardPage() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 bg-white w-full p-8 pb-20">
+      <main className="flex-1 bg-gray-50 w-full p-8 pb-20">
         {renderContent()}
       </main>
 
