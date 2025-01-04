@@ -21,6 +21,7 @@ export default function TradePage() {
   const [error, setError] = useState(null);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [displaySymbol, setDisplaySymbol] = useState(''); // New state to hold the symbol for price display
+  const [availableCash, setAvailableCash] = useState(5000); // Initial cash balance
 
   const fetchStockPrice = async () => {
     if (!symbol) {
@@ -56,13 +57,19 @@ export default function TradePage() {
   
 
   const handleSubmitOrder = () => {
-    // Validate order
     if (!symbol || !quantity || quantity <= 0 || !price) {
       setError('Please complete all order details');
       return;
     }
-
-    // Open confirmation dialog
+  
+    const totalValue = price * Number(quantity);
+  
+    if (action === 'buy' && totalValue > availableCash) {
+      setError('Insufficient cash to complete the trade');
+      return;
+    }
+  
+    setError(null); // Clear any existing errors
     setIsConfirmDialogOpen(true);
   };
 
@@ -81,25 +88,30 @@ export default function TradePage() {
           transaction_type: action.toUpperCase()
         })
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.detail || 'Trade failed');
       }
-
+  
+      // Deduct total value from available cash
+      const totalValue = price * Number(quantity);
+      setAvailableCash((prevCash) => prevCash - totalValue);
+  
       // Clear form and show success
       setSymbol('');
       setQuantity('');
       setPrice(null);
       setIsConfirmDialogOpen(false);
-      alert('Order executed successfully!'); // We can replace this with a better notification later
-    } catch (err: any) {
+      alert('Order executed successfully!'); // Replace with better notification
+    } catch (err) {
       setError(err.message || 'Failed to execute trade');
     }
-};
+  };
+  
 
   return (
-    <div className="p-8 w-full mt-10">
+    <div className="p-8 w-full mt-6">
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-3xl font-normal">Trade</CardTitle>
@@ -108,7 +120,9 @@ export default function TradePage() {
           <div className="space-y-6">
             
             {/* Search Section */}
-            <div className="flex gap-2 mb-6">
+          <div>
+            <label className="block text-sm text-gray-500 mb-2">Search</label>
+            <div className="flex gap-2">
               <Input
                 placeholder="Enter symbol (e.g., AAPL)"
                 value={symbol}
@@ -135,6 +149,7 @@ export default function TradePage() {
                 {isLoading ? 'Searching...' : 'Search'}
               </Button>
             </div>
+          </div>
 
             {/* Stock Price Display - Shows up after search */}
             {price && !error && (
@@ -142,10 +157,10 @@ export default function TradePage() {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-sm text-gray-500 ml-2">Market Price for {displaySymbol}</p> {/* Use displaySymbol */}
-                  <p className="text-2xl font-bold ml-2">${price}</p>
+                  <p className="text-2xl font-bold ml-2">${price} USD</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-500 mr-2">Market Status</p>
+                  <p className="text-sm text-gray-500 mr-2">Status</p>
                   <p className="text-green-600 font-medium mr-2 animate-pulse">Live</p>
                 </div>
               </div>
@@ -207,20 +222,35 @@ export default function TradePage() {
               {/* Order Summary */}
               <div className="space-y-2 pt-4 border-t">
                 <div className="flex justify-between items-center">
+                  <span className="text-gray-500">Order</span>
+                  <span className="font-medium">
+                    {action && quantity && symbol 
+                      ? `${action.charAt(0).toUpperCase() + action.slice(1)} ${quantity} shares at Market`
+                      : 'N/A'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
                   <span className="text-gray-500">Market Price</span>
                   <span className="font-medium">
-                    {price ? `$${price.toFixed(2)}` : '$0.00'}
+                    {price ? `$${price.toFixed(2)} USD` : '$0.00'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500">Available Cash</span>
+                  <span className="font-medium">
+                    ${availableCash.toFixed(2)} USD
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-500">Total Value</span>
                   <span className="text-xl font-bold">
                     {price && quantity 
-                      ? `$${(price * Number(quantity)).toFixed(2)}` 
+                      ? `$${(price * Number(quantity)).toFixed(2)} USD` 
                       : '$0.00'}
                   </span>
                 </div>
               </div>
+
 
               {/* Submit Order Button */}
               <Button 
@@ -241,7 +271,7 @@ export default function TradePage() {
                 <DialogHeader>
                   <DialogTitle>Confirm Order</DialogTitle>
                   <DialogDescription>
-                    Please review your order details before submitting.
+                    Please review your order.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
@@ -259,12 +289,12 @@ export default function TradePage() {
                   </div>
                   <div className="flex justify-between">
                     <span>Price per Share:</span>
-                    <span className="font-semibold">${price?.toFixed(2) || '0.00'}</span>
+                    <span className="font-semibold">${price?.toFixed(2) || '0.00'} USD</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Total Value:</span>
                     <span className="font-bold text-lg">
-                      ${price && quantity ? (price * Number(quantity)).toFixed(2) : '0.00'}
+                      ${price && quantity ? (price * Number(quantity)).toFixed(2) : '0.00'} USD
                     </span>
                   </div>
                 </div>
@@ -281,6 +311,7 @@ export default function TradePage() {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
+            
           </div>
         </CardContent>
       </Card>
