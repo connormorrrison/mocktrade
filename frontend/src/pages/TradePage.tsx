@@ -35,28 +35,32 @@ export default function TradePage() {
   
     try {
       const token = localStorage.getItem('token');
-      // Fetch stock price
-      const priceResponse = await fetch(`http://localhost:8000/api/v1/stocks/quote/${symbol.toUpperCase()}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      
+      // Fetch both price and portfolio data concurrently
+      const [priceResponse, portfolioResponse] = await Promise.all([
+        fetch(`http://localhost:8000/api/v1/stocks/quote/${symbol.toUpperCase()}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`http://localhost:8000/api/v1/trading/portfolio/${symbol.toUpperCase()}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+      ]);
   
       if (!priceResponse.ok) {
         throw new Error('Invalid stock symbol');
       }
   
       const priceData = await priceResponse.json();
+      
+      // Check if price is 0 and treat it as invalid
+      if (priceData.current_price === 0) {
+        throw new Error('Invalid stock symbol');
+      }
+      
       setPrice(priceData.current_price);
       setDisplaySymbol(symbol.toUpperCase());
   
-      // Fetch shares owned
-      const portfolioResponse = await fetch(`http://localhost:8000/api/v1/trading/portfolio/${symbol.toUpperCase()}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
+      // Handle portfolio data
       if (portfolioResponse.ok) {
         const portfolioData = await portfolioResponse.json();
         setSharesOwned(portfolioData.shares || 0);
@@ -73,27 +77,63 @@ export default function TradePage() {
   };
   
 
-  const handleSubmitOrder = () => {
-    if (!symbol || !quantity || quantity <= 0 || !price) {
-      setError('Please complete all order details');
+const handleSubmitOrder = async () => {
+  // Basic input validation
+  if (!symbol.trim()) {
+    setError('Please enter a valid symbol');
+    return;
+  }
+  if (!symbol.match(/^[A-Za-z]+$/)) {
+    setError('Symbol must contain only letters');
+    return;
+  }
+  if (!quantity || quantity <= 0) {
+    setError('Please enter a valid quantity');
+    return;
+  }
+  if (!price) {
+    setError('Please search for a valid stock symbol first');
+    return;
+  }
+  if (!action) {
+    setError('Please select buy or sell');
+    return;
+  }
+ 
+  const totalValue = price * Number(quantity);
+ 
+  if (action === 'buy' && totalValue > availableCash) {
+    setError('Insufficient cash to complete the trade');
+    return;
+  }
+ 
+  // Refresh shares owned before validating sell order
+  if (action === 'sell') {
+    try {
+      const token = localStorage.getItem('token');
+      const portfolioResponse = await fetch(`http://localhost:8000/api/v1/trading/portfolio/${symbol.toUpperCase()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      if (portfolioResponse.ok) {
+        const portfolioData = await portfolioResponse.json();
+        const currentShares = portfolioData.shares || 0;
+        setSharesOwned(currentShares);
+        
+        if (Number(quantity) > currentShares) {
+          setError('Insufficient shares to complete the sale');
+          return;
+        }
+      }
+    } catch (err) {
+      setError('Unable to verify current share balance');
       return;
     }
-  
-    const totalValue = price * Number(quantity);
-  
-    if (action === 'buy' && totalValue > availableCash) {
-      setError('Insufficient cash to complete the trade');
-      return;
-    }
-  
-    if (action === 'sell' && Number(quantity) > sharesOwned) {
-      setError('Insufficient shares to complete the sale');
-      return;
-    }
-  
-    setError(null);
-    setIsConfirmDialogOpen(true);
-  };
+  }
+ 
+  setError(null);
+  setIsConfirmDialogOpen(true);
+ };
 
   const confirmOrder = async () => {
     try {
@@ -105,7 +145,7 @@ export default function TradePage() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          symbol: symbol,
+          symbol: symbol.toUpperCase(),  // Make sure symbol is uppercase
           shares: Number(quantity),
           transaction_type: action.toUpperCase()
         })
@@ -144,6 +184,15 @@ export default function TradePage() {
       setError(err.message || 'Failed to execute trade');
     }
   };
+  
+  
+  const formatMoney = (value, currency = 'USD') => {
+    return `$${new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value)} ${currency}`;
+  };
+  
   
 
   return (
@@ -188,13 +237,14 @@ export default function TradePage() {
             </div>
           </div>
 
-            {/* Stock Price and Shares Owned Display */}
-            {price && !error && (
+            {price && !error && price !== 0 && (
               <div className="mb-6 p-4 bg-gray-50 rounded-lg transition-all duration-200 ease-in-out">
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-sm text-gray-500 ml-2">Market Price for {displaySymbol}</p>
-                    <p className="text-2xl font-bold ml-2">${price} USD</p>
+                    <p className="text-2xl font-bold ml-2">
+                      {formatMoney(price)}
+                    </p>
                     {sharesOwned > 0 && (
                       <p className="text-sm text-gray-600 ml-2 mt-1">
                         You own {sharesOwned} shares
@@ -221,14 +271,14 @@ export default function TradePage() {
             {/* Action Section */}
             {price && !error && (
               <div>
-                <label className="block text-sm text-gray-500 mb-2">Action</label>
+                <label className="block text-sm text-gray-500 mb-2 -mt-2">Action</label>
                 <div className="flex gap-2">
                   <Button 
                     variant="outline"
                     className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
                       ${action === 'buy' 
                         ? 'bg-green-600 text-white border-green-600 hover:bg-green-600 hover:border-green-600' 
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-green-600 hover:text-white hover:border-green-600'}`}
+                        : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-green-600 hover:text-white hover:border-green-600'}`}
                     onClick={() => setAction('buy')}
                   >
                     Buy
@@ -238,7 +288,7 @@ export default function TradePage() {
                     className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
                       ${action === 'sell' 
                         ? 'bg-red-600 text-white border-red-600 hover:bg-red-600 hover:border-red-600' 
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-red-600 hover:text-white hover:border-red-600'}`}
+                        : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-red-600 hover:text-white hover:border-red-600'}`}
                     onClick={() => setAction('sell')}
                   >
                     Sell
@@ -252,7 +302,7 @@ export default function TradePage() {
               {/* Quantity Input */}
               {action && (
                 <div>
-                  <label className="block text-sm text-gray-500 mb-2">Quantity</label>
+                  <label className="block text-sm text-gray-500 mb-2 -mt-2">Quantity</label>
                   <Input 
                     type="number" 
                     placeholder="0" 
@@ -270,33 +320,32 @@ export default function TradePage() {
               )}
 
               {/* Order Summary */}
-              <div className="space-y-2 pt-4 border-t">
+              <div className="space-y-1 pt-4 border-t">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-500">Order</span>
                   <span className="font-medium">
                     {action && quantity && symbol 
-                      ? `${action.charAt(0).toUpperCase() + action.slice(1)} ${quantity} shares at Market`
+                      ? `${action.charAt(0).toUpperCase() + action.slice(1)} ${Number(quantity).toLocaleString()} ${Number(quantity) === 1 ? 'share' : 'shares'} at Market`
                       : 'N/A'}
                   </span>
+
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-500">Market Price</span>
                   <span className="font-medium">
-                    {price ? `$${price.toFixed(2)} USD` : '$0.00'}
+                    {price ? formatMoney(price) : formatMoney(0)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-500">Available Cash</span>
                   <span className="font-medium">
-                    ${availableCash.toFixed(2)} USD
+                    {formatMoney(availableCash)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-500">Total Value</span>
                   <span className="text-xl font-bold">
-                    {price && quantity 
-                      ? `$${(price * Number(quantity)).toFixed(2)} USD` 
-                      : '$0.00'}
+                  {price && quantity ? formatMoney(price * Number(quantity)) : formatMoney(0)}
                   </span>
                 </div>
               </div>
@@ -304,7 +353,7 @@ export default function TradePage() {
 
               {/* Submit Order Button */}
               <Button 
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-4"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-2"
                 onClick={handleSubmitOrder}
                 disabled={!symbol || !quantity || !price}
               >
