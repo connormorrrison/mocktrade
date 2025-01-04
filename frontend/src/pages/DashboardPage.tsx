@@ -180,7 +180,6 @@ export default function DashboardPage() {
         profileImageUrl={userData.profile_image_url}
       />
 
-
       {/* Absolutely positioned copyright */}
       <div className="absolute bottom-0 left-0 w-full py-4 text-center text-sm text-gray-600">
         © 2025 MockTrade

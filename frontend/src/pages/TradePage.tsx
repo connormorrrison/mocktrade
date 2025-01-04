@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,27 @@ export default function TradePage() {
   const [displaySymbol, setDisplaySymbol] = useState(''); // New state to hold the symbol for price display
   const [availableCash, setAvailableCash] = useState(5000); // Initial cash balance
   const [sharesOwned, setSharesOwned] = useState(0);
+
+  // useEffect goes here, after state declarations
+  useEffect(() => {
+    fetchPortfolioData();
+  }, []);
+
+  const fetchPortfolioData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:8000/api/v1/trading/portfolio', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setAvailableCash(data.cash_balance);
+      }
+    } catch (err) {
+      console.error('Error fetching portfolio:', err);
+    }
+  };
 
   const fetchStockPrice = async () => {
     if (!symbol) {
@@ -115,56 +136,41 @@ const handleSubmitOrder = async () => {
   setIsConfirmDialogOpen(true);
  };
 
-  const confirmOrder = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/api/v1/trading/orders', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          symbol: symbol.toUpperCase(),  // Make sure symbol is uppercase
-          shares: Number(quantity),
-          transaction_type: action.toUpperCase()
-        })
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Trade failed');
-      }
-  
-      const totalValue = price * Number(quantity);
-      
-      // Update available cash and shares owned
-      setAvailableCash((prevCash) => {
-        if (action === 'buy') {
-          return prevCash - totalValue;
-        } else {
-          return prevCash + totalValue;
-        }
-      });
-  
-      setSharesOwned((prevShares) => {
-        if (action === 'buy') {
-          return prevShares + Number(quantity);
-        } else {
-          return prevShares - Number(quantity);
-        }
-      });
-  
-      setSymbol('');
-      setQuantity('');
-      setPrice(null);
-      setAction(null); // Add this line to reset the action
-      setIsConfirmDialogOpen(false);
-    } catch (err) {
-      setError(err.message || 'Failed to execute trade');
+ const confirmOrder = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch('http://localhost:8000/api/v1/trading/orders', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        symbol: symbol.toUpperCase(),
+        shares: Number(quantity),
+        transaction_type: action.toUpperCase()
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Trade failed');
     }
-  };
-  
+
+    // Refresh portfolio data to get updated cash balance
+    await fetchPortfolioData();
+    
+    // Reset form
+    setSymbol('');
+    setQuantity('');
+    setPrice(null);
+    setAction(null);
+    setIsConfirmDialogOpen(false);
+  } catch (err) {
+    setError(err.message || 'Failed to execute trade');
+  }
+};
+
   
   const formatMoney = (value, currency = 'USD') => {
     return `$${new Intl.NumberFormat('en-US', {
@@ -217,27 +223,27 @@ const handleSubmitOrder = async () => {
             </div>
           </div>
 
-            {price && !error && price !== 0 && (
-              <div className="mb-6 p-4 bg-gray-50 rounded-lg transition-all duration-200 ease-in-out">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-sm text-gray-500 ml-2">Market Price for {displaySymbol}</p>
-                    <p className="text-2xl font-bold ml-2">
-                      {formatMoney(price)}
-                    </p>
-                    {sharesOwned > 0 && (
-                      <p className="text-sm text-gray-600 ml-2 mt-1">
-                        You own {sharesOwned} shares
-                      </p>
-                    )}
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm text-gray-500 mr-2">Status</p>
-                    <p className="text-green-600 font-medium mr-2 animate-pulse">Live</p>
-                  </div>
-                </div>
+          {price && !error && price !== 0 && (
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg transition-all duration-200 ease-in-out">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-sm text-gray-500 ml-2">Market Price for {displaySymbol}</p>
+                <p className="text-2xl font-bold ml-2">
+                  {formatMoney(price)}
+                </p>
+                {sharesOwned > 0 && (
+                  <p className="text-sm text-gray-600 ml-2 mt-1">
+                    You own {sharesOwned.toLocaleString()} {sharesOwned === 1 ? 'share' : 'shares'} of {displaySymbol}
+                  </p>
+                )}
               </div>
-            )}
+              <div className="text-right">
+                <p className="text-sm text-gray-500 mr-2">Status</p>
+                <p className="text-green-600 font-medium mr-2 animate-pulse">Live</p>
+              </div>
+            </div>
+          </div>
+        )}
 
           {/* Error Handling */}
           {error && 
@@ -272,12 +278,11 @@ const handleSubmitOrder = async () => {
                         ? 'bg-red-600 text-white border-red-600 hover:bg-red-600 hover:border-red-600' 
                         : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-red-600 hover:text-white hover:border-red-600'}`}
                     onClick={() => setAction('sell')}
+                    disabled={sharesOwned <= 0}
+                    title={sharesOwned <= 0 ? "You don't own any shares to sell" : ""}
                   >
                     Sell
                   </Button>
-                </div>
-                <div className="mt-4 text-sm text-gray-600">
-                  You own {sharesOwned.toLocaleString()} {sharesOwned === 1 ? 'share' : 'shares'} of {displaySymbol}
                 </div>
               </div>
             )}
@@ -312,16 +317,17 @@ const handleSubmitOrder = async () => {
                 }}
                 step="1"  // Only allow whole numbers
               />
-              {action === 'sell' && sharesOwned > 0 && (
-                <p className="text-sm text-gray-500 mt-1">
-                  Maximum available to sell: {sharesOwned} shares
-                </p>
-              )}
               {action === 'buy' && price && quantity && (price * Number(quantity)) > availableCash && (
                 <div className="flex items-center text-red-500 mt-6">
                   <AlertCircle className="mr-2 h-5 w-5" />
                   <span>Insufficient available cash to complete the trade</span>
                 </div>
+              )}
+              {action === 'sell' && quantity && Number(quantity) > sharesOwned && (
+              <div className="flex items-center text-red-500 mt-6">
+                <AlertCircle className="mr-2 h-5 w-5" />
+                <span>You can sell up to {sharesOwned.toLocaleString()} shares</span>
+              </div>
               )}
             </div>
           )}
@@ -401,16 +407,16 @@ const handleSubmitOrder = async () => {
                   </div>
                   <div className="flex justify-between">
                     <span>Quantity:</span>
-                    <span className="font-semibold">{quantity}</span>
+                    <span className="font-semibold">{Number(quantity).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Price per Share:</span>
-                    <span className="font-semibold">${price?.toFixed(2) || '0.00'} USD</span>
+                    <span className="font-semibold">{formatMoney(price)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Total Value:</span>
                     <span className="font-bold text-lg">
-                      ${price && quantity ? (price * Number(quantity)).toFixed(2) : '0.00'} USD
+                      {formatMoney(price * Number(quantity))}
                     </span>
                   </div>
                 </div>
