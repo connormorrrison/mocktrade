@@ -47,14 +47,14 @@ export default function TradePage() {
       ]);
   
       if (!priceResponse.ok) {
-        throw new Error('Invalid stock symbol');
+        throw new Error('Invalid symbol');
       }
   
       const priceData = await priceResponse.json();
       
       // Check if price is 0 and treat it as invalid
       if (priceData.current_price === 0) {
-        throw new Error('Invalid stock symbol');
+        throw new Error('Invalid symbol');
       }
       
       setPrice(priceData.current_price);
@@ -78,28 +78,6 @@ export default function TradePage() {
   
 
 const handleSubmitOrder = async () => {
-  // Basic input validation
-  if (!symbol.trim()) {
-    setError('Please enter a valid symbol');
-    return;
-  }
-  if (!symbol.match(/^[A-Za-z]+$/)) {
-    setError('Symbol must contain only letters');
-    return;
-  }
-  if (!quantity || quantity <= 0) {
-    setError('Please enter a valid quantity');
-    return;
-  }
-  if (!price) {
-    setError('Please search for a valid stock symbol first');
-    return;
-  }
-  if (!action) {
-    setError('Please select buy or sell');
-    return;
-  }
- 
   const totalValue = price * Number(quantity);
  
   if (action === 'buy' && totalValue > availableCash) {
@@ -259,79 +237,96 @@ const handleSubmitOrder = async () => {
               </div>
             )}
 
-            {/* Error Handling */}
-            {error && (
-              <div className="flex items-center text-red-500 mb-4">
-                <AlertCircle className="mr-2 h-5 w-5" />
-                <span>{error}</span>
-              </div>
-            )}
+          {/* Error Handling */}
+          {error && 
+            error !== 'Insufficient cash to complete the trade' && 
+            error !== 'Please enter a valid quantity' && (
+            <div className="flex items-center text-red-500 mb-4" style={{ marginTop: '24px' }}>
+              <AlertCircle className="mr-2 h-5 w-5" />
+              <span>{error}</span>
+            </div>
+          )}
             
 
             {/* Action Section */}
             {price && !error && (
               <div>
-                <label className="block text-sm text-gray-500 mb-2 -mt-2">Action</label>
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline"
-                    className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
-                      ${action === 'buy' 
-                        ? 'bg-green-600 text-white border-green-600 hover:bg-green-600 hover:border-green-600' 
-                        : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-green-600 hover:text-white hover:border-green-600'}`}
-                    onClick={() => setAction('buy')}
-                  >
-                    Buy
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
-                      ${action === 'sell' 
-                        ? 'bg-red-600 text-white border-red-600 hover:bg-red-600 hover:border-red-600' 
-                        : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-red-600 hover:text-white hover:border-red-600'}`}
-                    onClick={() => setAction('sell')}
-                  >
-                    Sell
-                  </Button>
-                </div>
-              </div>
-            )}
+                          <label className="block text-sm text-gray-500 mb-2 -mt-2">Action</label>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline"
+                              className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
+                                ${action === 'buy' 
+                                  ? 'bg-green-600 text-white border-green-600 hover:bg-green-600 hover:border-green-600' 
+                                  : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-green-600 hover:text-white hover:border-green-600'}`}
+                              onClick={() => setAction('buy')}
+                            >
+                              Buy
+                            </Button>
+                            <Button 
+                              variant="outline"
+                              className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
+                                ${action === 'sell' 
+                                  ? 'bg-red-600 text-white border-red-600 hover:bg-red-600 hover:border-red-600' 
+                                  : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-red-600 hover:text-white hover:border-red-600'}`}
+                              onClick={() => setAction('sell')}
+                            >
+                              Sell
+                            </Button>
+                          </div>
+                        </div>)}
 
             {/* Order Form */}
             <div className="flex flex-col space-y-6 h-full">
-              {/* Quantity Input */}
-              {action && (
-                <div>
-                  <label className="block text-sm text-gray-500 mb-2 -mt-2">Quantity</label>
-                  <Input 
-                    type="number" 
-                    placeholder="0" 
-                    className="text-lg"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                    min="0"
-                  />
-                  {action === 'sell' && sharesOwned > 0 && (
-                    <p className="text-sm text-gray-500 mt-1">
-                      Maximum available to sell: {sharesOwned} shares
-                    </p>
-                  )}
-                </div>
+
+           {/* Quantity Input with Error Message */}
+          {action && (
+            <div>
+              <label className="block text-sm text-gray-500 mb-2 -mt-2">Quantity</label>
+              <Input 
+                type="number" 
+                className="text-lg"
+                value={quantity || ''}
+                placeholder=""
+                onChange={(e) => {
+                  // Allow any number including negative, but keep as whole numbers
+                  const value = Math.floor(Number(e.target.value));
+                  if (e.target.value === '') {
+                    setQuantity('');
+                  } else {
+                    setQuantity(value.toString());
+                  }
+                  setError(null);
+                }}
+                onKeyDown={(e) => {
+                  // Prevent decimal point
+                  if (e.key === '.') {
+                    e.preventDefault();
+                  }
+                }}
+                step="1"  // Only allow whole numbers
+              />
+              {action === 'sell' && sharesOwned > 0 && (
+                <p className="text-sm text-gray-500 mt-1">
+                  Maximum available to sell: {sharesOwned} shares
+                </p>
               )}
+            </div>
+          )}
 
               {/* Order Summary */}
               <div className="space-y-1 pt-4 border-t">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-500">Order</span>
                   <span className="font-medium">
-                    {action && quantity && symbol 
-                      ? `${action.charAt(0).toUpperCase() + action.slice(1)} ${Number(quantity).toLocaleString()} ${Number(quantity) === 1 ? 'share' : 'shares'} at Market`
-                      : 'N/A'}
+                  {action && quantity && symbol && Number(quantity) > 0
+                    ? `${action.charAt(0).toUpperCase() + action.slice(1)} ${Number(quantity).toLocaleString()} ${Number(quantity) === 1 ? 'share' : 'shares'} at Market`
+                    : 'N/A'}
                   </span>
 
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500">Market Price</span>
+                  <span className="text-gray-500">Price per Share</span>
                   <span className="font-medium">
                     {price ? formatMoney(price) : formatMoney(0)}
                   </span>
@@ -343,11 +338,13 @@ const handleSubmitOrder = async () => {
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500">Total Value</span>
-                  <span className="text-xl font-bold">
-                  {price && quantity ? formatMoney(price * Number(quantity)) : formatMoney(0)}
-                  </span>
-                </div>
+                <span className="text-gray-500">Total Value</span>
+                <span className="text-xl font-bold">
+                  {price && quantity && Number(quantity) > 0 
+                    ? formatMoney(price * Number(quantity)) 
+                    : formatMoney(0)}
+                </span>
+              </div>
               </div>
 
 
@@ -355,7 +352,7 @@ const handleSubmitOrder = async () => {
               <Button 
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-2"
                 onClick={handleSubmitOrder}
-                disabled={!symbol || !quantity || !price}
+                disabled={!symbol || !quantity || !price || Number(quantity) < 1 || !Number.isInteger(Number(quantity))}
               >
                 Submit Order
               </Button>
