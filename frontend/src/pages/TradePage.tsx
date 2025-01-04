@@ -22,6 +22,7 @@ export default function TradePage() {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [displaySymbol, setDisplaySymbol] = useState(''); // New state to hold the symbol for price display
   const [availableCash, setAvailableCash] = useState(5000); // Initial cash balance
+  const [sharesOwned, setSharesOwned] = useState(0);
 
   const fetchStockPrice = async () => {
     if (!symbol) {
@@ -34,22 +35,38 @@ export default function TradePage() {
   
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8000/api/v1/stocks/quote/${symbol.toUpperCase()}`, {
+      // Fetch stock price
+      const priceResponse = await fetch(`http://localhost:8000/api/v1/stocks/quote/${symbol.toUpperCase()}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
   
-      if (!response.ok) {
+      if (!priceResponse.ok) {
         throw new Error('Invalid stock symbol');
       }
   
-      const data = await response.json();
-      setPrice(data.current_price);
-      setDisplaySymbol(symbol.toUpperCase()); // Set displaySymbol to the successfully fetched symbol
+      const priceData = await priceResponse.json();
+      setPrice(priceData.current_price);
+      setDisplaySymbol(symbol.toUpperCase());
+  
+      // Fetch shares owned
+      const portfolioResponse = await fetch(`http://localhost:8000/api/v1/trading/portfolio/${symbol.toUpperCase()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (portfolioResponse.ok) {
+        const portfolioData = await portfolioResponse.json();
+        setSharesOwned(portfolioData.shares || 0);
+      } else {
+        setSharesOwned(0);
+      }
     } catch (err) {
       setError(err.message || 'Unable to fetch stock price');
       setPrice(null);
+      setSharesOwned(0);
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +86,12 @@ export default function TradePage() {
       return;
     }
   
-    setError(null); // Clear any existing errors
+    if (action === 'sell' && Number(quantity) > sharesOwned) {
+      setError('Insufficient shares to complete the sale');
+      return;
+    }
+  
+    setError(null);
     setIsConfirmDialogOpen(true);
   };
 
@@ -94,16 +116,30 @@ export default function TradePage() {
         throw new Error(errorData.detail || 'Trade failed');
       }
   
-      // Deduct total value from available cash
       const totalValue = price * Number(quantity);
-      setAvailableCash((prevCash) => prevCash - totalValue);
+      
+      // Update available cash and shares owned
+      setAvailableCash((prevCash) => {
+        if (action === 'buy') {
+          return prevCash - totalValue;
+        } else {
+          return prevCash + totalValue;
+        }
+      });
   
-      // Clear form and show success
+      setSharesOwned((prevShares) => {
+        if (action === 'buy') {
+          return prevShares + Number(quantity);
+        } else {
+          return prevShares - Number(quantity);
+        }
+      });
+  
       setSymbol('');
       setQuantity('');
       setPrice(null);
+      setAction(null); // Add this line to reset the action
       setIsConfirmDialogOpen(false);
-      alert('Order executed successfully!'); // Replace with better notification
     } catch (err) {
       setError(err.message || 'Failed to execute trade');
     }
@@ -132,6 +168,7 @@ export default function TradePage() {
                   if (!newValue) { // If input is cleared
                     setPrice(null); // Clear the price
                     setError(null); // Clear any errors
+                    setAction(null); // Reset the action
                   }
                 }}
                 onKeyDown={(e) => {
@@ -151,22 +188,26 @@ export default function TradePage() {
             </div>
           </div>
 
-            {/* Stock Price Display - Shows up after search */}
+            {/* Stock Price and Shares Owned Display */}
             {price && !error && (
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg transition-all duration-200 ease-in-out">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm text-gray-500 ml-2">Market Price for {displaySymbol}</p> {/* Use displaySymbol */}
-                  <p className="text-2xl font-bold ml-2">${price} USD</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-gray-500 mr-2">Status</p>
-                  <p className="text-green-600 font-medium mr-2 animate-pulse">Live</p>
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg transition-all duration-200 ease-in-out">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-sm text-gray-500 ml-2">Market Price for {displaySymbol}</p>
+                    <p className="text-2xl font-bold ml-2">${price} USD</p>
+                    {sharesOwned > 0 && (
+                      <p className="text-sm text-gray-600 ml-2 mt-1">
+                        You own {sharesOwned} shares
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-gray-500 mr-2">Status</p>
+                    <p className="text-green-600 font-medium mr-2 animate-pulse">Live</p>
+                  </div>
                 </div>
               </div>
-            </div>
-)}
-
+            )}
 
             {/* Error Handling */}
             {error && (
@@ -178,46 +219,55 @@ export default function TradePage() {
             
 
             {/* Action Section */}
-            <div>
-              <label className="block text-sm text-gray-500 mb-2">Action</label>
-              <div className="flex gap-2">
-              <Button 
-                  variant="outline"
-                  className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
-                    ${action === 'buy' 
-                      ? 'bg-green-600 text-white border-green-600 hover:bg-green-600 hover:border-green-600' 
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-green-600 hover:text-white hover:border-green-600'}`}
-                  onClick={() => setAction('buy')}
-                >
-                  Buy
-                </Button>
-                <Button 
-                  variant="outline"
-                  className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
-                    ${action === 'sell' 
-                      ? 'bg-red-600 text-white border-red-600 hover:bg-red-600 hover:border-red-600' 
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-red-600 hover:text-white hover:border-red-600'}`}
-                  onClick={() => setAction('sell')}
-                >
-                  Sell
-                </Button>
+            {price && !error && (
+              <div>
+                <label className="block text-sm text-gray-500 mb-2">Action</label>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline"
+                    className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
+                      ${action === 'buy' 
+                        ? 'bg-green-600 text-white border-green-600 hover:bg-green-600 hover:border-green-600' 
+                        : 'bg-white text-gray-700 border-gray-300 hover:bg-green-600 hover:text-white hover:border-green-600'}`}
+                    onClick={() => setAction('buy')}
+                  >
+                    Buy
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
+                      ${action === 'sell' 
+                        ? 'bg-red-600 text-white border-red-600 hover:bg-red-600 hover:border-red-600' 
+                        : 'bg-white text-gray-700 border-gray-300 hover:bg-red-600 hover:text-white hover:border-red-600'}`}
+                    onClick={() => setAction('sell')}
+                  >
+                    Sell
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Order Form */}
             <div className="flex flex-col space-y-6 h-full">
               {/* Quantity Input */}
-              <div>
-                <label className="block text-sm text-gray-500 mb-2">Quantity</label>
-                <Input 
-                  type="number" 
-                  placeholder="0" 
-                  className="text-lg"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                  min="0"
-                />
-              </div>
+              {action && (
+                <div>
+                  <label className="block text-sm text-gray-500 mb-2">Quantity</label>
+                  <Input 
+                    type="number" 
+                    placeholder="0" 
+                    className="text-lg"
+                    value={quantity}
+                    onChange={(e) => setQuantity(e.target.value)}
+                    min="0"
+                  />
+                  {action === 'sell' && sharesOwned > 0 && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      Maximum available to sell: {sharesOwned} shares
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Order Summary */}
               <div className="space-y-2 pt-4 border-t">
