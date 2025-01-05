@@ -209,7 +209,7 @@ export default function TransactionsPage() {
 
               {/* Transactions Table */}
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
+                <table className="min-w-full divide-y divide-gray-200 border-4 border-gray-200 rounded-xl overflow-hidden">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-4 py-2 text-left text-base font-semibold text-gray-700">ID</th>

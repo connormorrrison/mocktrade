@@ -203,7 +203,7 @@ export default function PortfolioPage() {
                       return (
                         <div
                           key={position.symbol}
-                          className="flex justify-between items-center p-4 bg-gray-50 rounded-lg"
+                          className="flex justify-between items-center p-4 bg-gray-50 rounded-lg border border-gray-200"
                         >
                           <div>
                             <p className="font-medium ml-4">{position.symbol}</p>
