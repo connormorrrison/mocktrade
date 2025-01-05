@@ -277,7 +277,7 @@ export default function DashboardPage() {
   
         <Profile />
 
-        <footer className="w-full py-4 text-center text-sm text-gray-600 bg-gray-50">
+        <footer className="w-full py-4 text-center text-base text-gray-600 bg-gray-50">
           © 2025 MockTrade
         </footer>
       </div>

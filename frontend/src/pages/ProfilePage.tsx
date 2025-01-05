@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Eye, EyeOff } from "lucide-react";
 
 interface UserProfile {
   first_name: string;
@@ -34,6 +35,11 @@ export default function ProfilePage() {
     current: '',
     new: '',
     confirm: ''
+  });
+  const [passwordVisibility, setPasswordVisibility] = useState({
+    current: false,
+    new: false,
+    confirm: false
   });
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
@@ -125,6 +131,13 @@ export default function ProfilePage() {
     } catch (err) {
       setPasswordError(err instanceof Error ? err.message : 'Failed to change password');
     }
+  };
+
+  const togglePasswordVisibility = (field: keyof typeof passwordVisibility) => {
+    setPasswordVisibility(prev => ({
+      ...prev,
+      [field]: !prev[field]
+    }));
   };
 
   if (isLoading) {
@@ -230,7 +243,7 @@ export default function ProfilePage() {
             <div>
               <h3 className="text-xl font-medium mb-4">Account Details</h3>
               <div>
-                <label className="block text-base text-gray-500 mb-2">Joined Date</label>
+                <label className="block text-base text-gray-500 mb-2">Joined</label>
                 <p className="text-gray-900 text-base">
                   {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', {
                       month: 'long',
@@ -268,47 +281,89 @@ export default function ProfilePage() {
           </DialogHeader>
 
           {passwordError && (
-            <div className="flex items-center text-red-500 mb-4">
+            <div className="flex items-center text-red-500">
               <AlertCircle className="mr-2 h-5 w-5" />
               <span>{passwordError}</span>
             </div>
           )}
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-base text-gray-500 mb-2">Current Password</label>
-              <Input
-                type="password"
-                value={passwords.current}
-                onChange={(e) => setPasswords(prev => ({
-                  ...prev,
-                  current: e.target.value
-                }))}
-              />
-            </div>
-            <div>
-              <label className="block text-base text-gray-500 mb-2">New Password</label>
-              <Input
-                type="password"
-                value={passwords.new}
-                onChange={(e) => setPasswords(prev => ({
-                  ...prev,
-                  new: e.target.value
-                }))}
-              />
-            </div>
-            <div>
-              <label className="block text-base text-gray-500 mb-2">Confirm New Password</label>
-              <Input
-                type="password"
-                value={passwords.confirm}
-                onChange={(e) => setPasswords(prev => ({
-                  ...prev,
-                  confirm: e.target.value
-                }))}
-              />
-            </div>
-          </div>
+<div className="space-y-4">
+  <div>
+    <label className="block text-base text-gray-500 mb-2">Current Password</label>
+    <div className="relative">
+      <Input
+        type={passwordVisibility.current ? "text" : "password"}
+        value={passwords.current}
+        onChange={(e) => setPasswords(prev => ({
+          ...prev,
+          current: e.target.value
+        }))}
+        className="w-full pr-10"
+      />
+      <span
+        onClick={() => togglePasswordVisibility('current')}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 cursor-pointer"
+        aria-label={passwordVisibility.current ? "Hide password" : "Show password"}
+      >
+        {passwordVisibility.current ? (
+          <EyeOff className="h-4 w-4" />
+        ) : (
+          <Eye className="h-4 w-4" />
+        )}
+      </span>
+    </div>
+  </div>
+  <div>
+    <label className="block text-base text-gray-500 mb-2">New Password</label>
+    <div className="relative">
+      <Input
+        type={passwordVisibility.new ? "text" : "password"}
+        value={passwords.new}
+        onChange={(e) => setPasswords(prev => ({
+          ...prev,
+          new: e.target.value
+        }))}
+        className="w-full pr-10"
+      />
+      <span
+        onClick={() => togglePasswordVisibility('new')}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 cursor-pointer"
+        aria-label={passwordVisibility.new ? "Hide password" : "Show password"}
+      >
+        {passwordVisibility.new ? (
+          <EyeOff className="h-4 w-4" />
+        ) : (
+          <Eye className="h-4 w-4" />
+        )}
+      </span>
+    </div>
+  </div>
+  <div>
+    <label className="block text-base text-gray-500 mb-2">Confirm New Password</label>
+    <div className="relative">
+      <Input
+        type={passwordVisibility.confirm ? "text" : "password"}
+        value={passwords.confirm}
+        onChange={(e) => setPasswords(prev => ({
+          ...prev,
+          confirm: e.target.value
+        }))}
+        className="w-full pr-10"
+      />
+      <span
+        onClick={() => togglePasswordVisibility('confirm')}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 cursor-pointer"
+        aria-label={passwordVisibility.confirm ? "Hide password" : "Show password"}
+      >
+        {passwordVisibility.confirm ? (
+          <EyeOff className="h-4 w-4" />
+        ) : (
+          <Eye className="h-4 w-4" />
+        )}
+      </span>
+    </div>
+  </div>
+</div>
 
           <DialogFooter>
             <Button 
