@@ -23,7 +23,7 @@ export default function TradePage() {
   const [error, setError] = useState(null);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [displaySymbol, setDisplaySymbol] = useState(''); // New state to hold the symbol for price display
-  const [availableCash, setAvailableCash] = useState(5000); // Initial cash balance
+  const [availableCash, setAvailableCash] = useState(null); // Initial cash balance
   const [sharesOwned, setSharesOwned] = useState(0);
 
   // useEffect goes here, after state declarations
@@ -234,7 +234,7 @@ const handleSubmitOrder = async () => {
                   {formatMoney(price)}
                 </p>
                 {sharesOwned > 0 && (
-                  <p className="text-base text-gray-600 ml-2">
+                  <p className="text-base text-gray-500 ml-2">
                     You own {sharesOwned.toLocaleString()} {sharesOwned === 1 ? 'share' : 'shares'} of {displaySymbol}
                   </p>
                 )}
@@ -322,7 +322,7 @@ const handleSubmitOrder = async () => {
               {action === 'buy' && price && quantity && (price * Number(quantity)) > availableCash && (
                 <div className="flex items-center text-red-500 mt-6">
                   <AlertCircle className="mr-2 h-5 w-5" />
-                  <span>Insufficient available cash to complete the trade</span>
+                  <span>Insufficient cash available to complete transaction</span>
                 </div>
               )}
               {action === 'sell' && quantity && Number(quantity) > sharesOwned && (
@@ -352,7 +352,7 @@ const handleSubmitOrder = async () => {
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500">Available Cash</span>
+                  <span className="text-gray-500">Cash Available</span>
                   <span className="font-medium">
                     {formatMoney(availableCash)}
                   </span>

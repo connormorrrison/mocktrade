@@ -149,62 +149,71 @@ export default function DashboardPage() {
   const renderContent = () => {
     switch (currentPage) {
       case 'home':
-        return (
-          <div className="flex flex-col justify-center items-center h-full">
-            <h1 className="text-4xl text-center font-normal text-blue-700 mb-4">
-              Welcome back, {userData.first_name}
-            </h1>
-            <p className="text-gray-700 text-center text-lg font-normal">
-              Today is {new Date().toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-            </p>
-            
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg font-medium">Dow Jones Industrial Average</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
-                  <p className="text-3xl font-normal">
-                    {isIndexLoading ? 'Loading...' : formatMoney(dow)}
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg font-medium">S&P 500</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
-                  <p className="text-3xl font-normal">
-                    {isIndexLoading ? 'Loading...' : formatMoney(spx)}
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg font-medium">Nasdaq Composite</CardTitle>  
-                </CardHeader>
-                <CardContent>
-                  <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
-                  <p className="text-3xl font-normal">
-                    {isIndexLoading ? 'Loading...' : formatMoney(nasdaq)}
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {indexError && (
-              <p className="text-red-600 mt-4">
-                {indexError}
-              </p>
-            )}
+      return (
+        <div className="flex flex-col justify-center items-center h-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl">
+            <Card className="col-span-1 sm:col-span-2 lg:col-span-3">
+              <CardHeader>
+                <CardTitle className="text-4xl text-center font-normal text-blue-700 -mb-2 mt-2">
+                  Welcome back, {userData.first_name}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700 text-center text-lg font-normal mb-2">
+                  Today is {new Date().toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </p>
+              </CardContent>
+            </Card>
           </div>
-        );
+
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-medium">Dow Jones Industrial Average</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
+                <p className="text-3xl font-normal">
+                  {isIndexLoading ? 'Loading...' : formatMoney(dow)}
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-medium">S&P 500</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
+                <p className="text-3xl font-normal">
+                  {isIndexLoading ? 'Loading...' : formatMoney(spx)}
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-medium">Nasdaq Composite</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
+                <p className="text-3xl font-normal">
+                  {isIndexLoading ? 'Loading...' : formatMoney(nasdaq)}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {indexError && (
+            <p className="text-red-600 mt-4">
+              {indexError}
+            </p>
+          )}
+        </div>
+      );
+
       case 'trade':
         return <TradePage />;
       case 'portfolio':
