@@ -1,5 +1,4 @@
 // src/components/Profile.tsx
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
@@ -9,7 +8,7 @@ export default function Profile() {
   const { userData } = useUser();
 
   const handleProfileClick = () => {
-    navigate('../pages/PortfolioPage.tsx');
+    navigate('/profile'); // Changed to use the route path instead of file path
   };
 
   if (!userData) return null;

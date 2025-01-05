@@ -1,5 +1,6 @@
 // src/components/DashboardLayout.tsx
-import React, { useEffect } from 'react';
+
+import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Home, 
@@ -20,7 +21,6 @@ import {
 import { useUser } from '../contexts/UserContext';
 import mockTradeLogo from '../assets/MockTrade-logo-v1-size1.001.png';
 import Profile from '@/components/Profile';
-
 
 const menuItems = [
   {
@@ -55,60 +55,39 @@ const menuItems = [
   }
 ];
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { userData, refreshUserData } = useUser();
-  
-    // Add useEffect for initial data fetch
-    useEffect(() => {
-      console.log('DashboardLayout: Component mounted');
-      const fetchData = async () => {
-        console.log('DashboardLayout: Fetching user data');
-        try {
-          await refreshUserData();
-        } catch (error) {
-          console.error('DashboardLayout: Error fetching user data:', error);
-        }
-      };
-      fetchData();
-    }, []);
-  
-    useEffect(() => {
-      console.log('DashboardLayout: userData changed:', !!userData);
-    }, [userData]);
-  
-    const handleLogout = () => {
-      localStorage.removeItem('token');
-      navigate('/login');
-    };
-  
-    // Add loading state
-    if (!userData) {
-      console.log('DashboardLayout: No userData, showing loading state');
-      return (
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-xl text-gray-500">Loading...</div>
-        </div>
-      );
-    }
-  
-    // ... rest of your render code stays the same ...
+interface DashboardLayoutProps {
+  children: React.ReactNode;
+}
 
-  console.log('DashboardLayout: Rendering layout with userData');
+export default function DashboardLayout({ children }: DashboardLayoutProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { userData } = useUser();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
+  if (!userData) return null;
+
   return (
     <div className="flex w-full min-h-screen bg-gray-50 overflow-hidden">
+      {/* Sidebar */}
       <aside className="w-64 border-r bg-white flex flex-col fixed h-screen">
+        {/* Logo Section */}
         <div className="p-4">
           <div className="flex flex-col items-center justify-center">
             <img 
               src={mockTradeLogo}
               alt="MockTrade" 
-              className="h-30 w-auto" 
+              className="h-30 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => navigate('/home')}
             />
           </div>
         </div>
         
+        {/* Navigation Menu */}
         <nav className="flex-1 p-4">
           <div className="space-y-3">
             <p className="text-base font-medium text-gray-500 mb-2 px-2">Menu</p>
@@ -127,6 +106,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </nav>
         
+        {/* User Menu */}
         <div className="border-t p-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -148,6 +128,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </aside>
   
+      {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-screen ml-64 overflow-y-auto">
         <main className="flex-1 bg-gray-50 w-full p-8">
           {children}
@@ -155,6 +136,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   
         <Profile />
 
+        {/* Footer */}
         <footer className="w-full py-4 text-center text-base text-gray-500 bg-gray-50">
           © 2025 MockTrade
         </footer>
