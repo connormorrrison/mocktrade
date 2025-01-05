@@ -1,3 +1,4 @@
+// src/pages/LoginPage.tsx
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,17 +19,25 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('Login: Starting login process');
     setError('')
     setIsLoading(true)
     try {
+      console.log('Login: Calling auth API');
       const data = await authApi.login(email, password)
+      console.log('Login: Received response from auth API');
       localStorage.setItem('token', data.access_token)
-      navigate('/dashboard')
+      console.log('Login: Token saved to localStorage');
+      console.log('Login: Navigating to /home');
+      navigate('/home')
     } catch (error) {
+      console.error('Login Error:', error);
       setError('Invalid email or password. Please try again.')
       setIsLoading(false)
     }
   }
+
+  // ... rest of your component code stays the same ...
 
   return (
     <div className="flex w-full min-h-screen bg-gray-50 overflow-hidden">

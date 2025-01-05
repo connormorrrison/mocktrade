@@ -1,66 +1,10 @@
-// src/pages/DashboardPage.tsx
+// src/pages/HomePage.tsx
 import React, { useState, useEffect } from 'react';
-import { 
-  Home, 
-  PieChart, 
-  ArrowRightLeft, 
-  FileText, 
-  LogOut, 
-  User,
-  ChevronDown 
-} from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUser } from '../contexts/UserContext';
-import mockTradeLogo from '../assets/MockTrade-logo-v1-size1.001.png';
-import TradePage from './TradePage';
-import PortfolioPage from './PortfolioPage';
-import TransactionPage from './TransactionsPage';
-import ProfilePage from './ProfilePage';
-import Profile from '@/components/Profile';
 
-const menuItems = [
-  {
-    title: "Home",
-    icon: Home,
-    page: 'home',
-    className: 'font-normal'
-  },
-  {
-    title: "Portfolio",
-    icon: PieChart,
-    page: 'portfolio',
-    className: 'font-normal'
-  },
-  {
-    title: "Trade",
-    icon: ArrowRightLeft,
-    page: 'trade',
-    className: 'font-normal'
-  },
-  {
-    title: "Transactions",
-    icon: FileText,
-    page: 'transactions',
-    className: 'font-normal'
-  },
-  {
-    title: "Profile",
-    icon: User,
-    page: 'profile',
-    className: 'font-normal'
-  }
-];
-
-export default function DashboardPage() {
+export default function HomePage() {
   const { userData, refreshUserData } = useUser();
-  const [currentPage, setCurrentPage] = useState('home');
   const [dow, setDow] = useState<number | null>(null);
   const [spx, setSpx] = useState<number | null>(null);
   const [nasdaq, setNasdaq] = useState<number | null>(null);
@@ -139,157 +83,70 @@ export default function DashboardPage() {
     }).format(value)} ${currency}`;
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
-  };
-
-  if (!userData) return <div></div>;
-
-  const renderContent = () => {
-    switch (currentPage) {
-      case 'home':
-      return (
-        <div className="flex flex-col justify-center items-center h-full">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl">
-            <Card className="col-span-1 sm:col-span-2 lg:col-span-3 hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="text-4xl text-center font-normal text-blue-700 -mb-2 mt-2">
-                  Welcome back, {userData.first_name}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 text-center text-lg font-normal mb-2">
-                  Today is {new Date().toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="text-lg font-medium">DJIA (^DJI)</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
-                <p className="text-3xl font-normal">
-                  {isIndexLoading ? 'Loading...' : formatMoney(dow)}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="text-lg font-medium">S&P 500 (^GSPC)</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
-                <p className="text-3xl font-normal">
-                  {isIndexLoading ? 'Loading...' : formatMoney(spx)}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="text-lg font-medium">Nasdaq Composite (^IXIC)</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
-                <p className="text-3xl font-normal">
-                  {isIndexLoading ? 'Loading...' : formatMoney(nasdaq)}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {indexError && (
-            <p className="text-red-600 mt-4">
-              {indexError}
-            </p>
-          )}
-        </div>
-      );
-
-      case 'trade':
-        return <TradePage />;
-      case 'portfolio':
-        return <PortfolioPage />;
-      case 'transactions':
-        return <TransactionPage />;
-      case 'profile':
-        return <ProfilePage />;
-      default:
-        return null;
-    }
-  };
+  if (!userData) return null;
 
   return (
-    <div className="flex w-full min-h-screen bg-gray-50 overflow-hidden">
-      <aside className="w-64 border-r bg-white flex flex-col fixed h-screen">
-        <div className="p-4">
-          <div className="flex flex-col items-center justify-center">
-            <img 
-              src={mockTradeLogo}
-              alt="MockTrade" 
-              className="h-30 w-auto" 
-            />
-          </div>
-        </div>
-        
-        <nav className="flex-1 p-4">
-          <div className="space-y-3">
-            <p className="text-base font-medium text-gray-500 mb-2 px-2">Menu</p>
-            {menuItems.map((item) => (
-              <Button
-                key={item.title}
-                className={`w-full justify-start bg-white text-gray-700 text-base hover:bg-blue-100 hover:shadow-lg transition-shadow ${item.className} ${
-                  currentPage === item.page ? "bg-blue-100 font-medium" : ""
-                }`}
-                onClick={() => setCurrentPage(item.page)}
-              >
-                <item.icon className="mr-2 h-4 w-4" />
-                <span>{item.title}</span>
-              </Button>
-            ))}
-          </div>
-        </nav>
-        
-        <div className="border-t p-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-full flex items-center justify-between">
-                <div className="flex items-center">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>{userData.first_name} {userData.last_name}</span>
-                </div>
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Logout</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </aside>
-  
-      <div className="flex-1 flex flex-col min-h-screen ml-64 overflow-y-auto">
-        <main className="flex-1 bg-gray-50 w-full p-8">
-          {renderContent()}
-        </main>
-  
-        <Profile />
-
-        <footer className="w-full py-4 text-center text-base text-gray-500 bg-gray-50">
-          © 2025 MockTrade
-        </footer>
+    <div className="flex flex-col justify-center items-center h-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl">
+        <Card className="col-span-1 sm:col-span-2 lg:col-span-3 hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="text-4xl text-center font-normal text-blue-700 -mb-2 mt-2">
+              Welcome back, {userData.first_name}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-700 text-center text-lg font-normal mb-2">
+              Today is {new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </p>
+          </CardContent>
+        </Card>
       </div>
+
+      <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl">
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="text-lg font-medium">DJIA (^DJI)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
+            <p className="text-3xl font-normal">
+              {isIndexLoading ? 'Loading...' : formatMoney(dow)}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="text-lg font-medium">S&P 500 (^GSPC)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
+            <p className="text-3xl font-normal">
+              {isIndexLoading ? 'Loading...' : formatMoney(spx)}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="text-lg font-medium">Nasdaq Composite (^IXIC)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
+            <p className="text-3xl font-normal">
+              {isIndexLoading ? 'Loading...' : formatMoney(nasdaq)}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {indexError && (
+        <p className="text-red-600 mt-4">
+          {indexError}
+        </p>
+      )}
     </div>
   );
 }
