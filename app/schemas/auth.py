@@ -1,5 +1,4 @@
 # app/schemas/auth.py
-
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 
@@ -22,6 +21,12 @@ class UserCreate(UserBase):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+class UserUpdate(BaseModel):
+    email: EmailStr
+    username: str
+    first_name: str
+    last_name: str
 
 class User(UserBase):
     id: int

@@ -19,6 +19,8 @@ import {
 import mockTradeLogo from '../assets/MockTrade-logo-v1-size1.001.png';
 import TradePage from './TradePage'; // Import the TradePage component
 import PortfolioPage from './PortfolioPage';
+import TransactionPage from './TransactionPage';
+import ProfilePage from './ProfilePage';
 
 // 1) Import the Profile component
 import Profile from '@/components/Profile'; 
@@ -88,15 +90,21 @@ export default function DashboardPage() {
     window.location.href = '/login';
   };
 
-  if (!userData) return <div>Loading...</div>;
+  if (!userData) return <div></div>;
 
   const renderContent = () => {
     switch (currentPage) {
       case 'home':
         return (
           <div className="flex flex-col justify-center items-center h-full">
-            <h1 className="text-4xl text-center font-normal text-blue-600 mb-4">Welcome back, {userData.first_name}</h1>
-            <p className="text-center text-lg text-gray-600">Happy trading</p>
+            <h1 className="text-4xl text-center font-normal text-blue-700 mb-4">Welcome back, {userData.first_name}</h1>
+            <p className="text-center text-lg text-gray-600">
+              Today is {new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
+              </p>
           </div>
         );
       case 'trade':
@@ -104,9 +112,9 @@ export default function DashboardPage() {
       case 'portfolio':
         return <PortfolioPage />;
       case 'transactions':
-        return <div>Transactions content coming soon</div>;
+        return <TransactionPage />;
       case 'profile':
-        return <div>Profile content coming soon</div>;
+        return <ProfilePage />;
       default:
         return null;
     }

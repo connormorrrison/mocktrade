@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface ProfileProps {
   firstName: string;
@@ -8,8 +9,17 @@ interface ProfileProps {
 }
 
 export default function Profile({ firstName, lastName, username, profileImageUrl }: ProfileProps) {
+  const navigate = useNavigate();
+
+  const handleProfileClick = () => {
+    navigate('../pages/PortfolioPage.tsx');
+  };
+
   return (
-    <div className="absolute top-6 right-6">
+    <div 
+      className="absolute top-4 right-4 cursor-pointer hover:bg-gray-100 rounded-lg p-2 transition-colors duration-200"
+      onClick={handleProfileClick}
+    >
       <div className="flex items-center space-x-2">
         <div className="flex flex-col items-end">
           <span className="text-sm font-medium text-gray-700">{firstName} {lastName}</span>

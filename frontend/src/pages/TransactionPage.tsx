@@ -1,228 +1,218 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, AlertCircle } from "lucide-react";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogDescription,
-  DialogFooter 
-} from "@/components/ui/dialog";
+import { AlertCircle } from "lucide-react";
 
-export default function TradePage() {
-  const [symbol, setSymbol] = useState('');
-  const [action, setAction] = useState('buy');
-  const [quantity, setQuantity] = useState('');
-  const [price, setPrice] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+// Define your transaction data structure
+interface Transaction {
+  transaction_id: string;
+  date: string;
+  transaction_type: 'Buy' | 'Sell';
+  symbol: string;
+  company: string;
+  shares: number;
+  price: number;
+  total: number;
+}
 
-  const fetchStockPrice = async () => {
-    if (!symbol) {
-      setError('Please enter a stock symbol');
-      return;
-    }
+export default function TransactionsPage() {
+  // State for transactions
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // State for filters
+  const [fromDate, setFromDate] = useState<string>('');
+  const [toDate, setToDate] = useState<string>('');
+  const [filter, setFilter] = useState<'All' | 'Buy' | 'Sell'>('All');
+
+  useEffect(() => {
+    fetchTransactions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Example fetch function (replace with your actual API endpoint)
+  const fetchTransactions = async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      // Simulated price fetching - replace with actual API call
-      const response = await fetch(`/api/stock-price?symbol=${symbol}`);
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:8000/api/v1/trading/transactions', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       if (!response.ok) {
-        throw new Error('Failed to fetch stock price');
+        throw new Error('Failed to fetch transactions');
       }
+
       const data = await response.json();
-      setPrice(data.price);
+
+      // Validate/transform data as needed
+      const validTransactions = (data.transactions || []).map((tx: any) => ({
+        transaction_id: tx.transaction_id || '',
+        date: tx.date || '',
+        transaction_type: tx.transaction_type || '',
+        symbol: tx.symbol || '',
+        company: tx.company || '',
+        shares: typeof tx.shares === 'number' ? tx.shares : 0,
+        price: typeof tx.price === 'number' ? tx.price : 0,
+        total: typeof tx.total === 'number' ? tx.total : 0,
+      }));
+
+      setTransactions(validTransactions);
     } catch (err) {
-      setError(err.message || 'Unable to fetch stock price');
-      setPrice(null);
+      console.error('Error fetching transactions:', err);
+      setError('Unable to load transactions');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSubmitOrder = () => {
-    // Validate order
-    if (!symbol || !quantity || quantity <= 0 || !price) {
-      setError('Please complete all order details');
-      return;
-    }
+  // Optional: Filter transactions client-side based on date range and buy/sell
+  const filteredTransactions = transactions.filter((tx) => {
+    // Date filtering
+    const txDate = new Date(tx.date);
+    const from = fromDate ? new Date(fromDate) : null;
+    const to = toDate ? new Date(toDate) : null;
 
-    // Open confirmation dialog
-    setIsConfirmDialogOpen(true);
+    if (from && txDate < from) return false;
+    if (to && txDate > to) return false;
+
+    // Type filtering
+    if (filter !== 'All' && tx.transaction_type !== filter) return false;
+
+    return true;
+  });
+
+  // Placeholder export function (CSV, Excel, PDF, etc.)
+  const handleExport = () => {
+    // Implement your export logic here
+    alert('Export functionality is not yet implemented.');
   };
 
-  const confirmOrder = () => {
-    // Actual order submission logic would go here
-    console.log('Submitting order', { symbol, action, quantity, price });
-    // Reset form or show success message
-    setIsConfirmDialogOpen(false);
-    // Reset form state
-    setSymbol('');
-    setQuantity('');
-    setPrice(null);
+  // Optional money formatter
+  const formatMoney = (value: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(value);
   };
 
   return (
-    <div className="p-8 w-full">
+    <div className="p-8 w-full mt-6">
       <Card className="w-full">
         <CardHeader>
-          <CardTitle className="text-3xl font-normal">Trade</CardTitle>
+          <CardTitle className="text-3xl font-normal">Transactions</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-6">
-            {/* Search Section */}
-            <div className="flex gap-2 mb-6">
-              <Input 
-                placeholder="Enter symbol (e.g., AAPL)" 
-                value={symbol}
-                onChange={(e) => setSymbol(e.target.value.toUpperCase())}
-                className={error && !symbol ? 'border-red-500' : ''}
-              />
-              <Button 
-                onClick={fetchStockPrice} 
-                disabled={isLoading}
-              >
-                <Search className="mr-2 h-4 w-4" />
-                {isLoading ? 'Searching...' : 'Search'}
-              </Button>
+          {error ? (
+            <div className="flex items-center text-red-500 mb-4">
+              <AlertCircle className="mr-2 h-5 w-5" />
+              <span>{error}</span>
             </div>
-
-            {/* Error Handling */}
-            {error && (
-              <div className="flex items-center text-red-500 mb-4">
-                <AlertCircle className="mr-2 h-5 w-5" />
-                <span>{error}</span>
-              </div>
-            )}
-
-            {/* Action Section */}
-            <div>
-              <label className="block text-sm text-gray-500 mb-2">Action</label>
-              <div className="flex gap-2">
-                <Button 
-                  variant={action === 'buy' ? 'default' : 'outline'}
-                  className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                    action === 'buy' 
-                      ? 'bg-green-600 text-white border-green-700 hover:bg-green-800 focus:ring-green-500' 
-                      : 'bg-white text-green-500 border-green-500 hover:bg-green-50 focus:ring-green-500'
-                  }`}
-                  onClick={() => setAction('buy')}
-                >
-                  Buy
-                </Button>
-                <Button 
-                  variant={action === 'sell' ? 'default' : 'outline'}
-                  className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                    action === 'buy' 
-                      ? 'bg-red-600 text-white border-red-700 hover:bg-red-800 focus:ring-red-500' 
-                      : 'bg-white text-red-500 border-red-500 hover:bg-red-50 focus:ring-red-500'
-                  }`}
-                  onClick={() => setAction('sell')}
-                >
-                  Sell
-                </Button>
-              </div>
-            </div>
-
-            {/* Order Form */}
-            <div className="flex flex-col space-y-6 h-full">
-              {/* Quantity Input */}
-              <div>
-                <label className="block text-sm text-gray-500 mb-2">Quantity</label>
-                <Input 
-                  type="number" 
-                  placeholder="0" 
-                  className="text-lg"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                  min="0"
-                />
-              </div>
-
-              {/* Order Summary */}
-              <div className="space-y-2 pt-4 border-t">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-500">Market Price</span>
-                  <span className="font-medium">
-                    {price ? `$${price.toFixed(2)}` : '$0.00'}
-                  </span>
+          ) : (
+            <div className="space-y-6">
+              {/* Filters Section */}
+              <div className="flex flex-col md:flex-row gap-4">
+                {/* Date Range Pickers */}
+                <div className="flex items-center gap-2">
+                  <label className="text-sm text-gray-500">From:</label>
+                  <Input
+                    type="date"
+                    value={fromDate}
+                    onChange={(e) => setFromDate(e.target.value)}
+                  />
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-500">Total Value</span>
-                  <span className="text-xl font-bold">
-                    {price && quantity 
-                      ? `$${(price * Number(quantity)).toFixed(2)}` 
-                      : '$0.00'}
-                  </span>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm text-gray-500">To:</label>
+                  <Input
+                    type="date"
+                    value={toDate}
+                    onChange={(e) => setToDate(e.target.value)}
+                  />
                 </div>
-              </div>
 
-              {/* Submit Order Button */}
-              <Button 
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-4"
-                onClick={handleSubmitOrder}
-                disabled={!symbol || !quantity || !price}
-              >
-                Submit Order
-              </Button>
-            </div>
-
-            {/* Confirmation Dialog */}
-            <Dialog 
-              open={isConfirmDialogOpen} 
-              onOpenChange={setIsConfirmDialogOpen}
-            >
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Confirm Order</DialogTitle>
-                  <DialogDescription>
-                    Please review your order details before submitting.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <span>Symbol:</span>
-                    <span className="font-semibold">{symbol}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Action:</span>
-                    <span className="font-semibold capitalize">{action}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Quantity:</span>
-                    <span className="font-semibold">{quantity}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Price per Share:</span>
-                    <span className="font-semibold">${price?.toFixed(2) || '0.00'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Total Value:</span>
-                    <span className="font-bold text-lg">
-                      ${price && quantity ? (price * Number(quantity)).toFixed(2) : '0.00'}
-                    </span>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setIsConfirmDialogOpen(false)}
+                {/* Filter Dropdown */}
+                <div className="flex items-center gap-2">
+                  <label className="text-sm text-gray-500">Filter:</label>
+                  <select
+                    className="border rounded-md px-2 py-1"
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value as 'All' | 'Buy' | 'Sell')}
                   >
-                    Cancel
-                  </Button>
-                  <Button onClick={confirmOrder}>
-                    Confirm Order
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
+                    <option value="All">All</option>
+                    <option value="Buy">Buy</option>
+                    <option value="Sell">Sell</option>
+                  </select>
+                </div>
+
+                {/* Export Button */}
+                <div className="flex items-center mt-2 md:mt-0">
+                  <Button onClick={handleExport}>Export</Button>
+                </div>
+              </div>
+
+              {/* Transactions Table */}
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="px-4 py-2 text-sm font-semibold text-gray-600">Transaction ID</th>
+                      <th className="px-4 py-2 text-sm font-semibold text-gray-600">Date</th>
+                      <th className="px-4 py-2 text-sm font-semibold text-gray-600">Type</th>
+                      <th className="px-4 py-2 text-sm font-semibold text-gray-600">Symbol</th>
+                      <th className="px-4 py-2 text-sm font-semibold text-gray-600">Company</th>
+                      <th className="px-4 py-2 text-sm font-semibold text-gray-600">Shares</th>
+                      <th className="px-4 py-2 text-sm font-semibold text-gray-600">Price</th>
+                      <th className="px-4 py-2 text-sm font-semibold text-gray-600">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {isLoading ? (
+                      <tr>
+                        <td colSpan={8} className="text-center py-4">
+                          Loading...
+                        </td>
+                      </tr>
+                    ) : filteredTransactions.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="text-center py-4 text-gray-500">
+                          No transactions found
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredTransactions.map((tx) => (
+                        <tr key={tx.transaction_id} className="border-b">
+                          <td className="px-4 py-2 text-sm text-gray-700">{tx.transaction_id}</td>
+                          <td className="px-4 py-2 text-sm text-gray-700">
+                            {new Date(tx.date).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 py-2 text-sm text-gray-700">
+                            {tx.transaction_type}
+                          </td>
+                          <td className="px-4 py-2 text-sm text-gray-700">{tx.symbol}</td>
+                          <td className="px-4 py-2 text-sm text-gray-700">{tx.company}</td>
+                          <td className="px-4 py-2 text-sm text-gray-700">
+                            {tx.shares.toLocaleString()}
+                          </td>
+                          <td className="px-4 py-2 text-sm text-gray-700">
+                            {formatMoney(tx.price)}
+                          </td>
+                          <td className="px-4 py-2 text-sm text-gray-700">
+                            {formatMoney(tx.total)}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

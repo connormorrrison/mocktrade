@@ -1,5 +1,4 @@
 # app/services/auth_service.py
-
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from fastapi import Depends, HTTPException, status
@@ -15,11 +14,11 @@ from app.core.security import (
     ALGORITHM
 )
 from app.models.user import User
-from app.schemas.auth import TokenData, UserCreate
+from app.schemas.auth import TokenData, UserCreate, UserUpdate
 from app.db.base import get_db
 
 logger = logging.getLogger(__name__)
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")  # Add leading slash
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 class AuthService:
     @staticmethod
@@ -41,7 +40,7 @@ class AuthService:
         try:
             logger.info(f"Attempting to create user with email: {user_data.email}")
             
-            # Check if user exists
+            # Check if email exists
             existing_user = await AuthService.get_user(db, user_data.email)
             if existing_user:
                 logger.warning(f"Email already registered: {user_data.email}")
@@ -90,6 +89,45 @@ class AuthService:
                 status_code=500,
                 detail=f"Unexpected error: {str(e)}"
             )
+
+    @staticmethod
+    async def update_user(db: Session, current_email: str, user_data: UserUpdate) -> User:
+        """Updates user profile information"""
+        try:
+            user = await AuthService.get_user(db, current_email)
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+
+            # Check if email is being changed and if it's taken
+            if user_data.email != user.email:
+                existing_email = await AuthService.get_user(db, user_data.email)
+                if existing_email:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Email already registered"
+                    )
+
+            # Check if username is being changed and if it's taken
+            if user_data.username != user.username:
+                existing_username = db.query(User).filter(User.username == user_data.username).first()
+                if existing_username:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Username already taken"
+                    )
+
+            # Update fields
+            user.email = user_data.email
+            user.username = user_data.username
+            user.first_name = user_data.first_name
+            user.last_name = user_data.last_name
+
+            db.commit()
+            db.refresh(user)
+            return user
+        except Exception as e:
+            db.rollback()
+            raise e
 
     @staticmethod
     async def get_current_user(
