@@ -54,7 +54,7 @@ export default function ProfilePage() {
 
   const handleUpdateProfile = async () => {
     if (!editedProfile) return;
-
+  
     try {
       const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:8000/api/v1/auth/profile', {
@@ -70,16 +70,16 @@ export default function ProfilePage() {
           last_name: editedProfile.last_name
         }),
       });
-
+  
       const data = await response.json();
       
       if (!response.ok) {
         throw new Error(data.detail || 'Failed to update profile');
       }
-
+  
       setProfile(data);
       setEditedProfile(data);
-      await refreshUserData();  // Refresh the user data in context
+      await refreshUserData();
       setIsEditing(false);
       setError(null);
     } catch (err) {
@@ -87,13 +87,18 @@ export default function ProfilePage() {
       setError(err instanceof Error ? err.message : 'Failed to update profile');
     }
   };
-
+  
   const handleChangePassword = async () => {
     if (passwords.new !== passwords.confirm) {
       setPasswordError('New passwords do not match');
       return;
     }
-
+  
+    if (passwords.new.length < 8) {
+      setPasswordError('Password must be at least 8 characters long');
+      return;
+    }
+  
     try {
       const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:8000/api/v1/auth/change-password', {
@@ -107,16 +112,18 @@ export default function ProfilePage() {
           new_password: passwords.new,
         }),
       });
-
+  
+      const data = await response.json();
+  
       if (!response.ok) {
-        throw new Error('Failed to change password');
+        throw new Error(data.detail || 'Failed to change password');
       }
-
+  
       setIsPasswordDialogOpen(false);
       setPasswords({ current: '', new: '', confirm: '' });
       setPasswordError(null);
     } catch (err) {
-      setPasswordError('Failed to change password');
+      setPasswordError(err instanceof Error ? err.message : 'Failed to change password');
     }
   };
 

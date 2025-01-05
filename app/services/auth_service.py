@@ -14,7 +14,7 @@ from app.core.security import (
     ALGORITHM
 )
 from app.models.user import User
-from app.schemas.auth import TokenData, UserCreate, UserUpdate
+from app.schemas.auth import TokenData, UserCreate, UserUpdate, PasswordChange
 from app.db.base import get_db
 
 logger = logging.getLogger(__name__)
@@ -92,25 +92,32 @@ class AuthService:
 
     @staticmethod
     async def update_user(db: Session, current_email: str, user_data: UserUpdate) -> User:
-        """Updates user profile information"""
+        """Updates user profile information with validation"""
         try:
+            logger.info(f"Attempting to update user profile: {current_email}")
+            
             user = await AuthService.get_user(db, current_email)
             if not user:
+                logger.error(f"User not found: {current_email}")
                 raise HTTPException(status_code=404, detail="User not found")
 
-            # Check if email is being changed and if it's taken
-            if user_data.email != user.email:
+            # Email validation
+            if user_data.email != current_email:
                 existing_email = await AuthService.get_user(db, user_data.email)
                 if existing_email:
+                    logger.warning(f"Email already taken: {user_data.email}")
                     raise HTTPException(
                         status_code=400,
                         detail="Email already registered"
                     )
 
-            # Check if username is being changed and if it's taken
+            # Username validation
             if user_data.username != user.username:
-                existing_username = db.query(User).filter(User.username == user_data.username).first()
+                existing_username = db.query(User).filter(
+                    User.username == user_data.username
+                ).first()
                 if existing_username:
+                    logger.warning(f"Username already taken: {user_data.username}")
                     raise HTTPException(
                         status_code=400,
                         detail="Username already taken"
@@ -124,10 +131,58 @@ class AuthService:
 
             db.commit()
             db.refresh(user)
+            logger.info(f"Successfully updated user profile: {user.email}")
             return user
+        except HTTPException:
+            db.rollback()
+            raise
         except Exception as e:
             db.rollback()
-            raise e
+            logger.error(f"Error updating user profile: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"An error occurred while updating the profile"
+            )
+
+    @staticmethod
+    async def change_password(
+        db: Session,
+        user: User,
+        current_password: str,
+        new_password: str
+    ) -> None:
+        """Changes a user's password with validation"""
+        try:
+            logger.info(f"Attempting to change password for user: {user.email}")
+            
+            if not verify_password(current_password, user.hashed_password):
+                logger.warning(f"Invalid current password for user: {user.email}")
+                raise HTTPException(
+                    status_code=400,
+                    detail="Current password is incorrect"
+                )
+            
+            if len(new_password) < 8:
+                logger.warning(f"New password too short for user: {user.email}")
+                raise HTTPException(
+                    status_code=400,
+                    detail="Password must be at least 8 characters long"
+                )
+            
+            user.hashed_password = get_password_hash(new_password)
+            db.commit()
+            logger.info(f"Successfully changed password for user: {user.email}")
+        
+        except HTTPException:
+            db.rollback()
+            raise
+        except Exception as e:
+            db.rollback()
+            logger.error(f"Error changing password: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail="An error occurred while changing the password"
+            )
 
     @staticmethod
     async def get_current_user(
