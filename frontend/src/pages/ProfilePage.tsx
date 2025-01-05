@@ -244,7 +244,7 @@ export default function ProfilePage() {
               <h3 className="text-xl font-medium mb-4">Account Details</h3>
               <div>
                 <label className="block text-base text-gray-500 mb-2">Joined</label>
-                <p className="text-gray-900 text-base">
+                <p className="text-base">
                   {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', {
                       month: 'long',
                       day: 'numeric', 

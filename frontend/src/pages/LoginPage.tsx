@@ -43,7 +43,7 @@ export default function LoginPage() {
                     alt="MockTrade"
                     className="h-28 w-auto"
                   />
-                  <p className="text-center -mt-4 mb-2 text-gray-600 text-base">
+                  <p className="text-center -mt-4 mb-2 text-gray-500 text-base">
                     Develop trading skills and test market strategies, risk-free, only on MockTrade.
                   </p>
                 </div>
@@ -125,7 +125,7 @@ export default function LoginPage() {
                   </div>
                 </form>
               </CardContent>
-              <CardFooter className="flex justify-center pb-8 text-base text-gray-600">
+              <CardFooter className="flex justify-center pb-8 text-base text-gray-500">
                 <span>Don't have an account?</span>
                 <span
                   onClick={() => navigate('/register')}
@@ -138,7 +138,7 @@ export default function LoginPage() {
           </div>
         </main>
 
-        <footer className="w-full py-4 text-center text-base text-gray-600 bg-gray-50">
+        <footer className="w-full py-4 text-center text-base text-gray-500 bg-gray-50">
           © 2025 MockTrade
         </footer>
       </div>

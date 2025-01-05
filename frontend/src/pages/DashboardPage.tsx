@@ -154,7 +154,7 @@ export default function DashboardPage() {
             <h1 className="text-4xl text-center font-normal text-blue-700 mb-4">
               Welcome back, {userData.first_name}
             </h1>
-            <p className="text-center text-lg font-normal">
+            <p className="text-gray-700 text-center text-lg font-normal">
               Today is {new Date().toLocaleDateString('en-US', { 
                 year: 'numeric', 
                 month: 'long', 
@@ -277,7 +277,7 @@ export default function DashboardPage() {
   
         <Profile />
 
-        <footer className="w-full py-4 text-center text-base text-gray-600 bg-gray-50">
+        <footer className="w-full py-4 text-center text-base text-gray-500 bg-gray-50">
           © 2025 MockTrade
         </footer>
       </div>

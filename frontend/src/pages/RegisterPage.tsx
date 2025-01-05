@@ -216,7 +216,7 @@ export default function RegisterPage() {
                 This footer has pb-8, meaning there are 2rem (32px) 
                 between "Already have an account?" and the bottom of the card 
               */}
-              <CardFooter className="flex justify-center pb-8 text-base text-gray-600">
+              <CardFooter className="flex justify-center pb-8 text-base text-gray-500">
                 <span>Already have an account?</span>
                 <span
                   onClick={() => navigate('/login')}
@@ -230,7 +230,7 @@ export default function RegisterPage() {
         </main>
 
         {/* Matches the same footer as in the LoginPage */}
-        <footer className="w-full py-4 text-center text-base text-gray-600 bg-gray-50">
+        <footer className="w-full py-4 text-center text-base text-gray-500 bg-gray-50">
           © 2025 MockTrade
         </footer>
       </div>
