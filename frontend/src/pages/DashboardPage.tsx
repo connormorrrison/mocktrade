@@ -17,14 +17,13 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useUser } from '../contexts/UserContext';
 import mockTradeLogo from '../assets/MockTrade-logo-v1-size1.001.png';
-import TradePage from './TradePage'; // Import the TradePage component
+import TradePage from './TradePage';
 import PortfolioPage from './PortfolioPage';
 import TransactionPage from './TransactionPage';
 import ProfilePage from './ProfilePage';
-
-// 1) Import the Profile component
-import Profile from '@/components/Profile'; 
+import Profile from '@/components/Profile';
 
 const menuItems = [
   {
@@ -60,27 +59,30 @@ const menuItems = [
 ];
 
 export default function DashboardPage() {
-  const [userData, setUserData] = useState<any>(null);
+  const { userData, refreshUserData } = useUser();
   const [currentPage, setCurrentPage] = useState('home');
+  const [dow, setDow] = useState<number | null>(null);
+  const [spx, setSpx] = useState<number | null>(null);
+  const [nasdaq, setNasdaq] = useState<number | null>(null);
+  const [isIndexLoading, setIsIndexLoading] = useState(false);
+  const [indexError, setIndexError] = useState<string | null>(null);
 
-// Index states
-const [dow, setDow] = useState<number | null>(null);
-const [spx, setSpx] = useState<number | null>(null);
-const [nasdaq, setNasdaq] = useState<number | null>(null);
+  // Check authentication on mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
+    
+    refreshUserData();
+  }, []);
 
- // Optional loading/error states if you want to mirror TradePage style
- const [isIndexLoading, setIsIndexLoading] = useState(false);
- const [indexError, setIndexError] = useState<string | null>(null);
+  // Fetch indices on mount
+  useEffect(() => {
+    fetchIndexData();
+  }, []);
 
- // Fetch indices on mount
- useEffect(() => {
-  fetchIndexData();
-}, []);
-
-  /**
-   * Fetch DOW, S&P 500, and NASDAQ in parallel.
-   * Uses a similar approach to your TradePage “fetch” logic.
-   */
   const fetchIndexData = async () => {
     setIsIndexLoading(true);
     setIndexError(null);
@@ -103,19 +105,16 @@ const [nasdaq, setNasdaq] = useState<number | null>(null);
         }),
       ]);
 
-      // If any request fails, throw
       if (!dowResp.ok) throw new Error('Failed to fetch DOW');
       if (!spxResp.ok) throw new Error('Failed to fetch S&P 500');
       if (!nasdaqResp.ok) throw new Error('Failed to fetch Nasdaq');
 
-      // Parse JSON in parallel
       const [dowData, spxData, nasdaqData] = await Promise.all([
         dowResp.json(),
         spxResp.json(),
         nasdaqResp.json()
       ]);
 
-      // Make sure current_price exists
       if (!dowData.current_price || !spxData.current_price || !nasdaqData.current_price) {
         throw new Error('Missing or invalid price data in one of the responses');
       }
@@ -132,9 +131,6 @@ const [nasdaq, setNasdaq] = useState<number | null>(null);
     }
   };
 
-  /**
-   * Format a numeric value as currency.
-   */
   const formatMoney = (value: number | null, currency = 'USD') => {
     if (value === null) return 'Loading...';
     return `$${new Intl.NumberFormat('en-US', {
@@ -142,33 +138,6 @@ const [nasdaq, setNasdaq] = useState<number | null>(null);
       maximumFractionDigits: 2,
     }).format(value)} ${currency}`;
   };
-
-
-  /**
-   * Check for authentication and fetch user data on mount.
-   */
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      window.location.href = '/login';
-      return;
-    }
-
-    fetch('http://localhost:8000/api/v1/auth/me', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    })
-    .then(res => {
-      if (!res.ok) throw new Error('Not authenticated');
-      return res.json();
-    })
-    .then(data => setUserData(data))
-    .catch(() => {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
-    });
-  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -193,7 +162,6 @@ const [nasdaq, setNasdaq] = useState<number | null>(null);
               })}
             </p>
             
-            {/* Market Indices */}
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <Card>
                 <CardHeader>
@@ -224,13 +192,12 @@ const [nasdaq, setNasdaq] = useState<number | null>(null);
                 <CardContent>
                   <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
                   <p className="text-3xl font-normal">
-                  {isIndexLoading ? 'Loading...' : formatMoney(nasdaq)}
+                    {isIndexLoading ? 'Loading...' : formatMoney(nasdaq)}
                   </p>
                 </CardContent>
               </Card>
             </div>
 
-            {/* If there’s an error, show it */}
             {indexError && (
               <p className="text-red-600 mt-4">
                 {indexError}
@@ -253,9 +220,7 @@ const [nasdaq, setNasdaq] = useState<number | null>(null);
 
   return (
     <div className="flex w-full min-h-screen bg-gray-50 overflow-hidden">
-      {/* Sidebar */}
       <aside className="w-64 border-r bg-white flex flex-col fixed h-screen">
-        {/* Logo */}
         <div className="p-4">
           <div className="flex flex-col items-center justify-center">
             <img 
@@ -266,7 +231,6 @@ const [nasdaq, setNasdaq] = useState<number | null>(null);
           </div>
         </div>
         
-        {/* Navigation */}
         <nav className="flex-1 p-4">
           <div className="space-y-3">
             <p className="text-base font-medium text-gray-500 mb-2 px-2">Menu</p>
@@ -285,7 +249,6 @@ const [nasdaq, setNasdaq] = useState<number | null>(null);
           </div>
         </nav>
         
-        {/* User Menu */}
         <div className="border-t p-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -307,21 +270,13 @@ const [nasdaq, setNasdaq] = useState<number | null>(null);
         </div>
       </aside>
   
-      {/* Main content wrapper */}
       <div className="flex-1 flex flex-col min-h-screen ml-64 overflow-y-auto">
         <main className="flex-1 bg-gray-50 w-full p-8">
           {renderContent()}
         </main>
   
-        {/* Profile component */}
-        <Profile
-          firstName={userData.first_name}
-          lastName={userData.last_name}
-          username={userData.username}
-          profileImageUrl={userData.profile_image_url}
-        />
-  
-        {/* Footer with copyright */}
+        <Profile />
+
         <footer className="w-full py-4 text-center text-sm text-gray-600 bg-gray-50">
           © 2025 MockTrade
         </footer>

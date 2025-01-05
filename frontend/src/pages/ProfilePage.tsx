@@ -1,8 +1,10 @@
+// src/pages/ProfilePage.tsx
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Save, Lock } from "lucide-react";
+import { useUser } from '../contexts/UserContext';
 import {
   Dialog,
   DialogContent,
@@ -21,6 +23,7 @@ interface UserProfile {
 }
 
 export default function ProfilePage() {
+  const { userData, refreshUserData } = useUser();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,30 +38,19 @@ export default function ProfilePage() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchProfileData();
-  }, []);
-
-  const fetchProfileData = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/api/v1/auth/me', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch profile data');
-      }
-
-      const data = await response.json();
-      setProfile(data);
-      setEditedProfile(data);
-    } catch (err) {
-      setError('Unable to load profile data');
-      console.error('Error fetching profile:', err);
-    } finally {
+    if (userData) {
+      const userProfileData = {
+        first_name: userData.first_name,
+        last_name: userData.last_name,
+        email: userData.email,
+        username: userData.username,
+        created_at: userData.created_at
+      };
+      setProfile(userProfileData);
+      setEditedProfile(userProfileData);
       setIsLoading(false);
     }
-  };
+  }, [userData]);
 
   const handleUpdateProfile = async () => {
     if (!editedProfile) return;
@@ -71,18 +63,23 @@ export default function ProfilePage() {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(editedProfile),
+        body: JSON.stringify({
+          email: editedProfile.email,
+          username: editedProfile.username,
+          first_name: editedProfile.first_name,
+          last_name: editedProfile.last_name
+        }),
       });
 
       const data = await response.json();
       
       if (!response.ok) {
-        // Log the full error response for debugging
-        console.error('Profile update failed:', data);
-        throw new Error(data.message || 'Failed to update profile');
+        throw new Error(data.detail || 'Failed to update profile');
       }
 
-      setProfile(editedProfile);
+      setProfile(data);
+      setEditedProfile(data);
+      await refreshUserData();  // Refresh the user data in context
       setIsEditing(false);
       setError(null);
     } catch (err) {
@@ -319,8 +316,9 @@ export default function ProfilePage() {
               Cancel
             </Button>
             <Button 
-            className="text-base"
-            onClick={handleChangePassword}>
+              className="text-base"
+              onClick={handleChangePassword}
+            >
               Update Password
             </Button>
           </DialogFooter>
