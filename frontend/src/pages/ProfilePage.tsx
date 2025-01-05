@@ -146,7 +146,7 @@ export default function ProfilePage() {
 
   return (
     <div className="p-8 w-full mt-8">
-      <Card className="w-full">
+      <Card className="w-full hover:shadow-lg transition-shadow">
         <CardHeader>
           <CardTitle className="text-3xl font-normal">Profile</CardTitle>
         </CardHeader>

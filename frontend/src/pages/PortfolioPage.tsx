@@ -125,7 +125,7 @@ export default function PortfolioPage() {
 
   return (
     <div className="p-8 w-full mt-8">
-      <Card className="w-full">
+      <Card className="w-full hover:shadow-lg transition-shadow">
         <CardHeader>
           <CardTitle className="text-3xl font-normal">Portfolio</CardTitle>
         </CardHeader>
@@ -173,7 +173,7 @@ export default function PortfolioPage() {
               <div>
                 <h3 className="text-xl font-medium mb-2">Positions</h3>
 
-                <div className="mb-4">
+                <div className="mb-6">
                   <label className="mr-2 text-gray-500" htmlFor="sortOptions">
                     Sort by:
                   </label>

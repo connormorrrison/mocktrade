@@ -5,6 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, AlertCircle } from "lucide-react";
+// --- NEW ICON IMPORT ---
+import { CheckCircle } from "lucide-react";
+// -----------------------
 import { 
   Dialog, 
   DialogContent, 
@@ -25,6 +28,10 @@ export default function TradePage() {
   const [displaySymbol, setDisplaySymbol] = useState(''); // New state to hold the symbol for price display
   const [availableCash, setAvailableCash] = useState(null); // Initial cash balance
   const [sharesOwned, setSharesOwned] = useState(0);
+
+  // --- NEW STATE FOR SUCCESS DIALOG ---
+  const [isCongratsDialogOpen, setIsCongratsDialogOpen] = useState(false);
+  // -------------------------------------
 
   // useEffect goes here, after state declarations
   useEffect(() => {
@@ -168,6 +175,11 @@ const handleSubmitOrder = async () => {
     setPrice(null);
     setAction(null);
     setIsConfirmDialogOpen(false);
+
+    // --- OPEN SUCCESS DIALOG HERE ---
+    setIsCongratsDialogOpen(true);
+    // --------------------------------
+
   } catch (err) {
     setError(err.message || 'Failed to execute trade');
   }
@@ -185,7 +197,7 @@ const handleSubmitOrder = async () => {
 
   return (
     <div className="p-8 w-full mt-8">
-      <Card className="w-full">
+      <Card className="w-full hover:shadow-lg transition-shadow">
         <CardHeader>
           <CardTitle className="text-3xl font-normal">Trade</CardTitle>
         </CardHeader>
@@ -435,6 +447,30 @@ const handleSubmitOrder = async () => {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
+
+            {/* --- NEW CONGRATULATIONS DIALOG --- */}
+            <Dialog 
+              open={isCongratsDialogOpen} 
+              onOpenChange={setIsCongratsDialogOpen}
+            >
+              <DialogContent>
+                <DialogHeader>
+                  <div className="flex items-center gap-4">
+                    <CheckCircle className="h-6 w-6 text-green-600" />
+                    <DialogTitle>Order Successful</DialogTitle>
+                  </div>
+                  <DialogDescription className="text-base pt-2">
+                      Your order has been executed. Please visit the Transactions tab for details.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <Button onClick={() => setIsCongratsDialogOpen(false)}>
+                    Close
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+            {/* -------------------------------- */}
             
           </div>
         </CardContent>

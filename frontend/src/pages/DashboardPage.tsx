@@ -21,7 +21,7 @@ import { useUser } from '../contexts/UserContext';
 import mockTradeLogo from '../assets/MockTrade-logo-v1-size1.001.png';
 import TradePage from './TradePage';
 import PortfolioPage from './PortfolioPage';
-import TransactionPage from './TransactionPage';
+import TransactionPage from './TransactionsPage';
 import ProfilePage from './ProfilePage';
 import Profile from '@/components/Profile';
 
@@ -152,7 +152,7 @@ export default function DashboardPage() {
       return (
         <div className="flex flex-col justify-center items-center h-full">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl">
-            <Card className="col-span-1 sm:col-span-2 lg:col-span-3">
+            <Card className="col-span-1 sm:col-span-2 lg:col-span-3 hover:shadow-lg transition-shadow">
               <CardHeader>
                 <CardTitle className="text-4xl text-center font-normal text-blue-700 -mb-2 mt-2">
                   Welcome back, {userData.first_name}
@@ -171,9 +171,9 @@ export default function DashboardPage() {
           </div>
 
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl">
-            <Card>
+            <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
-                <CardTitle className="text-lg font-medium">Dow Jones Industrial Average</CardTitle>
+                <CardTitle className="text-lg font-medium">DJIA (^DJI)</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
@@ -182,9 +182,9 @@ export default function DashboardPage() {
                 </p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
-                <CardTitle className="text-lg font-medium">S&P 500</CardTitle>
+                <CardTitle className="text-lg font-medium">S&P 500 (^GSPC)</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
@@ -193,9 +193,9 @@ export default function DashboardPage() {
                 </p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
-                <CardTitle className="text-lg font-medium">Nasdaq Composite</CardTitle>
+                <CardTitle className="text-lg font-medium">Nasdaq Composite (^IXIC)</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
@@ -246,7 +246,7 @@ export default function DashboardPage() {
             {menuItems.map((item) => (
               <Button
                 key={item.title}
-                className={`w-full justify-start bg-white text-gray-700 text-base hover:bg-blue-100 ${item.className} ${
+                className={`w-full justify-start bg-white text-gray-700 text-base hover:bg-blue-100 hover:shadow-lg transition-shadow ${item.className} ${
                   currentPage === item.page ? "bg-blue-100 font-medium" : ""
                 }`}
                 onClick={() => setCurrentPage(item.page)}
