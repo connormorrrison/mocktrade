@@ -22,13 +22,13 @@ export default function Profile({ firstName, lastName, username, profileImageUrl
     >
       <div className="flex items-center space-x-2">
         <div className="flex flex-col items-end">
-          <span className="text-sm font-medium text-gray-700">{firstName} {lastName}</span>
-          <span className="text-xs text-gray-500">@{username}</span>
+          <span className="text-base font-medium text-gray-700">{firstName} {lastName}</span>
+          <span className="text-sm text-gray-500">@{username}</span>
         </div>
         <img
           src={profileImageUrl || "/default-profile.png"}
           alt="Profile"
-          className="h-10 w-10 rounded-full border border-gray-300"
+          className="h-12 w-12 rounded-full border border-gray-300"
         />
       </div>
     </div>

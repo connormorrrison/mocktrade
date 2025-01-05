@@ -16,6 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import mockTradeLogo from '../assets/MockTrade-logo-v1-size1.001.png';
 import TradePage from './TradePage'; // Import the TradePage component
 import PortfolioPage from './PortfolioPage';
@@ -62,6 +63,90 @@ export default function DashboardPage() {
   const [userData, setUserData] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState('home');
 
+// Index states
+const [dow, setDow] = useState<number | null>(null);
+const [spx, setSpx] = useState<number | null>(null);
+const [nasdaq, setNasdaq] = useState<number | null>(null);
+
+ // Optional loading/error states if you want to mirror TradePage style
+ const [isIndexLoading, setIsIndexLoading] = useState(false);
+ const [indexError, setIndexError] = useState<string | null>(null);
+
+ // Fetch indices on mount
+ useEffect(() => {
+  fetchIndexData();
+}, []);
+
+  /**
+   * Fetch DOW, S&P 500, and NASDAQ in parallel.
+   * Uses a similar approach to your TradePage “fetch” logic.
+   */
+  const fetchIndexData = async () => {
+    setIsIndexLoading(true);
+    setIndexError(null);
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found. Please log in.');
+      }
+
+      const [dowResp, spxResp, nasdaqResp] = await Promise.all([
+        fetch(`http://localhost:8000/api/v1/stocks/quote/^DJI`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`http://localhost:8000/api/v1/stocks/quote/^GSPC`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`http://localhost:8000/api/v1/stocks/quote/^IXIC`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
+      // If any request fails, throw
+      if (!dowResp.ok) throw new Error('Failed to fetch DOW');
+      if (!spxResp.ok) throw new Error('Failed to fetch S&P 500');
+      if (!nasdaqResp.ok) throw new Error('Failed to fetch Nasdaq');
+
+      // Parse JSON in parallel
+      const [dowData, spxData, nasdaqData] = await Promise.all([
+        dowResp.json(),
+        spxResp.json(),
+        nasdaqResp.json()
+      ]);
+
+      // Make sure current_price exists
+      if (!dowData.current_price || !spxData.current_price || !nasdaqData.current_price) {
+        throw new Error('Missing or invalid price data in one of the responses');
+      }
+
+      setDow(dowData.current_price);
+      setSpx(spxData.current_price);
+      setNasdaq(nasdaqData.current_price);
+
+    } catch (err: any) {
+      console.error('Error fetching index data:', err);
+      setIndexError(err.message || 'Error fetching indices');
+    } finally {
+      setIsIndexLoading(false);
+    }
+  };
+
+  /**
+   * Format a numeric value as currency.
+   */
+  const formatMoney = (value: number | null, currency = 'USD') => {
+    if (value === null) return 'Loading...';
+    return `$${new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value)} ${currency}`;
+  };
+
+
+  /**
+   * Check for authentication and fetch user data on mount.
+   */
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -97,14 +182,60 @@ export default function DashboardPage() {
       case 'home':
         return (
           <div className="flex flex-col justify-center items-center h-full">
-            <h1 className="text-4xl text-center font-normal text-blue-700 mb-4">Welcome back, {userData.first_name}</h1>
-            <p className="text-center text-lg text-gray-600">
+            <h1 className="text-4xl text-center font-normal text-blue-700 mb-4">
+              Welcome back, {userData.first_name}
+            </h1>
+            <p className="text-center text-lg font-normal">
               Today is {new Date().toLocaleDateString('en-US', { 
                 year: 'numeric', 
                 month: 'long', 
                 day: 'numeric' 
               })}
+            </p>
+            
+            {/* Market Indices */}
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg font-medium">Dow Jones Industrial Average</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
+                  <p className="text-3xl font-normal">
+                    {isIndexLoading ? 'Loading...' : formatMoney(dow)}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg font-medium">S&P 500</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
+                  <p className="text-3xl font-normal">
+                    {isIndexLoading ? 'Loading...' : formatMoney(spx)}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg font-medium">Nasdaq Composite</CardTitle>  
+                </CardHeader>
+                <CardContent>
+                  <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
+                  <p className="text-3xl font-normal">
+                  {isIndexLoading ? 'Loading...' : formatMoney(nasdaq)}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* If there’s an error, show it */}
+            {indexError && (
+              <p className="text-red-600 mt-4">
+                {indexError}
               </p>
+            )}
           </div>
         );
       case 'trade':
@@ -130,7 +261,7 @@ export default function DashboardPage() {
             <img 
               src={mockTradeLogo}
               alt="MockTrade" 
-              className="h-28 w-auto" 
+              className="h-30 w-auto" 
             />
           </div>
         </div>
@@ -138,12 +269,12 @@ export default function DashboardPage() {
         {/* Navigation */}
         <nav className="flex-1 p-4">
           <div className="space-y-3">
-            <p className="text-sm font-medium text-gray-500 mb-2 px-2">Menu</p>
+            <p className="text-base font-medium text-gray-500 mb-2 px-2">Menu</p>
             {menuItems.map((item) => (
               <Button
                 key={item.title}
-                className={`w-full justify-start bg-white text-gray-700 hover:bg-blue-100 ${item.className} ${
-                  currentPage === item.page ? "bg-blue-100 font-semibold" : ""
+                className={`w-full justify-start bg-white text-gray-700 text-base hover:bg-blue-100 ${item.className} ${
+                  currentPage === item.page ? "bg-blue-100 font-medium" : ""
                 }`}
                 onClick={() => setCurrentPage(item.page)}
               >

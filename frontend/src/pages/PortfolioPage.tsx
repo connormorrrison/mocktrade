@@ -72,7 +72,7 @@ export default function PortfolioPage() {
   }, 0) + (typeof cashBalance === 'number' ? cashBalance : 0);
 
   return (
-    <div className="p-8 w-full mt-6">
+    <div className="p-8 w-full mt-8">
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-3xl font-normal">Portfolio</CardTitle>

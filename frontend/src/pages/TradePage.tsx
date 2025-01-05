@@ -1,3 +1,5 @@
+// src/pages/TradePage.tsx
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -182,7 +184,7 @@ const handleSubmitOrder = async () => {
   
 
   return (
-    <div className="p-8 w-full mt-6">
+    <div className="p-8 w-full mt-8">
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-3xl font-normal">Trade</CardTitle>
@@ -192,7 +194,7 @@ const handleSubmitOrder = async () => {
             
             {/* Search Section */}
           <div>
-            <label className="block text-sm text-gray-500 mb-2">Search</label>
+            <label className="block text-base text-gray-500 mb-2">Search</label>
             <div className="flex gap-2">
               <Input
                 placeholder="Enter symbol (e.g., AAPL)"
@@ -227,18 +229,18 @@ const handleSubmitOrder = async () => {
           <div className="mb-6 p-4 bg-gray-50 rounded-lg transition-all duration-200 ease-in-out">
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-sm text-gray-500 ml-2">Market Price for {displaySymbol}</p>
+                <p className="text-base text-gray-500 ml-2">Market Price for {displaySymbol}</p>
                 <p className="text-2xl font-bold ml-2">
                   {formatMoney(price)}
                 </p>
                 {sharesOwned > 0 && (
-                  <p className="text-sm text-gray-600 ml-2">
+                  <p className="text-base text-gray-600 ml-2">
                     You own {sharesOwned.toLocaleString()} {sharesOwned === 1 ? 'share' : 'shares'} of {displaySymbol}
                   </p>
                 )}
               </div>
               <div className="text-right">
-                <p className="text-sm text-gray-500 mr-2">Status</p>
+                <p className="text-base text-gray-500 mr-2">Status</p>
                 <p className="text-green-600 font-medium mr-2 animate-pulse">Live</p>
               </div>
             </div>
@@ -259,7 +261,7 @@ const handleSubmitOrder = async () => {
             {/* Action Section */}
             {price && !error && (
               <div>
-                <label className="block text-sm text-gray-500 mb-2 -mt-2">Action</label>
+                <label className="block text-base text-gray-500 mb-2 -mt-2">Action</label>
                 <div className="flex gap-2">
                   <Button 
                     variant="outline"
@@ -293,7 +295,7 @@ const handleSubmitOrder = async () => {
            {/* Quantity Input with Error Message */}
           {action && (
             <div>
-              <label className="block text-sm text-gray-500 mb-2 -mt-2">Quantity</label>
+              <label className="block text-base text-gray-500 mb-2 -mt-2">Quantity</label>
               <Input 
                 type="number" 
                 className={`text-lg ${action === 'buy' && price && quantity && (price * Number(quantity)) > availableCash ? 'border-red-500' : ''}`}
@@ -399,19 +401,19 @@ const handleSubmitOrder = async () => {
                 <div className="space-y-4">
                   <div className="flex justify-between">
                     <span>Symbol:</span>
-                    <span className="font-semibold">{symbol}</span>
+                    <span className="text-base font-semibold">{symbol}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Action:</span>
-                    <span className="font-semibold capitalize">{action}</span>
+                    <span className="text-base font-semibold capitalize">{action}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Quantity:</span>
-                    <span className="font-semibold">{Number(quantity).toLocaleString()}</span>
+                    <span className="text-base font-semibold">{Number(quantity).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Price per Share:</span>
-                    <span className="font-semibold">{formatMoney(price)}</span>
+                    <span className="text-base font-semibold">{formatMoney(price)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Total Value:</span>

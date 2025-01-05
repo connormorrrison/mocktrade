@@ -128,14 +128,14 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="p-8 w-full mt-6">
+    <div className="p-8 w-full mt-8">
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-3xl font-normal">Profile</CardTitle>
         </CardHeader>
         <CardContent>
           {error && (
-            <div className="flex items-center text-red-500 mb-6 mt-2">
+            <div className="flex items-center text-red-500 mb-6 -mt-2">
               <AlertCircle className="mr-2 h-5 w-5" />
               <span>{error}</span>
             </div>
@@ -145,7 +145,8 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between mb-6">
             {!isEditing ? (
               <Button 
-                variant="outline" 
+                variant="outline"
+                className="text-base" 
                 onClick={() => setIsEditing(true)}
               >
                 Edit Profile
@@ -175,7 +176,7 @@ export default function ProfilePage() {
               <h3 className="text-xl font-medium mb-4">Personal Information</h3>
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm text-gray-500 mb-2">First Name</label>
+                  <label className="block text-base text-gray-500 mb-2">First Name</label>
                   <Input
                     value={editedProfile?.first_name || ''}
                     onChange={(e) => setEditedProfile(prev => prev ? {
@@ -186,7 +187,7 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-500 mb-2">Last Name</label>
+                  <label className="block text-base text-gray-500 mb-2">Last Name</label>
                   <Input
                     value={editedProfile?.last_name || ''}
                     onChange={(e) => setEditedProfile(prev => prev ? {
@@ -197,7 +198,7 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-500 mb-2">Email</label>
+                  <label className="block text-base text-gray-500 mb-2">Email</label>
                   <Input
                     value={editedProfile?.email || ''}
                     onChange={(e) => setEditedProfile(prev => prev ? {
@@ -208,7 +209,7 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-500 mb-2">Username</label>
+                  <label className="block text-base text-gray-500 mb-2">Username</label>
                   <Input
                     value={editedProfile?.username || ''}
                     onChange={(e) => setEditedProfile(prev => prev ? {
@@ -225,8 +226,8 @@ export default function ProfilePage() {
             <div>
               <h3 className="text-xl font-medium mb-4">Account Details</h3>
               <div>
-                <label className="block text-sm text-gray-500 mb-2">Joined Date</label>
-                <p className="text-gray-900">
+                <label className="block text-base text-gray-500 mb-2">Joined Date</label>
+                <p className="text-gray-900 text-base">
                   {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', {
                       month: 'long',
                       day: 'numeric', 
@@ -239,8 +240,9 @@ export default function ProfilePage() {
             {/* Security */}
             <div>
               <h3 className="text-xl font-medium mb-4">Security</h3>
-              <Button 
+              <Button
                 variant="outline"
+                className="text-base"
                 onClick={() => setIsPasswordDialogOpen(true)}
               >
                 <Lock className="mr-2 h-4 w-4" />
@@ -255,8 +257,8 @@ export default function ProfilePage() {
       <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Change Password</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-xl">Change Password</DialogTitle>
+            <DialogDescription className="text-base">
               Enter your current password and choose a new password.
             </DialogDescription>
           </DialogHeader>
@@ -270,7 +272,7 @@ export default function ProfilePage() {
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-500 mb-2">Current Password</label>
+              <label className="block text-base text-gray-500 mb-2">Current Password</label>
               <Input
                 type="password"
                 value={passwords.current}
@@ -281,7 +283,7 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-500 mb-2">New Password</label>
+              <label className="block text-base text-gray-500 mb-2">New Password</label>
               <Input
                 type="password"
                 value={passwords.new}
@@ -292,7 +294,7 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-500 mb-2">Confirm New Password</label>
+              <label className="block text-base text-gray-500 mb-2">Confirm New Password</label>
               <Input
                 type="password"
                 value={passwords.confirm}
@@ -306,7 +308,8 @@ export default function ProfilePage() {
 
           <DialogFooter>
             <Button 
-              variant="outline" 
+              variant="outline"
+              className="text-base" 
               onClick={() => {
                 setIsPasswordDialogOpen(false);
                 setPasswords({ current: '', new: '', confirm: '' });
@@ -315,7 +318,9 @@ export default function ProfilePage() {
             >
               Cancel
             </Button>
-            <Button onClick={handleChangePassword}>
+            <Button 
+            className="text-base"
+            onClick={handleChangePassword}>
               Update Password
             </Button>
           </DialogFooter>
