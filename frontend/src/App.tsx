@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { UserProvider } from './contexts/UserContext'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
-import DashboardPage from './pages/DashboardPage'
+import DashboardPage from './pages/HomePage'
 
 // Protected Route component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
