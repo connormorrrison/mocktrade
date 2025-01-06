@@ -131,7 +131,7 @@ export default function HomePage() {
           `}
         >
           <CardHeader>
-            <CardTitle className="text-4xl text-center font-normal text-blue-700 -mb-2 mt-2">
+            <CardTitle className="text-4xl text-center font-medium text-blue-700 -mb-2 mt-2">
               {greeting}, {userData.first_name}
             </CardTitle>
           </CardHeader>

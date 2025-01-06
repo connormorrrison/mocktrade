@@ -229,7 +229,7 @@ export default function PortfolioPage() {
               </div>
 
               <div>
-                <h3 className="text-xl font-medium mb-2">Positions</h3>
+                <h3 className="text-xl font-medium mb-2">Holdings</h3>
 
                 <div className="mb-6">
                   <label className="mr-2 text-gray-500" htmlFor="sortOptions">
