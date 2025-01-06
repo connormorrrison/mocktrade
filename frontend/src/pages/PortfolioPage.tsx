@@ -125,6 +125,40 @@ export default function PortfolioPage() {
     ],
   };
 
+  const pieOptions = {
+    plugins: {
+      legend: {
+        position: 'right' as const,
+        align: 'center' as const,
+        labels: {
+          usePointStyle: true,
+          padding: 20,
+          font: {
+            size: 14  // Increased from 12
+          }
+        }
+      },
+      tooltip: {
+        bodyFont: {
+          size: 14
+        },
+        titleFont: {
+          size: 16
+        }
+      }
+    },
+    maintainAspectRatio: true,
+    responsive: true,
+    layout: {
+      padding: {
+        left: 20,
+        right: 20,
+        top: 20,
+        bottom: 20
+      }
+    }
+  };
+
   const sortedPositions = [...positions].sort((a, b) => {
     const aValue = a.shares * a.current_price;
     const bValue = b.shares * b.current_price;
@@ -190,7 +224,7 @@ export default function PortfolioPage() {
               <div>
                 <h3 className="text-xl font-medium mb-4">Asset Breakdown</h3>
                 <div className="w-full md:w-1/2 lg:w-1/3 mx-auto">
-                  <Pie data={pieData} />
+                  <Pie data={pieData} options={pieOptions} />
                 </div>
               </div>
 

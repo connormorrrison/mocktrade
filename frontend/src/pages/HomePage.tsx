@@ -147,7 +147,7 @@ export default function HomePage() {
         </Card>
       </div>
   
-      {/* Major Indices Header Block */}
+      {/* Market Indices Header Block */}
       <div className="w-full max-w-4xl mt-8 flex justify-start">
         <Card 
           className={`
@@ -158,7 +158,7 @@ export default function HomePage() {
         >
           <CardHeader className="py-2">
             <CardTitle className="text-lg font-medium flex items-center gap-2">
-              <span className="mr-3">Major Indices</span>
+              <span className="mr-3">Market Indices</span>
               <span className="h-3 w-3 rounded-full bg-green-500 animate-pulse" />
               <span className="text-green-600 text-base font-normal animate-pulse">1 min. delay</span>
             </CardTitle>
