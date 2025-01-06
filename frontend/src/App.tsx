@@ -13,17 +13,22 @@ import DashboardLayout from './components/DashboardLayout'
 // Protected Route component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem('token')
+  console.log('ProtectedRoute: Checking token:', !!token);
+  
   if (!token) {
+    console.log('ProtectedRoute: No token, redirecting to login');
     return <Navigate to="/login" replace />
   }
+  
+  console.log('ProtectedRoute: Token found, rendering children');
   return <DashboardLayout>{children}</DashboardLayout>
 }
 
-// Main App component
-export function App() {  // Changed to named export
+// Add "export default" here
+export default function App() {
   return (
-    <UserProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <UserProvider>
         <Routes>
           {/* Public routes */}
           <Route path="/login" element={<LoginPage />} />
@@ -75,7 +80,7 @@ export function App() {  // Changed to named export
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/dashboard" element={<Navigate to="/home" replace />} />
         </Routes>
-      </BrowserRouter>
-    </UserProvider>
+      </UserProvider>
+    </BrowserRouter>
   )
 }

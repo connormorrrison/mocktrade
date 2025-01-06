@@ -1,33 +1,22 @@
 // src/pages/HomePage.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUser } from '../contexts/UserContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function HomePage() {
   const { userData, refreshUserData } = useUser();
-  const [dow, setDow] = useState<number | null>(null);
-  const [spx, setSpx] = useState<number | null>(null);
-  const [nasdaq, setNasdaq] = useState<number | null>(null);
+  const navigate = useNavigate();
+  const [marketData, setMarketData] = useState({
+    dow: null,
+    spx: null,
+    nasdaq: null
+  });
   const [isIndexLoading, setIsIndexLoading] = useState(false);
   const [indexError, setIndexError] = useState<string | null>(null);
 
-  // Check authentication on mount
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      window.location.href = '/login';
-      return;
-    }
-    
-    refreshUserData();
-  }, []);
-
-  // Fetch indices on mount
-  useEffect(() => {
-    fetchIndexData();
-  }, []);
-
-  const fetchIndexData = async () => {
+  // Memoize fetchIndexData
+  const fetchIndexData = useCallback(async () => {
     setIsIndexLoading(true);
     setIndexError(null);
 
@@ -49,9 +38,9 @@ export default function HomePage() {
         }),
       ]);
 
-      if (!dowResp.ok) throw new Error('Failed to fetch DOW');
-      if (!spxResp.ok) throw new Error('Failed to fetch S&P 500');
-      if (!nasdaqResp.ok) throw new Error('Failed to fetch Nasdaq');
+      if (!dowResp.ok || !spxResp.ok || !nasdaqResp.ok) {
+        throw new Error('Failed to fetch market data');
+      }
 
       const [dowData, spxData, nasdaqData] = await Promise.all([
         dowResp.json(),
@@ -59,28 +48,46 @@ export default function HomePage() {
         nasdaqResp.json()
       ]);
 
-      if (!dowData.current_price || !spxData.current_price || !nasdaqData.current_price) {
-        throw new Error('Missing or invalid price data in one of the responses');
-      }
-
-      setDow(dowData.current_price);
-      setSpx(spxData.current_price);
-      setNasdaq(nasdaqData.current_price);
-
+      setMarketData({
+        dow: dowData.current_price,
+        spx: spxData.current_price,
+        nasdaq: nasdaqData.current_price
+      });
     } catch (err: any) {
-      console.error('Error fetching index data:', err);
       setIndexError(err.message || 'Error fetching indices');
     } finally {
       setIsIndexLoading(false);
     }
-  };
+  }, []); // Empty dependency array as it doesn't depend on any props or state
+
+  // Check authentication and fetch data once on mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    if (!userData) {
+      refreshUserData();
+    }
+    
+    fetchIndexData();
+    
+    // Optional: Set up polling for market data
+    const intervalId = setInterval(fetchIndexData, 60000); // Update every minute
+    
+    return () => clearInterval(intervalId);
+  }, [refreshUserData, fetchIndexData, navigate, userData]);
 
   const formatMoney = (value: number | null, currency = 'USD') => {
     if (value === null) return 'Loading...';
-    return `$${new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(value)} ${currency}`;
+    }).format(value);
   };
 
   if (!userData) return null;
@@ -114,7 +121,7 @@ export default function HomePage() {
           <CardContent>
             <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
             <p className="text-3xl font-normal">
-              {isIndexLoading ? 'Loading...' : formatMoney(dow)}
+              {isIndexLoading ? 'Loading...' : formatMoney(marketData.dow)}
             </p>
           </CardContent>
         </Card>
@@ -125,7 +132,7 @@ export default function HomePage() {
           <CardContent>
             <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
             <p className="text-3xl font-normal">
-              {isIndexLoading ? 'Loading...' : formatMoney(spx)}
+              {isIndexLoading ? 'Loading...' : formatMoney(marketData.spx)}
             </p>
           </CardContent>
         </Card>
@@ -136,7 +143,7 @@ export default function HomePage() {
           <CardContent>
             <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
             <p className="text-3xl font-normal">
-              {isIndexLoading ? 'Loading...' : formatMoney(nasdaq)}
+              {isIndexLoading ? 'Loading...' : formatMoney(marketData.nasdaq)}
             </p>
           </CardContent>
         </Card>
