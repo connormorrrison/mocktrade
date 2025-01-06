@@ -1,4 +1,3 @@
-// src/pages/LoginPage.tsx
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -8,6 +7,7 @@ import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react"
 import { useNavigate } from 'react-router-dom'
 import { authApi } from '../services/api'
 import mockTradeLogo from '../assets/MockTrade-logo-v1-size1.001.png'
+import DynamicBackground from '../components/DynamicBackground'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -37,14 +37,12 @@ export default function LoginPage() {
     }
   }
 
-  // ... rest of your component code stays the same ...
-
   return (
-    <div className="flex w-full min-h-screen bg-gray-50 overflow-hidden">
-      <div className="flex-1 flex flex-col min-h-screen overflow-y-auto">
-        <main className="flex-1 bg-gray-50 w-full flex items-center justify-center mt-8">
+    <DynamicBackground>
+      <div className="flex-1 flex flex-col min-h-screen">
+        <main className="flex-1 w-full flex items-center justify-center mt-8">
           <div className="w-full max-w-md">
-            <Card className="shadow-xl">
+            <Card className="shadow-lg hover:shadow-xl backdrop-blur-sm bg-white/90">
               <CardHeader className="pt-2 pb-2">
                 <div className="flex flex-col items-center">
                   <img
@@ -75,7 +73,7 @@ export default function LoginPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="w-full"
+                      className="w-full bg-white/50 backdrop-blur-sm"
                       autoComplete="email"
                       autoFocus
                     />
@@ -100,7 +98,7 @@ export default function LoginPage() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="w-full pr-10"
+                        className="w-full pr-10 bg-white/50 backdrop-blur-sm"
                         autoComplete="current-password"
                       />
                       <span
@@ -147,10 +145,10 @@ export default function LoginPage() {
           </div>
         </main>
 
-        <footer className="w-full py-4 text-center text-base text-gray-500 bg-gray-50">
+        <footer className="w-full py-4 text-center text-base text-white/80 backdrop-blur-sm">
           © 2025 MockTrade
         </footer>
       </div>
-    </div>
+    </DynamicBackground>
   )
 }

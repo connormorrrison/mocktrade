@@ -197,7 +197,7 @@ const handleSubmitOrder = async () => {
 
   return (
     <div className="p-8 w-full mt-8">
-      <Card className="w-full hover:shadow-lg transition-shadow">
+      <Card className="w-full shadow-lg hover:shadow-xl transition-shadow">
         <CardHeader>
           <CardTitle className="text-3xl font-normal">Trade</CardTitle>
         </CardHeader>
@@ -238,7 +238,7 @@ const handleSubmitOrder = async () => {
           </div>
 
           {price && !error && price !== 0 && (
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg transition-all duration-200 ease-in-out border border-gray-200">
+          <div className="mb-6 p-4 bg-white rounded-lg transition-all duration-200 ease-in-out border border-gray-200">
             <div className="flex justify-between items-center">
               <div>
                 <p className="text-base text-gray-500 ml-2">Market Price for {displaySymbol}</p>

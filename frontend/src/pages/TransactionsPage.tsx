@@ -151,7 +151,7 @@ export default function TransactionsPage() {
 
   return (
     <div className="p-8 w-full mt-8">
-      <Card className="w-full hover:shadow-lg transition-shadow">
+      <Card className="w-full shadow-lg hover:shadow-xl transition-shadow">
         <CardHeader>
           <CardTitle className="text-3xl font-normal">Transactions</CardTitle>
         </CardHeader>
@@ -202,6 +202,7 @@ export default function TransactionsPage() {
                 {/* Export Button */}
                 <div className="flex items-center mt-2 md:mt-0">
                   <Button
+                    variant="outline"
                     className="text-base"
                     onClick={handleExport}>Export</Button>
                 </div>

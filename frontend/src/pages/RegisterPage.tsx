@@ -1,5 +1,3 @@
-// src/pages/RegisterPage.tsx
-
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,6 +7,7 @@ import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react"
 import { useNavigate } from 'react-router-dom'
 import { authApi } from '../services/api'
 import mockTradeLogo from '../assets/MockTrade-logo-v1-size1.001.png'
+import DynamicBackground from '../components/DynamicBackground'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -63,12 +62,11 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex w-full min-h-screen bg-gray-50 overflow-hidden">
-      <div className="flex-1 flex flex-col min-h-screen overflow-y-auto">
-        <main className="flex-1 bg-gray-50 w-full flex items-center justify-center mt-8">
+    <DynamicBackground>
+      <div className="flex-1 flex flex-col min-h-screen">
+        <main className="flex-1 w-full flex items-center justify-center mt-8">
           <div className="w-full max-w-md">
-            <Card className="shadow-xl">
-              {/*  Added pt-4 to match the top spacing from the Login page  */}
+            <Card className="shadow-lg hover:shadow-xl backdrop-blur-sm bg-white/90">
               <CardHeader className="pt-2 pb-2 -mb-4">
                 <div className="flex flex-col items-center">
                   <img
@@ -79,7 +77,6 @@ export default function RegisterPage() {
                 </div>
               </CardHeader>
 
-              {/* The card content remains the same */}
               <CardContent className="px-8 pb-8">
                 {error && (
                   <Alert variant="destructive" className="mb-4 mt-2 text-center">
@@ -100,7 +97,7 @@ export default function RegisterPage() {
                         value={formData.firstName}
                         onChange={handleChange}
                         required
-                        className="w-full"
+                        className="w-full bg-white/50 backdrop-blur-sm"
                       />
                     </div>
                     <div className="space-y-2">
@@ -115,7 +112,7 @@ export default function RegisterPage() {
                         value={formData.lastName}
                         onChange={handleChange}
                         required
-                        className="w-full"
+                        className="w-full bg-white/50 backdrop-blur-sm"
                       />
                     </div>
                   </div>
@@ -132,7 +129,7 @@ export default function RegisterPage() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full"
+                      className="w-full bg-white/50 backdrop-blur-sm"
                       autoComplete="email"
                     />
                   </div>
@@ -149,7 +146,7 @@ export default function RegisterPage() {
                       value={formData.username}
                       onChange={handleChange}
                       required
-                      className="w-full"
+                      className="w-full bg-white/50 backdrop-blur-sm"
                     />
                   </div>
 
@@ -166,7 +163,7 @@ export default function RegisterPage() {
                         value={formData.password}
                         onChange={handleChange}
                         required
-                        className="w-full pr-10"
+                        className="w-full pr-10 bg-white/50 backdrop-blur-sm"
                       />
                       <span
                         onClick={() => setShowPassword(!showPassword)}
@@ -189,7 +186,7 @@ export default function RegisterPage() {
                       value={formData.confirmPassword}
                       onChange={handleChange}
                       required
-                      className="w-full"
+                      className="w-full bg-white/50 backdrop-blur-sm"
                     />
                   </div>
 
@@ -212,10 +209,6 @@ export default function RegisterPage() {
                 </form>
               </CardContent>
 
-              {/* 
-                This footer has pb-8, meaning there are 2rem (32px) 
-                between "Already have an account?" and the bottom of the card 
-              */}
               <CardFooter className="flex justify-center pb-8 text-base text-gray-500">
                 <span>Already have an account?</span>
                 <span
@@ -229,11 +222,10 @@ export default function RegisterPage() {
           </div>
         </main>
 
-        {/* Matches the same footer as in the LoginPage */}
-        <footer className="w-full py-4 text-center text-base text-gray-500 bg-gray-50">
+        <footer className="w-full py-4 text-center text-base text-white/80 backdrop-blur-sm">
           © 2025 MockTrade
         </footer>
       </div>
-    </div>
+    </DynamicBackground>
   )
 }

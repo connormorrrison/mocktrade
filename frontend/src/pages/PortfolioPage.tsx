@@ -125,7 +125,7 @@ export default function PortfolioPage() {
 
   return (
     <div className="p-8 w-full mt-8">
-      <Card className="w-full hover:shadow-lg transition-shadow">
+      <Card className="w-full shadow-lg hover:shadow-xl transition-shadow">
         <CardHeader>
           <CardTitle className="text-3xl font-normal">Portfolio</CardTitle>
         </CardHeader>
@@ -192,7 +192,7 @@ export default function PortfolioPage() {
                 {positions.length === 0 ? (
                   <p className="text-gray-500">No positions in portfolio</p>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-4 w-full">
                     {sortedPositions.map((position) => {
                       const { dollarChange, percentChange } = calculateChange(
                         position.current_price,
@@ -203,37 +203,55 @@ export default function PortfolioPage() {
                       return (
                         <div
                           key={position.symbol}
-                          className="flex justify-between items-center p-4 bg-gray-50 rounded-lg border border-gray-200"
+                          className="flex justify-between items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors shadow-sm"
                         >
-                          <div>
-                            <p className="font-medium ml-4">{position.symbol}</p>
-                            <p className="text-base text-gray-500 ml-4">
-                              {position.shares.toLocaleString()}{' '}
-                              {position.shares === 1 ? 'share' : 'shares'}
+                          <div className="flex-1">
+                            <div className="flex items-baseline gap-3">
+                              <p className="text-lg font-semibold text-gray-900 ml-2">{position.symbol}</p>
+                              <p className="text-base text-gray-500">
+                                {position.shares.toLocaleString()}{' '}
+                                {position.shares === 1 ? 'share' : 'shares'}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex-1 text-right space-y-1.5">
+                            <p className="text-base">
+                              <span className="text-gray-500">Current Price: </span>
+                              <span className="font-medium text-gray-900">{formatMoney(position.current_price)}</span>
+                            </p>
+                            
+                            <p className="text-base">
+                              <span className="text-gray-500">Market Value: </span>
+                              <span className="font-medium text-gray-900">{formatMoney(position.shares * position.current_price)}</span>
+                            </p>
+                    
+                            <p className={`text-base ${dollarChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {dollarChange >= 0 
+                                ? <><span className="text-gray-500">Gain: </span><span className="font-medium">+{formatMoney(dollarChange)} ({percentChange.toFixed(2)}%)</span></>
+                                : <><span className="text-gray-500">Loss: </span><span className="font-medium">{formatMoney(dollarChange)} ({percentChange.toFixed(2)}%)</span></>}
+                            </p>
+                    
+                            <p className="text-base">
+                              <span className="text-gray-500">Daily P/L: </span>
+                              <span className={`font-medium ${dailyGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {formatMoney(dailyGainLoss)}
+                              </span>
                             </p>
                           </div>
-                          <div className="text-right">
-                            <p className="font-medium mr-2">
-                              Total Value: {formatMoney(position.shares * position.current_price)}
-                            </p>
-                            <p className="text-base text-gray-500 mr-2">
-                              Current Price: {formatMoney(position.current_price)}
-                            </p>
-                            <p
-                              className={`text-base mr-2 ${
-                                dollarChange >= 0 ? 'text-green-600' : 'text-red-600'
-                              }`}
+                    
+                          {/* Add the new Trade button */}
+                          <div className="ml-6 flex items-center">
+                            <button
+                              onClick={() => window.location.href = `/trade/${position.symbol}`}
+                              className="px-6 py-2 mr-3 bg-blue-600 text-white text-base rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
                             >
-                              {dollarChange >= 0
-                                ? `Gain: +${formatMoney(dollarChange)} (${percentChange.toFixed(2)}%)`
-                                : `Loss: ${formatMoney(dollarChange)} (${percentChange.toFixed(2)}%)`}
-                            </p>
-                            <p className="text-base text-gray-500 mr-2">
-                              Daily Gain/Loss: {formatMoney(dailyGainLoss)}
-                            </p>
+                              Trade
+                            </button>
                           </div>
                         </div>
                       );
+
                     })}
                   </div>
                 )}
