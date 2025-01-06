@@ -42,8 +42,16 @@ export default function PortfolioPage() {
   const hiddenCardClass = "opacity-0 translate-y-4 scale-95";
   const visibleCardClass = "opacity-100 translate-y-0 scale-100";
 
+  // With this updated version:
   useEffect(() => {
+    // Initial fetch
     fetchPortfolioData();
+    
+    // Set up polling interval to fetch every minute
+    const intervalId = setInterval(fetchPortfolioData, 60000);
+    
+    // Cleanup interval on unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   const fetchPortfolioData = async () => {

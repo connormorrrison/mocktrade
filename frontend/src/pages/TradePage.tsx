@@ -1,14 +1,11 @@
 // src/pages/TradePage.tsx
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, AlertCircle } from "lucide-react";
-// --- NEW ICON IMPORT ---
 import { CheckCircle } from "lucide-react";
-// -----------------------
 import { 
   Dialog, 
   DialogContent, 
@@ -19,51 +16,82 @@ import {
 } from "@/components/ui/dialog";
 
 export default function TradePage() {
+  // State declarations
   const [symbol, setSymbol] = useState('');
-  const [action, setAction] = useState(null);  // Initialize to null for no selection
+  const [action, setAction] = useState(null);
   const [quantity, setQuantity] = useState('');
   const [price, setPrice] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-  const [displaySymbol, setDisplaySymbol] = useState(''); // New state to hold the symbol for price display
-  const [availableCash, setAvailableCash] = useState(null); // Initial cash balance
+  const [displaySymbol, setDisplaySymbol] = useState('');
+  const [availableCash, setAvailableCash] = useState(null);
   const [sharesOwned, setSharesOwned] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+  const [isCongratsDialogOpen, setIsCongratsDialogOpen] = useState(false);
+  
   const { symbol: urlSymbol } = useParams<{ symbol?: string }>();
 
+  // CSS Classes
+  const baseCardClass = "transform transition-all duration-500 ease-out";
+  const hiddenCardClass = "opacity-0 translate-y-4 scale-95";
+  const visibleCardClass = "opacity-100 translate-y-0 scale-100";
+
+  // Animation effect
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
-  const baseCardClass = "transform transition-all duration-500 ease-out";
-  const hiddenCardClass = "opacity-0 translate-y-4 scale-95";
-  const visibleCardClass = "opacity-100 translate-y-0 scale-100";
-
-  // --- NEW STATE FOR SUCCESS DIALOG ---
-  const [isCongratsDialogOpen, setIsCongratsDialogOpen] = useState(false);
-  // -------------------------------------
-
-  // useEffect goes here, after state declarations
+  // Portfolio data with better error handling
   useEffect(() => {
-    fetchPortfolioData();
+    let mounted = true;
+    
+    const loadPortfolioData = async () => {
+      try {
+        await fetchPortfolioData();
+      } catch (err) {
+        if (mounted) {
+          console.error('Failed to load portfolio:', err);
+        }
+      }
+    };
+
+    loadPortfolioData();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  // Add this useEffect after your other useEffects
-  useEffect(() => {
-    if (urlSymbol) {
-      setSymbol(urlSymbol.toUpperCase());
-    }
-  }, [urlSymbol]);
+ // URL Symbol handler with simulated Enter keypress
+useEffect(() => {
+  if (urlSymbol) {
+    setSymbol(urlSymbol.toUpperCase());
+    // Simulate Enter keypress after symbol is set
+    setTimeout(() => {
+      const enterEvent = new KeyboardEvent('keydown', {
+        key: 'Enter',
+        code: 'Enter',
+        keyCode: 13,
+        bubbles: true,
+      });
+      document.querySelector('input')?.dispatchEvent(enterEvent);
+    }, 100);
+  }
+}, [urlSymbol]);
 
-  // Separate useEffect to handle fetching price when symbol changes
+  // Combined symbol-related effects with race condition prevention
   useEffect(() => {
-    if (symbol) {
-      fetchStockPrice();
+    if (!symbol) {
+      setPrice(null);
+      setDisplaySymbol('');
+      setError(null);
+      setAction(null);
+      setQuantity('');
+      setSharesOwned(0);
     }
-  }, [symbol]); // Run when symbol changes
-
+  }, [symbol]);
 
   const fetchPortfolioData = async () => {
     try {
@@ -116,6 +144,7 @@ export default function TradePage() {
       
       setPrice(priceData.current_price);
       setDisplaySymbol(symbol.toUpperCase());
+      setError(null); // Clear any previous errors when successful
   
       // Handle portfolio data
       if (portfolioResponse.ok) {
@@ -128,91 +157,89 @@ export default function TradePage() {
       setError(err.message || 'Unable to fetch stock price');
       setPrice(null);
       setSharesOwned(0);
-      setQuantity('');  // Reset quantity when stock becomes invalid
-      setAction(null);  // Also reset the action when stock becomes invalid
+      setQuantity('');
+      setAction(null);
     } finally {
       setIsLoading(false);
     }
   };
-  
 
-const handleSubmitOrder = async () => {
-  const totalValue = price * Number(quantity);
- 
-  if (action === 'buy' && totalValue > availableCash) {
-    setError('Insufficient cash to complete the trade');
-    return;
-  }
- 
-  // Refresh shares owned before validating sell order
-  if (action === 'sell') {
-    try {
-      const token = localStorage.getItem('token');
-      const portfolioResponse = await fetch(`http://localhost:8000/api/v1/trading/portfolio/${symbol.toUpperCase()}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      
-      if (portfolioResponse.ok) {
-        const portfolioData = await portfolioResponse.json();
-        const currentShares = portfolioData.shares || 0;
-        setSharesOwned(currentShares);
-        
-        if (Number(quantity) > currentShares) {
-          setError('Insufficient shares to complete the sale');
-          return;
-        }
-      }
-    } catch (err) {
-      setError('Unable to verify current share balance');
+  const handleSubmitOrder = async () => {
+    const totalValue = price * Number(quantity);
+   
+    if (action === 'buy' && totalValue > availableCash) {
+      setError('Insufficient cash to complete the trade');
       return;
     }
-  }
- 
-  setError(null);
-  setIsConfirmDialogOpen(true);
- };
-
- const confirmOrder = async () => {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await fetch('http://localhost:8000/api/v1/trading/orders', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        symbol: symbol.toUpperCase(),
-        shares: Number(quantity),
-        transaction_type: action.toUpperCase()
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || 'Trade failed');
+   
+    // Refresh shares owned before validating sell order
+    if (action === 'sell') {
+      try {
+        const token = localStorage.getItem('token');
+        const portfolioResponse = await fetch(`http://localhost:8000/api/v1/trading/portfolio/${symbol.toUpperCase()}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        
+        if (portfolioResponse.ok) {
+          const portfolioData = await portfolioResponse.json();
+          const currentShares = portfolioData.shares || 0;
+          setSharesOwned(currentShares);
+          
+          if (Number(quantity) > currentShares) {
+            setError('Insufficient shares to complete the sale');
+            return;
+          }
+        }
+      } catch (err) {
+        setError('Unable to verify current share balance');
+        return;
+      }
     }
+   
+    setError(null);
+    setIsConfirmDialogOpen(true);
+  };
 
-    // Refresh portfolio data to get updated cash balance
-    await fetchPortfolioData();
-    
-    // Reset form
-    setSymbol('');
-    setQuantity('');
-    setPrice(null);
-    setAction(null);
-    setIsConfirmDialogOpen(false);
+  const confirmOrder = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:8000/api/v1/trading/orders', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          symbol: symbol.toUpperCase(),
+          shares: Number(quantity),
+          transaction_type: action.toUpperCase()
+        })
+      });
 
-    // --- OPEN SUCCESS DIALOG HERE ---
-    setIsCongratsDialogOpen(true);
-    // --------------------------------
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Trade failed');
+      }
 
-  } catch (err) {
-    setError(err.message || 'Failed to execute trade');
-  }
-};
+      // Refresh portfolio data to get updated cash balance
+      await fetchPortfolioData();
+      
+      // Reset form
+      setSymbol('');
+      setQuantity('');
+      setPrice(null);
+      setAction(null);
+      setIsConfirmDialogOpen(false);
 
-  
+      // --- OPEN SUCCESS DIALOG HERE ---
+      setIsCongratsDialogOpen(true);
+      // --------------------------------
+
+    } catch (err) {
+      setError(err.message || 'Failed to execute trade');
+    }
+  };
+
   const formatMoney = (value, currency = 'USD') => {
     return `$${new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 2,
@@ -239,25 +266,28 @@ const handleSubmitOrder = async () => {
           <div>
             <label className="block text-base text-gray-500 mb-2">Search</label>
             <div className="flex gap-2">
-              <Input
-                placeholder="Enter symbol (e.g., AAPL)"
-                value={symbol}
-                onChange={(e) => {
-                  const newValue = e.target.value.toUpperCase();
-                  setSymbol(newValue);
-                  if (!newValue) { // If input is cleared
-                    setPrice(null); // Clear the price
-                    setError(null); // Clear any errors
-                    setAction(null); // Reset the action
-                  }
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    fetchStockPrice();
-                  }
-                }}
-                className={error && !symbol ? 'border-red-500' : ''}
-              />
+            <Input
+              placeholder="Enter symbol (e.g., AAPL)"
+              value={symbol}
+              onChange={(e) => {
+                const newValue = e.target.value.toUpperCase();
+                setSymbol(newValue);
+                if (!newValue) {
+                  setPrice(null);
+                  setDisplaySymbol('');
+                  setError(null);
+                  setAction(null);
+                  setQuantity('');
+                  setSharesOwned(0);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  fetchStockPrice();
+                }
+              }}
+              className={error && !symbol ? 'border-red-500' : ''}
+            />
               <Button
                 className="text-base"
                 onClick={fetchStockPrice}
@@ -269,7 +299,7 @@ const handleSubmitOrder = async () => {
             </div>
           </div>
 
-          {price && !error && price !== 0 && (
+          {symbol && price && !error && price !== 0 && (
           <div className="mb-6 p-4 bg-white rounded-lg transition-all duration-200 ease-in-out border border-gray-200">
             <div className="flex justify-between items-center">
               <div>
@@ -303,7 +333,7 @@ const handleSubmitOrder = async () => {
             
 
             {/* Action Section */}
-            {price && !error && (
+            {symbol && price && !error && (
               <div>
                 <label className="block text-base text-gray-500 mb-2 -mt-2">Action</label>
                 <div className="flex gap-2">
