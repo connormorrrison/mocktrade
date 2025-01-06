@@ -300,11 +300,11 @@ useEffect(() => {
           </div>
 
           {symbol && price && !error && price !== 0 && (
-          <div className="mb-6 p-4 bg-white rounded-lg transition-all duration-200 ease-in-out border border-gray-200">
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg transition-all duration-200 ease-in-out border border-gray-200">
             <div className="flex justify-between items-center">
               <div>
                 <p className="text-base text-gray-500 ml-2">Market Price for {displaySymbol}</p>
-                <p className="text-2xl font-bold ml-2">
+                <p className="text-2xl font-semibold ml-2">
                   {formatMoney(price)}
                 </p>
                 {sharesOwned > 0 && (
@@ -433,7 +433,7 @@ useEffect(() => {
                 </div>
                 <div className="flex justify-between items-center">
                 <span className="text-gray-500">Total Value</span>
-                <span className="text-xl font-bold">
+                <span className="text-xl font-semibold">
                   {price && quantity && Number(quantity) > 0 
                     ? formatMoney(price * Number(quantity)) 
                     : formatMoney(0)}
@@ -491,7 +491,7 @@ useEffect(() => {
                   </div>
                   <div className="flex justify-between">
                     <span>Total Value:</span>
-                    <span className="font-bold text-lg">
+                    <span className="font-semibold text-lg">
                       {formatMoney(price * Number(quantity))}
                     </span>
                   </div>

@@ -146,7 +146,7 @@ export default function PortfolioPage() {
   return (
     <div className="p-8 w-full mt-8">
               <Card className={`
-                w-full shadow-lg hover:shadow-xl transition-shadow
+                w-full shadow-lg hover:shadow-xl transition-shadow 
                 ${baseCardClass}
                 ${isVisible ? visibleCardClass : hiddenCardClass}
               `}>
@@ -227,11 +227,11 @@ export default function PortfolioPage() {
                       return (
                         <div
                           key={position.symbol}
-                          className="flex justify-between items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors shadow-sm"
+                          className="flex justify-between items-center p-2 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100"
                         >
                           <div className="flex-1">
                             <div className="flex items-baseline gap-3">
-                              <p className="text-lg font-semibold text-gray-900 ml-6">{position.symbol}</p>
+                              <p className="text-xl font-semibold ml-6">{position.symbol}</p>
                               <p className="text-base text-gray-500">
                                 {position.shares.toLocaleString()}{' '}
                                 {position.shares === 1 ? 'share' : 'shares'}

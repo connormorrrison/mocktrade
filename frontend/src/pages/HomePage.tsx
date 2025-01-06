@@ -121,21 +121,22 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col justify-center items-center h-full">
+      {/* Welcome Message Block */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl">
-      <Card 
-        className={`
-          col-span-1 sm:col-span-2 lg:col-span-3 shadow-lg hover:shadow-xl transition-shadow
-          ${baseCardClass}
-          ${isVisible ? visibleCardClass : hiddenCardClass}
-        `}
-      >
+        <Card 
+          className={`
+            col-span-1 sm:col-span-2 lg:col-span-3 shadow-lg hover:shadow-xl
+            ${baseCardClass}
+            ${isVisible ? visibleCardClass : hiddenCardClass}
+          `}
+        >
           <CardHeader>
-          <CardTitle className="text-4xl text-center font-normal text-blue-700 -mb-2 mt-2">
+            <CardTitle className="text-4xl text-center font-normal text-blue-700 -mb-2 mt-2">
               {greeting}, {userData.first_name}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-700 text-center text-lg font-normal mb-2">
+            <p className="text-center text-lg font-normal mb-2">
               Today is {new Date().toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
@@ -145,29 +146,50 @@ export default function HomePage() {
           </CardContent>
         </Card>
       </div>
-
-      <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl">
-      <Card 
-        className={`
-          shadow-lg hover:shadow-xl transition-shadow
-          ${baseCardClass}
-          ${isVisible ? visibleCardClass : hiddenCardClass}
-          delay-100
-        `}
-      >
+  
+      {/* Major Indices Header Block */}
+      <div className="w-full max-w-4xl mt-8 flex justify-start">
+        <Card 
+          className={`
+            shadow-lg hover:shadow-xl
+            ${baseCardClass}
+            ${isVisible ? visibleCardClass : hiddenCardClass}
+          `}
+        >
+          <CardHeader className="py-2">
+            <CardTitle className="text-lg font-medium flex items-center gap-2">
+              <span className="mr-3">Major Indices</span>
+              <span className="h-3 w-3 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-green-600 text-base font-normal animate-pulse">1 min. delay</span>
+            </CardTitle>
+          </CardHeader>
+        </Card>
+      </div>
+  
+      {/* Indices Grid Block */}
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl">
+        <Card 
+          className={`
+            shadow-lg hover:shadow-xl
+            ${baseCardClass}
+            ${isVisible ? visibleCardClass : hiddenCardClass}
+            delay-100
+          `}
+        >
           <CardHeader>
             <CardTitle className="text-lg font-medium">DJIA (^DJI)</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
+            <p className="text-green-600 text-base font-normal mr-2 animate-pulse">Latest price</p>
             <p className="text-3xl font-normal">
               {isIndexLoading ? 'Loading...' : formatMoney(marketData.dow)}
             </p>
           </CardContent>
         </Card>
+  
         <Card 
           className={`
-            shadow-lg hover:shadow-xl transition-shadow
+            shadow-lg hover:shadow-xl
             ${baseCardClass}
             ${isVisible ? visibleCardClass : hiddenCardClass}
             delay-150
@@ -177,15 +199,16 @@ export default function HomePage() {
             <CardTitle className="text-lg font-medium">S&P 500 (^GSPC)</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
+            <p className="text-green-600 text-base font-normal mr-2 animate-pulse">Latest price</p>
             <p className="text-3xl font-normal">
               {isIndexLoading ? 'Loading...' : formatMoney(marketData.spx)}
             </p>
           </CardContent>
         </Card>
+  
         <Card 
           className={`
-            shadow-lg hover:shadow-xl transition-shadow
+            shadow-lg hover:shadow-xl
             ${baseCardClass}
             ${isVisible ? visibleCardClass : hiddenCardClass}
             delay-200
@@ -195,14 +218,14 @@ export default function HomePage() {
             <CardTitle className="text-lg font-medium">Nasdaq Composite (^IXIC)</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-green-600 text-base font-medium mr-2 animate-pulse">Live</p>
+            <p className="text-green-600 text-base font-normal mr-2 animate-pulse">Latest price</p>
             <p className="text-3xl font-normal">
               {isIndexLoading ? 'Loading...' : formatMoney(marketData.nasdaq)}
             </p>
           </CardContent>
         </Card>
       </div>
-
+  
       {indexError && (
         <p className="text-red-600 mt-4">
           {indexError}
