@@ -250,7 +250,7 @@ export default function PortfolioPage() {
                 {positions.length === 0 ? (
                   <p className="text-gray-500">No positions in portfolio</p>
                 ) : (
-                  <div className="space-y-4 w-full">
+                  <div className="space-y-6 w-full">
                     {sortedPositions.map((position) => {
                       const { dollarChange, percentChange } = calculateChange(
                         position.current_price,
@@ -311,6 +311,9 @@ export default function PortfolioPage() {
                       );
 
                     })}
+                    <div className="mt-4 text-base text-gray-500 text-center">
+                      Total holdings: {positions.length}
+                    </div>
                   </div>
                 )}
               </div>
