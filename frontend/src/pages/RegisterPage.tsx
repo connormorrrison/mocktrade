@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
@@ -22,6 +22,16 @@ export default function RegisterPage() {
     password: '',
     confirmPassword: ''
   })
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const baseCardClass = "transform transition-all duration-500 ease-out";
+  const hiddenCardClass = "opacity-0 translate-y-4 scale-95";
+  const visibleCardClass = "opacity-100 translate-y-0 scale-100";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -66,7 +76,11 @@ export default function RegisterPage() {
       <div className="flex-1 flex flex-col min-h-screen">
         <main className="flex-1 w-full flex items-center justify-center mt-8">
           <div className="w-full max-w-md">
-            <Card className="shadow-lg hover:shadow-xl backdrop-blur-sm bg-white/90">
+          <Card className={`
+            shadow-lg hover:shadow-xl backdrop-blur-sm bg-white/90
+            ${baseCardClass}
+            ${isVisible ? visibleCardClass : hiddenCardClass}
+          `}>
               <CardHeader className="pt-2 pb-2 -mb-4">
                 <div className="flex flex-col items-center">
                   <img
