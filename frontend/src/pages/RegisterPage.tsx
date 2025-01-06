@@ -101,7 +101,7 @@ export default function RegisterPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label htmlFor="firstName" className="text-base font-medium text-gray-700">
-                        First Name
+                        First Name*
                       </label>
                       <Input
                         id="firstName"
@@ -116,7 +116,7 @@ export default function RegisterPage() {
                     </div>
                     <div className="space-y-2">
                       <label htmlFor="lastName" className="text-base font-medium text-gray-700">
-                        Last Name
+                        Last Name*
                       </label>
                       <Input
                         id="lastName"
@@ -133,7 +133,7 @@ export default function RegisterPage() {
 
                   <div className="space-y-2">
                     <label htmlFor="email" className="text-base font-medium text-gray-700">
-                      Email
+                      Email*
                     </label>
                     <Input
                       id="email"
@@ -150,7 +150,7 @@ export default function RegisterPage() {
 
                   <div className="space-y-2">
                     <label htmlFor="username" className="text-base font-medium text-gray-700">
-                      Username
+                      Username*
                     </label>
                     <Input
                       id="username"
@@ -166,7 +166,7 @@ export default function RegisterPage() {
 
                   <div className="space-y-2">
                     <label htmlFor="password" className="text-base font-medium text-gray-700">
-                      Password
+                      Password*
                     </label>
                     <div className="relative">
                       <Input
@@ -190,18 +190,26 @@ export default function RegisterPage() {
 
                   <div className="space-y-2">
                     <label htmlFor="confirmPassword" className="text-base font-medium text-gray-700">
-                      Confirm Password
+                      Confirm Password*
                     </label>
-                    <Input
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      type="password"
-                      placeholder="Confirm Password"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      required
-                      className="w-full bg-white/50 backdrop-blur-sm"
-                    />
+                    <div className="relative">
+                      <Input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Confirm Password"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        required
+                        className="w-full pr-10 bg-white/50 backdrop-blur-sm"
+                      />
+                      <span
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 cursor-pointer"
+                      >
+                        {showPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="pt-2">
