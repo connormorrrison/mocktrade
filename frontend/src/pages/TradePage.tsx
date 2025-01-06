@@ -519,7 +519,7 @@ useEffect(() => {
                 <DialogHeader>
                   <div className="flex items-center gap-4">
                     <CheckCircle className="h-6 w-6 text-green-600" />
-                    <DialogTitle>Order Successful</DialogTitle>
+                    <DialogTitle>Order Confirmed</DialogTitle>
                   </div>
                   <DialogDescription className="text-base pt-2">
                       Your order has been executed. Please visit the Transactions tab for details.
