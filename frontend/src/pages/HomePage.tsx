@@ -14,6 +14,16 @@ export default function HomePage() {
   });
   const [isIndexLoading, setIsIndexLoading] = useState(false);
   const [indexError, setIndexError] = useState<string | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const baseCardClass = "transform transition-all duration-500 ease-out";
+  const hiddenCardClass = "opacity-0 translate-y-4 scale-95";
+  const visibleCardClass = "opacity-100 translate-y-0 scale-100";
 
   // Memoize fetchIndexData
   const fetchIndexData = useCallback(async () => {
@@ -95,7 +105,13 @@ export default function HomePage() {
   return (
     <div className="flex flex-col justify-center items-center h-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl">
-        <Card className="col-span-1 sm:col-span-2 lg:col-span-3 shadow-lg hover:shadow-xl transition-shadow">
+      <Card 
+        className={`
+          col-span-1 sm:col-span-2 lg:col-span-3 shadow-lg hover:shadow-xl transition-shadow
+          ${baseCardClass}
+          ${isVisible ? visibleCardClass : hiddenCardClass}
+        `}
+      >
           <CardHeader>
             <CardTitle className="text-4xl text-center font-normal text-blue-700 -mb-2 mt-2">
               Welcome back, {userData.first_name}
@@ -114,7 +130,14 @@ export default function HomePage() {
       </div>
 
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl">
-        <Card className="shadow-lg hover:shadow-xl transition-shadow">
+      <Card 
+        className={`
+          shadow-lg hover:shadow-xl transition-shadow
+          ${baseCardClass}
+          ${isVisible ? visibleCardClass : hiddenCardClass}
+          delay-100
+        `}
+      >
           <CardHeader>
             <CardTitle className="text-lg font-medium">DJIA (^DJI)</CardTitle>
           </CardHeader>
@@ -125,7 +148,14 @@ export default function HomePage() {
             </p>
           </CardContent>
         </Card>
-        <Card className="shadow-lg hover:shadow-xl transition-shadow">
+        <Card 
+          className={`
+            shadow-lg hover:shadow-xl transition-shadow
+            ${baseCardClass}
+            ${isVisible ? visibleCardClass : hiddenCardClass}
+            delay-150
+          `}
+        >
           <CardHeader>
             <CardTitle className="text-lg font-medium">S&P 500 (^GSPC)</CardTitle>
           </CardHeader>
@@ -136,7 +166,14 @@ export default function HomePage() {
             </p>
           </CardContent>
         </Card>
-        <Card className="shadow-lg hover:shadow-xl transition-shadow">
+        <Card 
+          className={`
+            shadow-lg hover:shadow-xl transition-shadow
+            ${baseCardClass}
+            ${isVisible ? visibleCardClass : hiddenCardClass}
+            delay-200
+          `}
+        >
           <CardHeader>
             <CardTitle className="text-lg font-medium">Nasdaq Composite (^IXIC)</CardTitle>
           </CardHeader>

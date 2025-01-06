@@ -29,6 +29,16 @@ export default function PortfolioPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [sortOption, setSortOption] = useState<string>('symbol'); // Sorting state
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const baseCardClass = "transform transition-all duration-500 ease-out";
+  const hiddenCardClass = "opacity-0 translate-y-4 scale-95";
+  const visibleCardClass = "opacity-100 translate-y-0 scale-100";
 
   useEffect(() => {
     fetchPortfolioData();
@@ -125,7 +135,11 @@ export default function PortfolioPage() {
 
   return (
     <div className="p-8 w-full mt-8">
-      <Card className="w-full shadow-lg hover:shadow-xl transition-shadow">
+              <Card className={`
+                w-full shadow-lg hover:shadow-xl transition-shadow
+                ${baseCardClass}
+                ${isVisible ? visibleCardClass : hiddenCardClass}
+              `}>
         <CardHeader>
           <CardTitle className="text-3xl font-normal">Portfolio</CardTitle>
         </CardHeader>
