@@ -1,6 +1,7 @@
 // src/pages/TradePage.tsx
 
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ export default function TradePage() {
   const [availableCash, setAvailableCash] = useState(null); // Initial cash balance
   const [sharesOwned, setSharesOwned] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+  const { symbol: urlSymbol } = useParams<{ symbol?: string }>();
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
@@ -47,6 +49,21 @@ export default function TradePage() {
   useEffect(() => {
     fetchPortfolioData();
   }, []);
+
+  // Add this useEffect after your other useEffects
+  useEffect(() => {
+    if (urlSymbol) {
+      setSymbol(urlSymbol.toUpperCase());
+    }
+  }, [urlSymbol]);
+
+  // Separate useEffect to handle fetching price when symbol changes
+  useEffect(() => {
+    if (symbol) {
+      fetchStockPrice();
+    }
+  }, [symbol]); // Run when symbol changes
+
 
   const fetchPortfolioData = async () => {
     try {

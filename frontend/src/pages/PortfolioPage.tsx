@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Pie } from 'react-chartjs-2';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
@@ -27,6 +28,7 @@ export default function PortfolioPage() {
   const [initialInvestment, setInitialInvestment] = useState(0); // Dynamically fetched
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const [sortOption, setSortOption] = useState<string>('symbol'); // Sorting state
   const [isVisible, setIsVisible] = useState(false);
@@ -257,7 +259,7 @@ export default function PortfolioPage() {
                           {/* Add the new Trade button */}
                           <div className="ml-8 flex items-center">
                             <button
-                              onClick={() => window.location.href = `/trade/${position.symbol}`}
+                              onClick={() => navigate(`/trade/${position.symbol}`)}
                               className="px-6 py-2 mr-6 bg-blue-600 text-white text-base rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
                             >
                               Trade

@@ -10,21 +10,17 @@ import TransactionPage from './pages/TransactionsPage'
 import ProfilePage from './pages/ProfilePage'
 import DashboardLayout from './components/DashboardLayout'
 
-// Protected Route component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem('token')
   console.log('ProtectedRoute: Checking token:', !!token);
-  
   if (!token) {
     console.log('ProtectedRoute: No token, redirecting to login');
     return <Navigate to="/login" replace />
   }
-  
   console.log('ProtectedRoute: Token found, rendering children');
   return <DashboardLayout>{children}</DashboardLayout>
 }
 
-// Add "export default" here
 export default function App() {
   return (
     <BrowserRouter>
@@ -51,8 +47,17 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          {/* Updated trade routes */}
           <Route
             path="/trade"
+            element={
+              <ProtectedRoute>
+                <TradePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/trade/:symbol"
             element={
               <ProtectedRoute>
                 <TradePage />
@@ -75,7 +80,6 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-
           {/* Redirects */}
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/dashboard" element={<Navigate to="/home" replace />} />
