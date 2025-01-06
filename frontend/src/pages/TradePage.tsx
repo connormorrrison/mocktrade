@@ -300,7 +300,7 @@ useEffect(() => {
           </div>
 
           {symbol && price && !error && price !== 0 && (
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg transition-all duration-200 ease-in-out border border-gray-200">
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg transition-all duration-200 ease-in-out border border-gray-200 shadow-md">
             <div className="flex justify-between items-center">
               <div>
                 <p className="text-base text-gray-500 ml-2">Market Price for {displaySymbol}</p>
@@ -339,20 +339,20 @@ useEffect(() => {
                 <div className="flex gap-2">
                   <Button 
                     variant="outline"
-                    className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
+                    className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200 shadow-md
                       ${action === 'buy' 
-                        ? 'bg-green-600 text-base text-white border-green-600 hover:bg-green-600 hover:border-green-600' 
-                        : 'bg-white text-base text-gray-700 border-gray-300 hover:bg-green-600 hover:text-white hover:border-green-600'}`}
+                        ? 'bg-green-600 text-base text-white border-gray-200 hover:bg-green-600' 
+                        : 'bg-white text-base border-gray-200 hover:bg-green-600 hover:text-white'}`}
                     onClick={() => setAction('buy')}
                   >
                     Buy
                   </Button>
                   <Button 
                     variant="outline"
-                    className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
+                    className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200 shadow-md
                       ${action === 'sell' 
-                        ? 'bg-red-600 text-base text-white border-red-600 hover:bg-red-600 hover:border-red-600' 
-                        : 'bg-white text-base text-gray-700 border-gray-300 hover:bg-red-600 hover:text-white hover:border-red-600'}`}
+                        ? 'bg-red-600 text-base text-white border-gray-200 hover:bg-red-600' 
+                        : 'bg-white text-base border-gray-200 hover:bg-red-600 hover:text-white'}`}
                     onClick={() => setAction('sell')}
                     disabled={sharesOwned <= 0}
                     title={sharesOwned <= 0 ? "You don't own any shares to sell" : ""}

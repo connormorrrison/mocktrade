@@ -261,7 +261,7 @@ export default function PortfolioPage() {
                       return (
                         <div
                           key={position.symbol}
-                          className="flex justify-between items-center p-2 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100"
+                          className="flex justify-between items-center p-2 bg-gray-50 rounded-lg border border-gray-200 shadow-md"
                         >
                           <div className="flex-1">
                             <div className="flex items-baseline gap-3">
@@ -302,7 +302,7 @@ export default function PortfolioPage() {
                           <div className="ml-8 flex items-center">
                             <button
                               onClick={() => navigate(`/trade/${position.symbol}`)}
-                              className="px-6 py-2 mr-6 bg-blue-600 text-white text-base rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                              className="px-6 py-2 mr-6 text-white text-base"
                             >
                               Trade
                             </button>
