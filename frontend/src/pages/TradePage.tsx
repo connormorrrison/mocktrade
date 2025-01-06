@@ -242,6 +242,7 @@ const handleSubmitOrder = async () => {
                 className={error && !symbol ? 'border-red-500' : ''}
               />
               <Button
+                className="text-base"
                 onClick={fetchStockPrice}
                 disabled={isLoading}
               >
@@ -293,8 +294,8 @@ const handleSubmitOrder = async () => {
                     variant="outline"
                     className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
                       ${action === 'buy' 
-                        ? 'bg-green-600 text-white border-green-600 hover:bg-green-600 hover:border-green-600' 
-                        : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-green-600 hover:text-white hover:border-green-600'}`}
+                        ? 'bg-green-600 text-base text-white border-green-600 hover:bg-green-600 hover:border-green-600' 
+                        : 'bg-white text-base text-gray-700 border-gray-300 hover:bg-green-600 hover:text-white hover:border-green-600'}`}
                     onClick={() => setAction('buy')}
                   >
                     Buy
@@ -303,8 +304,8 @@ const handleSubmitOrder = async () => {
                     variant="outline"
                     className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200
                       ${action === 'sell' 
-                        ? 'bg-red-600 text-white border-red-600 hover:bg-red-600 hover:border-red-600' 
-                        : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-red-600 hover:text-white hover:border-red-600'}`}
+                        ? 'bg-red-600 text-base text-white border-red-600 hover:bg-red-600 hover:border-red-600' 
+                        : 'bg-white text-base text-gray-700 border-gray-300 hover:bg-red-600 hover:text-white hover:border-red-600'}`}
                     onClick={() => setAction('sell')}
                     disabled={sharesOwned <= 0}
                     title={sharesOwned <= 0 ? "You don't own any shares to sell" : ""}

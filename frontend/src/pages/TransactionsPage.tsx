@@ -216,7 +216,6 @@ export default function TransactionsPage() {
                 {/* Export Button */}
                 <div className="flex items-center mt-2 md:mt-0">
                   <Button
-                    variant="outline"
                     className="text-base"
                     onClick={handleExport}>Export</Button>
                 </div>

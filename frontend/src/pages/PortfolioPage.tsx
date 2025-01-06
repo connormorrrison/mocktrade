@@ -154,27 +154,27 @@ export default function PortfolioPage() {
               <div className="space-y-2">
                 <h3 className="text-xl font-medium">Account Summary</h3>
                 <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-gray-500">Cash Balance</p>
-                    <p className="text-2xl font-bold">{formatMoney(cashBalance)}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Total Portfolio Value</p>
-                    <p className="text-2xl font-bold">{formatMoney(totalPortfolioValue)}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Cumulative Return</p>
-                    <p
-                      className={`text-2xl font-bold ${
-                        cumulativeReturn >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}
-                    >
-                      {cumulativeReturn >= 0
-                        ? `+${cumulativeReturn.toFixed(2)}%`
-                        : `${cumulativeReturn.toFixed(2)}%`}
-                    </p>
-                  </div>
+                <div>
+                  <p className="text-gray-500">Total Portfolio Value</p>
+                  <p className="text-4xl font-semibold">{formatMoney(totalPortfolioValue)}</p>
                 </div>
+                <div>
+                  <p className="text-gray-500">Cash Balance</p>
+                  <p className="text-2xl font-semibold">{formatMoney(cashBalance)}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Cumulative Return</p>
+                  <p
+                    className={`text-2xl font-semibold ${
+                      cumulativeReturn >= 0 ? 'text-green-600' : 'text-red-600'
+                    }`}
+                  >
+                    {cumulativeReturn >= 0
+                      ? `+${cumulativeReturn.toFixed(2)}%`
+                      : `${cumulativeReturn.toFixed(2)}%`}
+                  </p>
+                </div>
+              </div>
               </div>
 
               <div>
@@ -221,7 +221,7 @@ export default function PortfolioPage() {
                         >
                           <div className="flex-1">
                             <div className="flex items-baseline gap-3">
-                              <p className="text-lg font-semibold text-gray-900 ml-2">{position.symbol}</p>
+                              <p className="text-lg font-semibold text-gray-900 ml-6">{position.symbol}</p>
                               <p className="text-base text-gray-500">
                                 {position.shares.toLocaleString()}{' '}
                                 {position.shares === 1 ? 'share' : 'shares'}
@@ -255,10 +255,10 @@ export default function PortfolioPage() {
                           </div>
                     
                           {/* Add the new Trade button */}
-                          <div className="ml-6 flex items-center">
+                          <div className="ml-8 flex items-center">
                             <button
                               onClick={() => window.location.href = `/trade/${position.symbol}`}
-                              className="px-6 py-2 mr-3 bg-blue-600 text-white text-base rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                              className="px-6 py-2 mr-6 bg-blue-600 text-white text-base rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
                             >
                               Trade
                             </button>
