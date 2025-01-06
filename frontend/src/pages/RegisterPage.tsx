@@ -46,7 +46,7 @@ export default function RegisterPage() {
     setError('')
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match')
+      setError('Passwords do not match.')
       return
     }
 
@@ -93,8 +93,8 @@ export default function RegisterPage() {
 
               <CardContent className="px-8 pb-8">
                 {error && (
-                  <Alert variant="destructive" className="mb-4 mt-2 text-center">
-                    <AlertDescription>{error}</AlertDescription>
+                  <Alert variant="destructive" className="text-center mb-4 mt-2">
+                    <AlertDescription className="text-base">{error}</AlertDescription>
                   </Alert>
                 )}
                 <form onSubmit={handleSubmit} className="space-y-6">

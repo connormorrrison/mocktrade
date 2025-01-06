@@ -4,6 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUser } from '../contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
 
+const getTimeBasedGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return "Good morning";
+  if (hour >= 12 && hour < 17) return "Good afternoon";
+  if (hour >= 17 && hour < 22) return "Good evening";
+  return "Good night";
+};
+
 export default function HomePage() {
   const { userData, refreshUserData } = useUser();
   const navigate = useNavigate();
@@ -15,10 +23,19 @@ export default function HomePage() {
   const [isIndexLoading, setIsIndexLoading] = useState(false);
   const [indexError, setIndexError] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [greeting, setGreeting] = useState(getTimeBasedGreeting());
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
-    return () => clearTimeout(timer);
+    // Update greeting every minute
+    const greetingInterval = setInterval(() => {
+      setGreeting(getTimeBasedGreeting());
+    }, 60000);
+    
+    return () => {
+      clearTimeout(timer);
+      clearInterval(greetingInterval);
+    };
   }, []);
 
   const baseCardClass = "transform transition-all duration-500 ease-out";
@@ -113,8 +130,8 @@ export default function HomePage() {
         `}
       >
           <CardHeader>
-            <CardTitle className="text-4xl text-center font-normal text-blue-700 -mb-2 mt-2">
-              Welcome back, {userData.first_name}
+          <CardTitle className="text-4xl text-center font-normal text-blue-700 -mb-2 mt-2">
+              {greeting}, {userData.first_name}
             </CardTitle>
           </CardHeader>
           <CardContent>
