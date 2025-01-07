@@ -60,23 +60,30 @@ export default function PortfolioPage() {
       const response = await fetch('http://localhost:8000/api/v1/trading/portfolio', {
         headers: { Authorization: `Bearer ${token}` },
       });
-
+  
       if (!response.ok) {
         throw new Error('Failed to fetch portfolio data');
       }
-
+  
       const data = await response.json();
-
-      const validPositions = (data.positions || []).map(position => ({
-        ...position,
-        shares: typeof position.shares === 'number' ? position.shares : 0,
-        current_price: typeof position.current_price === 'number' ? position.current_price : 0,
-        previous_price: typeof position.previous_price === 'number' ? position.previous_price : 0,
-      }));
-
+  
+      const validPositions = (data.positions || []).map(position => {
+        const current = typeof position.current_price === 'number' ? position.current_price : 0;
+        const previous = typeof position.previous_price === 'number' && position.previous_price !== 0 
+          ? position.previous_price 
+          : current; // Use current price if no previous price available
+        
+        return {
+          ...position,
+          shares: typeof position.shares === 'number' ? position.shares : 0,
+          current_price: current,
+          previous_price: previous,
+        };
+      });
+  
       setPositions(validPositions);
       setCashBalance(typeof data.cash_balance === 'number' ? data.cash_balance : 0);
-      setInitialInvestment(data.initial_investment || 100000); // Fallback if not provided
+      setInitialInvestment(data.initial_investment || 100000);
       setError(null);
     } catch (err) {
       setError('Unable to load portfolio data');
@@ -302,7 +309,7 @@ export default function PortfolioPage() {
                           <div className="ml-8 flex items-center">
                             <button
                               onClick={() => navigate(`/trade/${position.symbol}`)}
-                              className="px-6 py-2 mr-6 text-white text-base"
+                              className="px-6 py-2 mr-6 bg-black text-white text-base"
                             >
                               Trade
                             </button>
