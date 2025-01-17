@@ -1,17 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Pie } from 'react-chartjs-2';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
+import { Pie, Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   ArcElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
   Tooltip,
-  Legend,
+  Legend
 } from 'chart.js';
 
 // Register Chart.js components
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(
+  ArcElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 // Portfolio position interface with additional fields for calculations
 interface PortfolioPosition {
@@ -29,9 +43,10 @@ export default function PortfolioPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-
   const [sortOption, setSortOption] = useState<string>('symbol'); // Sorting state
   const [isVisible, setIsVisible] = useState(false);
+  const [testStockData, setTestStockData] = useState<any>(null);
+  const [testDataLoading, setTestDataLoading] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
@@ -92,6 +107,30 @@ export default function PortfolioPage() {
       setIsLoading(false);
     }
   };
+
+  const fetchTestHistoricalData = async (range: string) => {
+    setTestDataLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      // Pass the range to your API endpoint (change param name as appropriate)
+      const response = await fetch(`http://localhost:8000/api/v1/stocks/history/AAPL?range=${range}`, {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      if (!response.ok) throw new Error('Failed to fetch data');
+      const data = await response.json();
+      console.log('Historical data:', data);
+      setTestStockData(data);
+    } catch (err) {
+      console.error('Error:', err);
+    } finally {
+      setTestDataLoading(false);
+    }
+  };
+  
 
   const formatMoney = (value: number | null | undefined) => {
     if (typeof value !== 'number' || isNaN(value)) {
@@ -226,6 +265,97 @@ export default function PortfolioPage() {
                   </p>
                 </div>
               </div>
+              </div>
+
+              {/* Replace the existing test section with this */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-medium">Historical Data Test</h3>
+                <div className="flex gap-4 items-center">
+                <select
+                  className="border border-gray-300 rounded-md p-1"
+                  defaultValue="1mo"
+                  onChange={(e) => {
+                    const range = e.target.value;
+                    fetchTestHistoricalData(range);  // pass the range
+                  }}
+                >
+                  <option value="1mo">1 Month</option>
+                  <option value="3mo">3 Months</option>
+                  <option value="6mo">6 Months</option>
+                  <option value="1y">1 Year</option>
+                  <option value="2y">2 Years</option>
+                  <option value="5y">5 Years</option>
+                  <option value="max">Max</option>
+                </select>
+
+                <button 
+                  onClick={() => fetchTestHistoricalData("1mo")}  // or whichever range you prefer
+                  className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
+                  disabled={testDataLoading}
+                >
+                  {testDataLoading ? 'Loading...' : 'Fetch Data'}
+                </button>
+
+                </div>
+
+                {testStockData && (
+                  <div className="space-y-4">
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <p><strong>Current Price:</strong> {formatMoney(testStockData.current_price)}</p>
+                      <p>
+                        <strong>Change:</strong> 
+                        <span className={testStockData.change >= 0 ? 'text-green-600' : 'text-red-600'}>
+                          {testStockData.change >= 0 ? '+' : ''}{formatMoney(testStockData.change)} 
+                          ({testStockData.change_percent.toFixed(2)}%)
+                        </span>
+                      </p>
+                      <p><strong>Data Points:</strong> {testStockData.historical_prices?.length || 0}</p>
+                      <p><strong>Date Range:</strong> {' '}
+                        {testStockData.historical_prices?.length > 0 ? (
+                          <>
+                            {new Date(testStockData.historical_prices[0].date).toLocaleDateString()} - {' '}
+                            {new Date(testStockData.historical_prices[testStockData.historical_prices.length - 1].date).toLocaleDateString()}
+                          </>
+                        ) : 'No data'}
+                      </p>
+                    </div>
+                    
+                    <div className="h-96 bg-white p-4 rounded-lg">
+                      <Line 
+                        data={{
+                          labels: testStockData.historical_prices.map(p => new Date(p.date).toLocaleDateString()),
+                          datasets: [{
+                            label: 'AAPL Price',
+                            data: testStockData.historical_prices.map(p => p.close),
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1
+                          }]
+                        }}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: {
+                              position: 'top',
+                            },
+                            title: {
+                              display: true,
+                              text: 'AAPL Price History'
+                            }
+                          },
+                          scales: {
+                            y: {
+                              beginAtZero: false,
+                              ticks: {
+                                callback: value => formatMoney(value)
+                              }
+                            }
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
