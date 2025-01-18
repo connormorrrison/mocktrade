@@ -47,6 +47,8 @@ export default function PortfolioPage() {
   const [isVisible, setIsVisible] = useState(false);
   const [testStockData, setTestStockData] = useState<any>(null);
   const [testDataLoading, setTestDataLoading] = useState(false);
+  const [portfolioHistory, setPortfolioHistory] = useState<any>(null);
+  const [portfolioHistoryLoading, setPortfolioHistoryLoading] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
@@ -107,6 +109,76 @@ export default function PortfolioPage() {
       setIsLoading(false);
     }
   };
+
+// If your backend doesn't require the positions from the client 
+// (maybe it fetches them by user automatically), you can do:
+
+const fetchPortfolioHistory = async (range: string) => {
+  setPortfolioHistoryLoading(true);
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(
+      `http://localhost:8000/api/v1/stocks/portfolio/history?range=${range}`, 
+      {
+        method: 'GET', // or simply remove method since GET is default
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) throw new Error('Failed to fetch portfolio history');
+    const data = await response.json();
+    setPortfolioHistory(data);
+  } catch (err) {
+    console.error('Error fetching portfolio history:', err);
+  } finally {
+    setPortfolioHistoryLoading(false);
+  }
+};
+
+
+  function aggregatePortfolioHistory(rawData: any): Array<{ date: string; totalValue: number }> {
+    // rawData looks like: {
+    //   "AAPL": [{ "date": "...", "value": 123.45 }, ...],
+    //   "MSFT": [{ "date": "...", "value": 210.12 }, ...],
+    //   ...
+    // }
+  
+    // 1. Collect all unique dates across all symbols.
+    const allDates = new Set<string>();
+    for (const symbol in rawData) {
+      rawData[symbol].forEach((entry: any) => {
+        allDates.add(entry.date);
+      });
+    }
+  
+    // 2. For each date, sum up the values from all symbols.
+    const dateValueMap: Record<string, number> = {};
+    allDates.forEach((date) => {
+      let totalOnThisDate = 0;
+  
+      for (const symbol in rawData) {
+        // Find the entry with matching date, if any.
+        const entry = rawData[symbol].find((e: any) => e.date === date);
+        if (entry) {
+          totalOnThisDate += entry.value;
+        }
+      }
+      dateValueMap[date] = totalOnThisDate;
+    });
+  
+    // 3. Convert the dateValueMap to a sorted array by date
+    const combinedHistory = Object.keys(dateValueMap)
+      .map((date) => ({
+        date,
+        totalValue: dateValueMap[date],
+      }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  
+    return combinedHistory;
+  }  
 
   const fetchTestHistoricalData = async (range: string) => {
     setTestDataLoading(true);
@@ -223,6 +295,56 @@ export default function PortfolioPage() {
     }
   });
 
+  function PortfolioHistoryChart({ portfolioData }: { portfolioData: any }) {
+    const combinedHistory = aggregatePortfolioHistory(portfolioData); 
+    // from Step 3 above
+  
+    if (!combinedHistory || combinedHistory.length === 0) {
+      return <p>No portfolio history found.</p>;
+    }
+  
+    const chartData = {
+      labels: combinedHistory.map((item) =>
+        new Date(item.date).toLocaleDateString()
+      ),
+      datasets: [
+        {
+          label: 'Portfolio Value',
+          data: combinedHistory.map((item) => item.totalValue),
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.1,
+        },
+      ],
+    };
+  
+    const chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top' as const },
+        title: {
+          display: true,
+          text: 'Portfolio Value Over Time',
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          ticks: {
+            callback: (value: number) => formatMoney(value),
+          },
+        },
+      },
+    };
+  
+    return (
+      <div className="h-96 bg-white p-4 rounded-lg">
+        <Line data={chartData} options={chartOptions} />
+      </div>
+    );
+  }
+  
+
   return (
     <div className="p-8 w-full mt-8">
               <Card className={`
@@ -266,6 +388,44 @@ export default function PortfolioPage() {
                 </div>
               </div>
               </div>
+              
+              {/* Portfolio Performance Chart */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-medium">Portfolio Performance Over Time</h3>
+                <div className="flex gap-4 items-center">
+                  <select
+                    className="border border-gray-300 rounded-md p-1"
+                    defaultValue="1mo"
+                    onChange={(e) => {
+                      const range = e.target.value;
+                      fetchPortfolioHistory(range);
+                    }}
+                  >
+                    <option value="1mo">1 Month</option>
+                    <option value="3mo">3 Months</option>
+                    <option value="6mo">6 Months</option>
+                    <option value="1y">1 Year</option>
+                    <option value="2y">2 Years</option>
+                    <option value="5y">5 Years</option>
+                    <option value="max">Max</option>
+                  </select>
+
+                  <button
+                    onClick={() => fetchPortfolioHistory('1mo')}
+                    className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
+                    disabled={portfolioHistoryLoading}
+                  >
+                    {portfolioHistoryLoading ? 'Loading...' : 'Fetch Portfolio'}
+                  </button>
+                </div>
+
+                {/* If we have data, show the line chart */}
+                {portfolioHistory && Object.keys(portfolioHistory).length > 0 && (
+                  <PortfolioHistoryChart portfolioData={portfolioHistory} />
+                )}
+              </div>
+
+
 
               {/* Replace the existing test section with this */}
               <div className="space-y-4">
