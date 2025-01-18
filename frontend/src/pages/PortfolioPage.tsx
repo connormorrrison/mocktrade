@@ -45,10 +45,17 @@ export default function PortfolioPage() {
   const navigate = useNavigate();
   const [sortOption, setSortOption] = useState<string>('symbol'); // Sorting state
   const [isVisible, setIsVisible] = useState(false);
-  const [testStockData, setTestStockData] = useState<any>(null);
-  const [testDataLoading, setTestDataLoading] = useState(false);
+  const [selectedTimeRange, setSelectedTimeRange] = useState('1mo');
   const [portfolioHistory, setPortfolioHistory] = useState<any>(null);
   const [portfolioHistoryLoading, setPortfolioHistoryLoading] = useState(false);
+  const [testStockData, setTestStockData] = useState<any>(null);
+  const [expandedSymbol, setExpandedSymbol] = useState<string | null>(null);
+  
+  // Fetch historical data whenever timerange changes
+  useEffect(() => {
+    fetchPortfolioHistory(selectedTimeRange);
+    fetchTestHistoricalData(selectedTimeRange);
+  }, [selectedTimeRange]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
@@ -70,6 +77,14 @@ export default function PortfolioPage() {
     // Cleanup interval on unmount
     return () => clearInterval(intervalId);
   }, []);
+
+  const toggleSymbolExpansion = (symbol: string) => {
+    setExpandedSymbol(expandedSymbol === symbol ? null : symbol);
+    // When expanding, fetch the data for this symbol
+    if (expandedSymbol !== symbol) {
+      fetchTestHistoricalData(selectedTimeRange, symbol);
+    }
+  };
 
   const fetchPortfolioData = async () => {
     try {
@@ -114,13 +129,11 @@ export default function PortfolioPage() {
 // (maybe it fetches them by user automatically), you can do:
 
 const fetchPortfolioHistory = async (range: string) => {
-  setPortfolioHistoryLoading(true);
   try {
     const token = localStorage.getItem('token');
     const response = await fetch(
       `http://localhost:8000/api/v1/stocks/portfolio/history?range=${range}`, 
       {
-        method: 'GET', // or simply remove method since GET is default
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -133,8 +146,6 @@ const fetchPortfolioHistory = async (range: string) => {
     setPortfolioHistory(data);
   } catch (err) {
     console.error('Error fetching portfolio history:', err);
-  } finally {
-    setPortfolioHistoryLoading(false);
   }
 };
 
@@ -180,12 +191,10 @@ const fetchPortfolioHistory = async (range: string) => {
     return combinedHistory;
   }  
 
-  const fetchTestHistoricalData = async (range: string) => {
-    setTestDataLoading(true);
+  const fetchTestHistoricalData = async (range: string, symbol: string) => {
     try {
       const token = localStorage.getItem('token');
-      // Pass the range to your API endpoint (change param name as appropriate)
-      const response = await fetch(`http://localhost:8000/api/v1/stocks/history/AAPL?range=${range}`, {
+      const response = await fetch(`http://localhost:8000/api/v1/stocks/history/${symbol}?range=${range}`, {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -194,12 +203,9 @@ const fetchPortfolioHistory = async (range: string) => {
   
       if (!response.ok) throw new Error('Failed to fetch data');
       const data = await response.json();
-      console.log('Historical data:', data);
       setTestStockData(data);
     } catch (err) {
       console.error('Error:', err);
-    } finally {
-      setTestDataLoading(false);
     }
   };
   
@@ -392,52 +398,10 @@ const fetchPortfolioHistory = async (range: string) => {
               {/* Portfolio Performance Chart */}
               <div className="space-y-4">
                 <h3 className="text-xl font-medium">Portfolio Performance Over Time</h3>
-                <div className="flex gap-4 items-center">
-                  <select
-                    className="border border-gray-300 rounded-md p-1"
-                    defaultValue="1mo"
-                    onChange={(e) => {
-                      const range = e.target.value;
-                      fetchPortfolioHistory(range);
-                    }}
-                  >
-                    <option value="1mo">1 Month</option>
-                    <option value="3mo">3 Months</option>
-                    <option value="6mo">6 Months</option>
-                    <option value="1y">1 Year</option>
-                    <option value="2y">2 Years</option>
-                    <option value="5y">5 Years</option>
-                    <option value="max">Max</option>
-                  </select>
-
-                  <button
-                    onClick={() => fetchPortfolioHistory('1mo')}
-                    className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
-                    disabled={portfolioHistoryLoading}
-                  >
-                    {portfolioHistoryLoading ? 'Loading...' : 'Fetch Portfolio'}
-                  </button>
-                </div>
-
-                {/* If we have data, show the line chart */}
-                {portfolioHistory && Object.keys(portfolioHistory).length > 0 && (
-                  <PortfolioHistoryChart portfolioData={portfolioHistory} />
-                )}
-              </div>
-
-
-
-              {/* Replace the existing test section with this */}
-              <div className="space-y-4">
-                <h3 className="text-xl font-medium">Historical Data Test</h3>
-                <div className="flex gap-4 items-center">
                 <select
                   className="border border-gray-300 rounded-md p-1"
-                  defaultValue="1mo"
-                  onChange={(e) => {
-                    const range = e.target.value;
-                    fetchTestHistoricalData(range);  // pass the range
-                  }}
+                  value={selectedTimeRange}
+                  onChange={(e) => setSelectedTimeRange(e.target.value)}
                 >
                   <option value="1mo">1 Month</option>
                   <option value="3mo">3 Months</option>
@@ -448,73 +412,8 @@ const fetchPortfolioHistory = async (range: string) => {
                   <option value="max">Max</option>
                 </select>
 
-                <button 
-                  onClick={() => fetchTestHistoricalData("1mo")}  // or whichever range you prefer
-                  className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
-                  disabled={testDataLoading}
-                >
-                  {testDataLoading ? 'Loading...' : 'Fetch Data'}
-                </button>
-
-                </div>
-
-                {testStockData && (
-                  <div className="space-y-4">
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <p><strong>Current Price:</strong> {formatMoney(testStockData.current_price)}</p>
-                      <p>
-                        <strong>Change:</strong> 
-                        <span className={testStockData.change >= 0 ? 'text-green-600' : 'text-red-600'}>
-                          {testStockData.change >= 0 ? '+' : ''}{formatMoney(testStockData.change)} 
-                          ({testStockData.change_percent.toFixed(2)}%)
-                        </span>
-                      </p>
-                      <p><strong>Data Points:</strong> {testStockData.historical_prices?.length || 0}</p>
-                      <p><strong>Date Range:</strong> {' '}
-                        {testStockData.historical_prices?.length > 0 ? (
-                          <>
-                            {new Date(testStockData.historical_prices[0].date).toLocaleDateString()} - {' '}
-                            {new Date(testStockData.historical_prices[testStockData.historical_prices.length - 1].date).toLocaleDateString()}
-                          </>
-                        ) : 'No data'}
-                      </p>
-                    </div>
-                    
-                    <div className="h-96 bg-white p-4 rounded-lg">
-                      <Line 
-                        data={{
-                          labels: testStockData.historical_prices.map(p => new Date(p.date).toLocaleDateString()),
-                          datasets: [{
-                            label: 'AAPL Price',
-                            data: testStockData.historical_prices.map(p => p.close),
-                            borderColor: 'rgb(75, 192, 192)',
-                            tension: 0.1
-                          }]
-                        }}
-                        options={{
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: {
-                            legend: {
-                              position: 'top',
-                            },
-                            title: {
-                              display: true,
-                              text: 'AAPL Price History'
-                            }
-                          },
-                          scales: {
-                            y: {
-                              beginAtZero: false,
-                              ticks: {
-                                callback: value => formatMoney(value)
-                              }
-                            }
-                          }
-                        }}
-                      />
-                    </div>
-                  </div>
+                {portfolioHistory && Object.keys(portfolioHistory).length > 0 && (
+                  <PortfolioHistoryChart portfolioData={portfolioHistory} />
                 )}
               </div>
 
@@ -556,9 +455,10 @@ const fetchPortfolioHistory = async (range: string) => {
                       const dailyGainLoss = dollarChange * position.shares;
 
                       return (
+                        <div key={position.symbol}>
                         <div
-                          key={position.symbol}
-                          className="flex justify-between items-center p-2 bg-gray-50 rounded-lg border border-gray-200 shadow-md"
+                          onClick={() => toggleSymbolExpansion(position.symbol)}
+                          className="flex justify-between items-center p-2 bg-gray-50 rounded-lg border border-gray-200 shadow-md cursor-pointer hover:bg-gray-100 transition-colors"
                         >
                           <div className="flex-1">
                             <div className="flex items-baseline gap-3">
@@ -580,13 +480,13 @@ const fetchPortfolioHistory = async (range: string) => {
                               <span className="text-gray-500">Market Value: </span>
                               <span className="font-medium text-gray-900">{formatMoney(position.shares * position.current_price)}</span>
                             </p>
-                    
+                      
                             <p className={`text-base ${dollarChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                               {dollarChange >= 0 
                                 ? <><span className="text-gray-500">Gain: </span><span className="font-medium">+{formatMoney(dollarChange)} ({percentChange.toFixed(2)}%)</span></>
                                 : <><span className="text-gray-500">Loss: </span><span className="font-medium">{formatMoney(dollarChange)} ({percentChange.toFixed(2)}%)</span></>}
                             </p>
-                    
+                      
                             <p className="text-base">
                               <span className="text-gray-500">Daily P/L: </span>
                               <span className={`font-medium ${dailyGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -594,17 +494,91 @@ const fetchPortfolioHistory = async (range: string) => {
                               </span>
                             </p>
                           </div>
-                    
-                          {/* Add the new Trade button */}
+                      
                           <div className="ml-8 flex items-center">
                             <button
-                              onClick={() => navigate(`/trade/${position.symbol}`)}
-                              className="px-6 py-2 mr-6 bg-black text-white text-base"
+                              onClick={(e) => {
+                                e.stopPropagation(); // Prevent triggering the parent div's onClick
+                                navigate(`/trade/${position.symbol}`);
+                              }}
+                              className="px-6 py-2 mr-6 bg-black text-white text-base hover:bg-gray-800"
                             >
                               Trade
                             </button>
                           </div>
                         </div>
+                      
+                        {/* Expanded Chart Section */}
+                        {expandedSymbol === position.symbol && testStockData && (
+                          <div className="mt-4 space-y-4 p-4 bg-white rounded-lg border border-gray-200">
+                            <div className="flex justify-between items-center">
+                              <h4 className="text-lg font-medium">{position.symbol} Price History</h4>
+                              <select
+                                className="border border-gray-300 rounded-md p-1"
+                                value={selectedTimeRange}
+                                onChange={(e) => {
+                                  setSelectedTimeRange(e.target.value);
+                                  fetchTestHistoricalData(e.target.value, position.symbol);
+                                }}
+                              >
+                                <option value="1mo">1 Month</option>
+                                <option value="3mo">3 Months</option>
+                                <option value="6mo">6 Months</option>
+                                <option value="1y">1 Year</option>
+                                <option value="2y">2 Years</option>
+                                <option value="5y">5 Years</option>
+                                <option value="max">Max</option>
+                              </select>
+                            </div>
+                      
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                              <p><strong>Current Price:</strong> {formatMoney(testStockData.current_price)}</p>
+                              <p>
+                                <strong>Change:</strong> 
+                                <span className={testStockData.change >= 0 ? 'text-green-600' : 'text-red-600'}>
+                                  {testStockData.change >= 0 ? '+' : ''}{formatMoney(testStockData.change)} 
+                                  ({testStockData.change_percent.toFixed(2)}%)
+                                </span>
+                              </p>
+                            </div>
+                            
+                            <div className="h-96 bg-white rounded-lg">
+                              <Line 
+                                data={{
+                                  labels: testStockData.historical_prices.map(p => new Date(p.date).toLocaleDateString()),
+                                  datasets: [{
+                                    label: `${position.symbol} Price`,
+                                    data: testStockData.historical_prices.map(p => p.close),
+                                    borderColor: 'rgb(75, 192, 192)',
+                                    tension: 0.1
+                                  }]
+                                }}
+                                options={{
+                                  responsive: true,
+                                  maintainAspectRatio: false,
+                                  plugins: {
+                                    legend: {
+                                      position: 'top',
+                                    },
+                                    title: {
+                                      display: true,
+                                      text: `${position.symbol} Price History`
+                                    }
+                                  },
+                                  scales: {
+                                    y: {
+                                      beginAtZero: false,
+                                      ticks: {
+                                        callback: value => formatMoney(value)
+                                      }
+                                    }
+                                  }
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
                       );
 
                     })}
