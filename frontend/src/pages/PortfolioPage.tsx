@@ -1,3 +1,4 @@
+// Imports
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,7 +28,7 @@ ChartJS.register(
   Legend
 );
 
-// Portfolio position interface with additional fields for calculations
+// Portfolio position interface with fields for calculations
 interface PortfolioPosition {
   symbol: string;
   shares: number;
@@ -40,22 +41,24 @@ export default function PortfolioPage() {
   const [positions, setPositions] = useState<PortfolioPosition[]>([]);
   const [cashBalance, setCashBalance] = useState(0);
   const [initialInvestment, setInitialInvestment] = useState(0); // Dynamically fetched
-  const [isLoading, setIsLoading] = useState(true);
+  const [setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const [sortOption, setSortOption] = useState<string>('symbol'); // Sorting state
   const [isVisible, setIsVisible] = useState(false);
   const [selectedTimeRange, setSelectedTimeRange] = useState('1mo');
   const [portfolioHistory, setPortfolioHistory] = useState<any>(null);
-  const [portfolioHistoryLoading, setPortfolioHistoryLoading] = useState(false);
   const [testStockData, setTestStockData] = useState<any>(null);
   const [expandedSymbol, setExpandedSymbol] = useState<string | null>(null);
   
   // Fetch historical data whenever timerange changes
   useEffect(() => {
     fetchPortfolioHistory(selectedTimeRange);
-    fetchTestHistoricalData(selectedTimeRange);
-  }, [selectedTimeRange]);
+    // Only fetch chart data if a symbol is currently expanded
+    if (expandedSymbol) {
+      fetchTestHistoricalData(selectedTimeRange, expandedSymbol);
+    }
+  }, [selectedTimeRange, expandedSymbol]);  
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
@@ -80,10 +83,6 @@ export default function PortfolioPage() {
 
   const toggleSymbolExpansion = (symbol: string) => {
     setExpandedSymbol(expandedSymbol === symbol ? null : symbol);
-    // When expanding, fetch the data for this symbol
-    if (expandedSymbol !== symbol) {
-      fetchTestHistoricalData(selectedTimeRange, symbol);
-    }
   };
 
   const fetchPortfolioData = async () => {
@@ -510,16 +509,13 @@ const fetchPortfolioHistory = async (range: string) => {
                       
                         {/* Expanded Chart Section */}
                         {expandedSymbol === position.symbol && testStockData && (
-                          <div className="mt-4 space-y-4 p-4 bg-white rounded-lg border border-gray-200">
+                          <div className="mt-4 space-y-4 p-4 bg-white rounded-lg border shadow-md border-gray-200">
                             <div className="flex justify-between items-center">
                               <h4 className="text-lg font-medium">{position.symbol} Price History</h4>
                               <select
-                                className="border border-gray-300 rounded-md p-1"
-                                value={selectedTimeRange}
-                                onChange={(e) => {
-                                  setSelectedTimeRange(e.target.value);
-                                  fetchTestHistoricalData(e.target.value, position.symbol);
-                                }}
+                              className="border border-gray-300 rounded-md p-1"
+                              value={selectedTimeRange}
+                              onChange={(e) => setSelectedTimeRange(e.target.value)}
                               >
                                 <option value="1mo">1 Month</option>
                                 <option value="3mo">3 Months</option>
