@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
+import PortfolioHistoryChart from '../components/PortfolioHistoryChart';
 
 interface PortfolioPosition {
   symbol: string;
@@ -16,16 +17,17 @@ interface PortfolioPosition {
 
 // A helper to calculate the earliest date for a chosen range
 function getEarliestDateForRange(range: string): Date | null {
+  // Avoid mutating the same date object by using a fresh copy each time.
   const now = new Date();
   switch (range) {
     case "1mo":
-      return new Date(now.setMonth(now.getMonth() - 1));
+      return new Date(new Date().setMonth(now.getMonth() - 1));
     case "3mo":
-      return new Date(now.setMonth(now.getMonth() - 3));
+      return new Date(new Date().setMonth(now.getMonth() - 3));
     case "6mo":
-      return new Date(now.setMonth(now.getMonth() - 6));
+      return new Date(new Date().setMonth(now.getMonth() - 6));
     case "1y":
-      return new Date(now.setFullYear(now.getFullYear() - 1));
+      return new Date(new Date().setFullYear(now.getFullYear() - 1));
     case "max":
     default:
       return null; // No limit
@@ -41,8 +43,10 @@ export default function PortfolioPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedRange, setSelectedRange] = useState('1mo');
   const [isVisible, setIsVisible] = useState(false);
+  const [portfolioHistory, setPortfolioHistory] = useState<any>(null);
   const navigate = useNavigate();
 
+  // Fade in effect for the card
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
     return () => clearTimeout(timer);
@@ -52,12 +56,18 @@ export default function PortfolioPage() {
   const hiddenCardClass = "opacity-0 translate-y-4 scale-95";
   const visibleCardClass = "opacity-100 translate-y-0 scale-100";
 
+  // Fetch portfolio data on mount (only once)
   useEffect(() => {
     if (!hasFetched) {
       fetchPortfolioData();
       setHasFetched(true);
     }
   }, [hasFetched]);
+
+  // Also refetch portfolio history whenever the selected range changes
+  useEffect(() => {
+    fetchPortfolioHistory(selectedRange);
+  }, [selectedRange]);
 
   async function fetchPortfolioData() {
     try {
@@ -99,6 +109,7 @@ export default function PortfolioPage() {
       setInitialInvestment(data.initial_investment || 100000);
       setError(null);
 
+      // Fetch historical prices for each position based on the selected range.
       fetchHistoricalPrices(selectedRange, validPositions);
     } catch (err) {
       setError('Unable to load portfolio data');
@@ -167,8 +178,27 @@ export default function PortfolioPage() {
     }
   }
 
+  // Fetch the overall portfolio history for the chart
+  async function fetchPortfolioHistory(range: string) {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:8000/api/v1/stocks/portfolio/history?range=${range}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch portfolio history');
+      }
+      const data = await response.json();
+      console.log("Raw portfolio history data:", data);
+      setPortfolioHistory(data);
+    } catch (err) {
+      console.error('Error fetching portfolio history:', err);
+    }
+  }
+
   function handleRangeChange(event: React.ChangeEvent<HTMLSelectElement>) {
     setSelectedRange(event.target.value);
+    // Refetch historical prices for positions when range changes.
     fetchHistoricalPrices(event.target.value, positions);
   }
 
@@ -245,20 +275,32 @@ export default function PortfolioPage() {
                 </div>
               </div>
 
-              {/* Dropdown */}
+              {/* Portfolio History Section */}
               <div>
-                <label className="text-gray-500">Show Gain Since: </label>
-                <select
-                  className="border p-2 rounded-md"
-                  value={selectedRange}
-                  onChange={handleRangeChange}
-                >
-                  <option value="1mo">1 Month</option>
-                  <option value="3mo">3 Months</option>
-                  <option value="6mo">6 Months</option>
-                  <option value="1y">1 Year</option>
-                  <option value="max">Max</option>
-                </select>
+                <div className="flex items-center mb-4">
+                  <h3 className="text-xl font-medium mr-4">Portfolio History</h3>
+                  <div className="flex items-center">
+                    <label className="mr-2 text-gray-500">Range:</label>
+                    <select
+                      className="border p-2 rounded-md"
+                      value={selectedRange}
+                      onChange={handleRangeChange}
+                    >
+                      <option value="1mo">1 Month</option>
+                      <option value="3mo">3 Months</option>
+                      <option value="6mo">6 Months</option>
+                      <option value="1y">1 Year</option>
+                      <option value="max">Max</option>
+                    </select>
+                  </div>
+                </div>
+                <PortfolioHistoryChart 
+                  portfolioData={portfolioHistory} 
+                  currentPortfolioValue={totalPortfolioValue} 
+                />
+                <p className="mt-2 text-base text-gray-500">
+                  Note: Historical data reflects only completed trading days.
+                </p>
               </div>
 
               {/* Holdings */}
