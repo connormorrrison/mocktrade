@@ -1,10 +1,6 @@
-// PortfolioPage.tsx
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
-
-// 1) Import dayjs to parse your date strings easily:
 import dayjs from 'dayjs';
 
 interface PortfolioPosition {
@@ -20,7 +16,6 @@ interface PortfolioPosition {
 // A helper to calculate the earliest date for a chosen range
 function getEarliestDateForRange(range: string): Date | null {
   const now = new Date();
-
   switch (range) {
     case "1mo":
       return new Date(now.setMonth(now.getMonth() - 1));
@@ -75,16 +70,11 @@ export default function PortfolioPage() {
 
       const data = await response.json();
       console.log("API response:", data);
-
-      // 2) Console.log what the server actually returns
       console.log("Positions from server:", data.positions);
 
-      // Make sure 'created_at' is valid or fallback to null
       const validPositions = (data.positions || []).map((position: any) => {
-        // Attempt to parse the date with dayjs:
         const parsed = dayjs(position.created_at);
         const isValid = parsed.isValid();
-
         if (!isValid) {
           console.warn(
             `Invalid created_at for symbol=${position.symbol}, value=${position.created_at}`
@@ -98,7 +88,6 @@ export default function PortfolioPage() {
           previous_price: position.previous_close_price || undefined,
           average_price: position.average_price || 0,
           price_at_selected_range: undefined,
-          // If valid, store ISO string; if not, store null
           created_at: isValid ? parsed.toISOString() : null,
         };
       });
@@ -120,8 +109,25 @@ export default function PortfolioPage() {
   async function fetchHistoricalPrices(range: string, positions: PortfolioPosition[]) {
     try {
       const token = localStorage.getItem('token');
+      const earliestInRange = getEarliestDateForRange(range); // e.g. 6mo back
+
       const updatedPositions = await Promise.all(
         positions.map(async (position) => {
+          // Determine final start date: max of rangeEarliestDate and purchaseDate
+          const purchaseDate = position.created_at ? new Date(position.created_at) : null;
+          let finalStartDate: Date | null = null;
+
+          if (!earliestInRange && purchaseDate) {
+            // 'max' range => just use purchase date
+            finalStartDate = purchaseDate;
+          } else if (earliestInRange && !purchaseDate) {
+            // invalid purchase date => fallback to earliestInRange
+            finalStartDate = earliestInRange;
+          } else if (earliestInRange && purchaseDate) {
+            // pick whichever is later
+            finalStartDate = new Date(Math.max(earliestInRange.getTime(), purchaseDate.getTime()));
+          }
+
           const response = await fetch(
             `http://localhost:8000/api/v1/stocks/history/${position.symbol}?range=${range}`,
             { headers: { Authorization: `Bearer ${token}` } }
@@ -133,18 +139,22 @@ export default function PortfolioPage() {
           }
 
           const data = await response.json();
-          if (data.historical_prices && data.historical_prices.length > 0 && position.created_at) {
-            // Only filter if we actually have a valid date
-            const createdAtDate = new Date(position.created_at);
-
-            // Sort ascending
+          if (
+            data.historical_prices &&
+            data.historical_prices.length > 0 &&
+            finalStartDate
+          ) {
+            // Sort ascending, then find the first price AFTER finalStartDate
             const filteredPrices = data.historical_prices
-              .filter((p: any) => new Date(p.date) >= createdAtDate)
+              .filter((p: any) => new Date(p.date) >= finalStartDate)
               .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
             if (filteredPrices.length > 0) {
               const oldestPrice = filteredPrices[0].close;
-              return { ...position, price_at_selected_range: oldestPrice };
+              return {
+                ...position,
+                price_at_selected_range: oldestPrice,
+              };
             }
           }
 
@@ -182,16 +192,17 @@ export default function PortfolioPage() {
       ? ((totalPortfolioValue - initialInvestment) / initialInvestment) * 100
       : 0;
 
-  // 3) Get earliest date for the selected range
   const rangeEarliestDate = getEarliestDateForRange(selectedRange);
 
   return (
     <div className="p-8 w-full mt-8">
-              <Card className={`
-                w-full shadow-lg hover:shadow-xl transition-shadow
-                ${baseCardClass}
-                ${isVisible ? visibleCardClass : hiddenCardClass}
-              `}>
+      <Card
+        className={`
+          w-full shadow-lg hover:shadow-xl transition-shadow
+          ${baseCardClass}
+          ${isVisible ? visibleCardClass : hiddenCardClass}
+        `}
+      >
         <CardHeader>
           <CardTitle className="text-3xl font-normal">Portfolio</CardTitle>
         </CardHeader>
@@ -260,26 +271,37 @@ export default function PortfolioPage() {
                 ) : (
                   <div className="space-y-6">
                     {positions.map((pos) => {
-                      // 4) If created_at is null or invalid, skip the note
                       if (!pos.created_at) {
-                        // Force “no note” if date was invalid
+                        // If date invalid, skip special note
                       }
 
                       const purchaseDate = pos.created_at
                         ? new Date(pos.created_at)
-                        : null; // fallback
+                        : null;
 
-                      // Compare earliest date for the selected range with the purchase date
+                      // If there's no earliest range date or if purchaseDate <= rangeEarliestDate,
+                      // we say the user held it the full range
                       const usingFullRequestedRange =
                         !rangeEarliestDate ||
                         !purchaseDate ||
                         purchaseDate <= rangeEarliestDate;
 
-                      // Gains
+                      // Calculate effective start and dynamic label:
+                      const effectiveStart = rangeEarliestDate && purchaseDate 
+                        ? new Date(Math.max(rangeEarliestDate.getTime(), purchaseDate.getTime()))
+                        : purchaseDate || rangeEarliestDate;
+
+                      const label = usingFullRequestedRange
+                        ? `Gain (${selectedRange})`
+                        : `Gain (since purchased)`;
+
+                      // Gains since "start" (the final start date from our fetch logic)
                       const gainSinceRange =
                         (pos.current_price -
                           (pos.price_at_selected_range || pos.average_price)) *
                         pos.shares;
+
+                      // Daily P/L logic (yesterday's close vs. today's current)
                       const dailyPL = pos.previous_price
                         ? (pos.current_price - pos.previous_price) * pos.shares
                         : 0;
@@ -298,12 +320,14 @@ export default function PortfolioPage() {
                             {/* Current Price */}
                             <div className="text-right">
                               <p className="text-gray-500">Current Price</p>
-                              <p className="font-medium">{formatMoney(pos.current_price)}</p>
+                              <p className="font-medium">
+                                {formatMoney(pos.current_price)}
+                              </p>
                             </div>
 
-                            {/* Gain (selected range) */}
+                            {/* Gain (with dynamic label) */}
                             <div className="text-right">
-                              <p className="text-gray-500">Gain ({selectedRange})</p>
+                              <p className="text-gray-500">{label}</p>
                               <p
                                 className={`font-medium ${
                                   gainSinceRange >= 0 ? 'text-green-600' : 'text-red-600'
@@ -328,19 +352,13 @@ export default function PortfolioPage() {
                             </div>
                           </div>
 
-                          {/* Extra note if the selected range is longer than we’ve held the stock */}
+                          {/* Note if the selected range exceeds the holding period */}
                           {!usingFullRequestedRange && purchaseDate && (
-                            <div className="mt-3 text-sm text-orange-600">
-                              Max range available since{" "}
-                              {purchaseDate.toLocaleDateString()} – holding for less time
-                              than {selectedRange}.
+                            <div className="mt-2 ml-2 text-sm text-orange-600">
+                              Data available from {purchaseDate.toLocaleDateString()}. 
+                              The selected range exceeds the holding period.
                             </div>
                           )}
-
-                          {/*
-                            Alternatively, if purchaseDate is null (invalid), 
-                            you just won't show the note at all.
-                          */}
                         </div>
                       );
                     })}
