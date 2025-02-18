@@ -22,8 +22,6 @@ class StockService:
             
             current_price = hist_data['Close'].iloc[-1]
             prev_close = hist_data['Close'].iloc[-2]
-            change = current_price - prev_close
-            change_percent = (change / prev_close) * 100
             
             historical_prices = []
             for date, row in hist_data.iterrows():
@@ -40,8 +38,6 @@ class StockService:
                 "symbol": symbol,
                 "current_price": float(current_price),
                 "previous_close_price": float(prev_close),
-                "change": float(change),
-                "change_percent": float(change_percent),
                 "historical_prices": historical_prices,
                 "timestamp": datetime.now().isoformat()
             }
@@ -84,8 +80,6 @@ class StockService:
             return {
                 "symbol": symbol,
                 "current_price": current_data['current_price'],
-                "change": current_data['change'],
-                "change_percent": current_data['change_percent'],
                 "historical_prices": historical_prices,
                 "range": range,
                 "timestamp": datetime.now().isoformat()

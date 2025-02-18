@@ -44,6 +44,16 @@ export default function PortfolioPage() {
   const [hasFetched, setHasFetched] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedRange, setSelectedRange] = useState('1mo');
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const baseCardClass = "transform transition-all duration-500 ease-out";
+  const hiddenCardClass = "opacity-0 translate-y-4 scale-95";
+  const visibleCardClass = "opacity-100 translate-y-0 scale-100";
 
   useEffect(() => {
     if (!hasFetched) {
@@ -177,7 +187,11 @@ export default function PortfolioPage() {
 
   return (
     <div className="p-8 w-full mt-8">
-      <Card className="w-full shadow-lg hover:shadow-xl transition-shadow">
+              <Card className={`
+                w-full shadow-lg hover:shadow-xl transition-shadow
+                ${baseCardClass}
+                ${isVisible ? visibleCardClass : hiddenCardClass}
+              `}>
         <CardHeader>
           <CardTitle className="text-3xl font-normal">Portfolio</CardTitle>
         </CardHeader>
@@ -240,7 +254,7 @@ export default function PortfolioPage() {
 
               {/* Holdings */}
               <div>
-                <h3 className="text-xl font-medium">Holdings</h3>
+                <h3 className="text-xl font-medium pb-4">Holdings</h3>
                 {positions.length === 0 ? (
                   <p className="text-gray-500">No positions in portfolio</p>
                 ) : (
@@ -275,8 +289,8 @@ export default function PortfolioPage() {
                           <div className="flex justify-between items-center">
                             {/* Symbol & Shares */}
                             <div>
-                              <p className="text-lg font-semibold">{pos.symbol}</p>
-                              <p className="text-gray-500">
+                              <p className="text-lg font-semibold ml-2">{pos.symbol}</p>
+                              <p className="text-gray-500 ml-2">
                                 {pos.shares} {pos.shares === 1 ? 'share' : 'shares'}
                               </p>
                             </div>
@@ -302,9 +316,9 @@ export default function PortfolioPage() {
 
                             {/* Daily P/L */}
                             <div className="text-right">
-                              <p className="text-gray-500">Daily P/L</p>
+                              <p className="text-gray-500 mr-2">Daily P/L</p>
                               <p
-                                className={`font-medium ${
+                                className={`font-medium mr-2 ${
                                   dailyPL >= 0 ? 'text-green-600' : 'text-red-600'
                                 }`}
                               >

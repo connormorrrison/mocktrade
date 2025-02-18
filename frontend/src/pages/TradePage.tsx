@@ -300,7 +300,7 @@ useEffect(() => {
           </div>
 
           {symbol && price && !error && price !== 0 && (
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg transition-all duration-200 ease-in-out border border-gray-200 shadow-md">
+          <div className="mb-6 p-4 bg-blue-50 rounded-lg transition-all duration-200 ease-in-out border border-blue-600 shadow-md">
             <div className="flex justify-between items-center">
               <div>
                 <p className="text-base text-gray-500 ml-2">Market Price for {displaySymbol}</p>
@@ -314,9 +314,12 @@ useEffect(() => {
                 )}
               </div>
               <div className="text-right">
-                <p className="text-base text-gray-500 mr-2">Status</p>
-                <p className="text-green-600 font-medium mr-2 animate-pulse">Live</p>
+              <p className="text-base text-gray-500 mr-4">Status</p>
+              <div className="flex items-center justify-end mr-4">
+                <p className="h-3 w-3 rounded-full bg-green-500 animate-pulse mr-2" />
+                <p className="text-green-600 font-medium animate-pulse">Live</p>
               </div>
+            </div>
             </div>
           </div>
         )}
@@ -334,34 +337,34 @@ useEffect(() => {
 
             {/* Action Section */}
             {symbol && price && !error && (
-              <div>
-                <label className="block text-base text-gray-500 mb-2 -mt-2">Action</label>
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline"
-                    className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200 shadow-md
-                      ${action === 'buy' 
-                        ? 'bg-green-600 text-base text-white border-gray-200 hover:bg-green-600' 
-                        : 'bg-white text-base border-gray-200 hover:bg-green-600 hover:text-white'}`}
-                    onClick={() => setAction('buy')}
-                  >
-                    Buy
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200 shadow-md
-                      ${action === 'sell' 
-                        ? 'bg-red-600 text-base text-white border-gray-200 hover:bg-red-600' 
-                        : 'bg-white text-base border-gray-200 hover:bg-red-600 hover:text-white'}`}
-                    onClick={() => setAction('sell')}
-                    disabled={sharesOwned <= 0}
-                    title={sharesOwned <= 0 ? "You don't own any shares to sell" : ""}
-                  >
-                    Sell
-                  </Button>
-                </div>
+            <div>
+              <label className="block text-base text-gray-500 mb-2 -mt-2">Action</label>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline"
+                  className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200 shadow-md
+                    ${action === 'buy' 
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white border-gray-200'
+                      : 'bg-white text-blue-600 border-gray-200 hover:bg-blue-600 hover:text-white'}`}
+                  onClick={() => setAction('buy')}
+                >
+                  Buy
+                </Button>
+                <Button 
+                  variant="outline"
+                  className={`flex-1 w-full border px-4 py-2 rounded-md transition-colors duration-200 shadow-md
+                    ${action === 'sell' 
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white border-gray-200'
+                      : 'bg-white text-blue-600 border-gray-200 hover:bg-blue-600 hover:text-white'}`}
+                  onClick={() => setAction('sell')}
+                  disabled={sharesOwned <= 0}
+                  title={sharesOwned <= 0 ? "You don't own any shares to sell" : ""}
+                >
+                  Sell
+                </Button>
               </div>
-            )}
+            </div>
+          )}
 
             {/* Order Form */}
             <div className="flex flex-col space-y-6 h-full">

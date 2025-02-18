@@ -94,7 +94,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             {menuItems.map((item) => (
               <Button
                 key={item.title}
-                className={`w-full justify-start bg-white text-gray-700 text-base hover:bg-blue-100 hover:shadow-lg transition-shadow ${item.className} ${
+                className={`w-full justify-start bg-white text-gray-700 text-base hover:bg-blue-100 hover:border-blue-600 hover:shadow-lg transition-shadow ${item.className} ${
                   location.pathname === item.path ? "bg-blue-100 font-medium" : ""
                 }`}
                 onClick={() => navigate(item.path)}
