@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 
 interface PortfolioPosition {
@@ -40,6 +41,7 @@ export default function PortfolioPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedRange, setSelectedRange] = useState('1mo');
   const [isVisible, setIsVisible] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
@@ -109,7 +111,7 @@ export default function PortfolioPage() {
   async function fetchHistoricalPrices(range: string, positions: PortfolioPosition[]) {
     try {
       const token = localStorage.getItem('token');
-      const earliestInRange = getEarliestDateForRange(range); // e.g. 6mo back
+      const earliestInRange = getEarliestDateForRange(range);
 
       const updatedPositions = await Promise.all(
         positions.map(async (position) => {
@@ -118,13 +120,10 @@ export default function PortfolioPage() {
           let finalStartDate: Date | null = null;
 
           if (!earliestInRange && purchaseDate) {
-            // 'max' range => just use purchase date
             finalStartDate = purchaseDate;
           } else if (earliestInRange && !purchaseDate) {
-            // invalid purchase date => fallback to earliestInRange
             finalStartDate = earliestInRange;
           } else if (earliestInRange && purchaseDate) {
-            // pick whichever is later
             finalStartDate = new Date(Math.max(earliestInRange.getTime(), purchaseDate.getTime()));
           }
 
@@ -158,7 +157,6 @@ export default function PortfolioPage() {
             }
           }
 
-          // Fallback
           return { ...position, price_at_selected_range: position.average_price };
         })
       );
@@ -271,40 +269,31 @@ export default function PortfolioPage() {
                 ) : (
                   <div className="space-y-6">
                     {positions.map((pos) => {
-                      if (!pos.created_at) {
-                        // If date invalid, skip special note
-                      }
+                      const purchaseDate = pos.created_at ? new Date(pos.created_at) : null;
+                      const isMax = selectedRange === "max";
+                      // Show note if a purchase date exists and either:
+                      // - "max" is selected OR
+                      // - the purchase date is after the earliest date for the selected range.
+                      const showHoldingNote =
+                        purchaseDate && (isMax || (rangeEarliestDate && purchaseDate > rangeEarliestDate));
 
-                      const purchaseDate = pos.created_at
-                        ? new Date(pos.created_at)
-                        : null;
+                      const noteMessage = isMax
+                        ? "Displaying max time period."
+                        : `Data available from ${purchaseDate?.toLocaleDateString()}. The selected range exceeds the holding period.`;
 
-                      // If there's no earliest range date or if purchaseDate <= rangeEarliestDate,
-                      // we say the user held it the full range
-                      const usingFullRequestedRange =
-                        !rangeEarliestDate ||
-                        !purchaseDate ||
-                        purchaseDate <= rangeEarliestDate;
+                      const label = showHoldingNote
+                        ? `Gain (since purchased)`
+                        : `Gain (${selectedRange})`;
 
-                      // Calculate effective start and dynamic label:
-                      const effectiveStart = rangeEarliestDate && purchaseDate 
-                        ? new Date(Math.max(rangeEarliestDate.getTime(), purchaseDate.getTime()))
-                        : purchaseDate || rangeEarliestDate;
-
-                      const label = usingFullRequestedRange
-                        ? `Gain (${selectedRange})`
-                        : `Gain (since purchased)`;
-
-                      // Gains since "start" (the final start date from our fetch logic)
                       const gainSinceRange =
-                        (pos.current_price -
-                          (pos.price_at_selected_range || pos.average_price)) *
+                        (pos.current_price - (pos.price_at_selected_range || pos.average_price)) *
                         pos.shares;
 
-                      // Daily P/L logic (yesterday's close vs. today's current)
                       const dailyPL = pos.previous_price
                         ? (pos.current_price - pos.previous_price) * pos.shares
                         : 0;
+
+                      const currentValue = pos.shares * pos.current_price;
 
                       return (
                         <div key={pos.symbol} className="p-4 border rounded-lg shadow-md">
@@ -320,9 +309,13 @@ export default function PortfolioPage() {
                             {/* Current Price */}
                             <div className="text-right">
                               <p className="text-gray-500">Current Price</p>
-                              <p className="font-medium">
-                                {formatMoney(pos.current_price)}
-                              </p>
+                              <p className="font-medium">{formatMoney(pos.current_price)}</p>
+                            </div>
+
+                            {/* Current Value */}
+                            <div className="text-right">
+                              <p className="text-gray-500">Current Value</p>
+                              <p className="font-medium">{formatMoney(currentValue)}</p>
                             </div>
 
                             {/* Gain (with dynamic label) */}
@@ -350,13 +343,25 @@ export default function PortfolioPage() {
                                 {formatMoney(dailyPL)}
                               </p>
                             </div>
+
+                            {/* Trade Button */}
+                            <div className="text-right">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(`/trade/${pos.symbol}`);
+                                }}
+                                className="px-6 py-2 mr-2 bg-black text-white text-base hover:bg-gray-800"
+                              >
+                                Trade
+                              </button>
+                            </div>
                           </div>
 
-                          {/* Note if the selected range exceeds the holding period */}
-                          {!usingFullRequestedRange && purchaseDate && (
+                          {/* Note in the same spot */}
+                          {showHoldingNote && purchaseDate && (
                             <div className="mt-2 ml-2 text-sm text-orange-600">
-                              Data available from {purchaseDate.toLocaleDateString()}. 
-                              The selected range exceeds the holding period.
+                              {noteMessage}
                             </div>
                           )}
                         </div>

@@ -242,3 +242,16 @@ button:focus-visible {
   animation: float-6 3.6s cubic-bezier(0.37, 0, 0.63, 1) infinite;
   animation-delay: -2s;
 }
+
+@keyframes pulsate {
+  0%, 100% {
+    border-color: #2563eb; /* blue-600 */
+  }
+  50% {
+    border-color: #93c5fd; /* a lighter blue */
+  }
+}
+
+.pulsate-border {
+  animation: pulsate 2s infinite;
+}

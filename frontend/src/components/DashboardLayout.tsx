@@ -90,11 +90,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Navigation Menu */}
         <nav className="flex-1 p-4">
           <div className="space-y-3">
-            <p className="text-base font-medium text-gray-500 mb-2 px-2">Menu</p>
+            <p className="text-base font-medium mb-2 px-2">Menu</p>
             {menuItems.map((item) => (
               <Button
                 key={item.title}
-                className={`w-full justify-start bg-white text-gray-700 text-base hover:bg-blue-100 hover:border-blue-600 hover:shadow-lg transition-shadow ${item.className} ${
+                className={`w-full justify-start bg-white text-black text-base hover:bg-blue-100 hover:border-blue-600 hover:shadow-lg transition-shadow ${item.className} ${
                   location.pathname === item.path ? "bg-blue-100 font-medium" : ""
                 }`}
                 onClick={() => navigate(item.path)}
