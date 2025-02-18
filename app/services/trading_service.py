@@ -3,14 +3,12 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from typing import Dict, Any, List
 from app.services.stock_service import StockService
-from app.crud.trading import TradingCRUD
 from app.models.user import User
 from app.models.trading import Position, Transaction
 
 class TradingService:
     def __init__(self):
         self.stock_service = StockService()
-        self.crud = TradingCRUD()
 
     async def execute_trade(
         self,
@@ -125,6 +123,7 @@ class TradingService:
             for position in positions:
                 quote = await self.stock_service.get_stock_price(position.symbol)
                 current_price = quote["current_price"]
+                previous_close_price = quote.get("previous_close_price", None)
                 current_value = current_price * position.shares
 
                 position_details.append({
@@ -132,12 +131,9 @@ class TradingService:
                     "shares": position.shares,
                     "average_price": position.average_price,
                     "current_price": current_price,
+                    "previous_close_price": previous_close_price,
                     "current_value": current_value,
-                    "unrealized_pl": current_value - (position.average_price * position.shares),
-                    "unrealized_pl_percent": (
-                        ((current_price - position.average_price) / position.average_price) * 100
-                        if position.average_price > 0 else 0
-                    )
+                    "created_at": position.created_at.isoformat() if position.created_at else None
                 })
 
                 portfolio_value += current_value

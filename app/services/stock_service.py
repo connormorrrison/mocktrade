@@ -39,6 +39,7 @@ class StockService:
             return {
                 "symbol": symbol,
                 "current_price": float(current_price),
+                "previous_close_price": float(prev_close),
                 "change": float(change),
                 "change_percent": float(change_percent),
                 "historical_prices": historical_prices,
