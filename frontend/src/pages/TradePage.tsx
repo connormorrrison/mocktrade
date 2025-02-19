@@ -300,7 +300,7 @@ useEffect(() => {
           </div>
 
           {symbol && price && !error && price !== 0 && (
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg shadow-md border pulsate-border">
+          <div className="mb-6 p-4 bg-blue-50 rounded-lg shadow-md border-2 pulsate-border">
             <div className="flex justify-between items-center">
               <div>
                 <p className="text-base text-gray-500 ml-2">Market Price for {displaySymbol}</p>

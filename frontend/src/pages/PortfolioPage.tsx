@@ -299,7 +299,7 @@ export default function PortfolioPage() {
                   currentPortfolioValue={totalPortfolioValue} 
                 />
                 <p className="mt-2 text-base text-gray-500">
-                  Note: Historical data reflects only completed trading days.
+                  Note: Historical data includes only completed trading days.
                 </p>
               </div>
 
@@ -324,7 +324,7 @@ export default function PortfolioPage() {
                         : `Data available from ${purchaseDate?.toLocaleDateString()}. The selected range exceeds the holding period.`;
 
                       const label = showHoldingNote
-                        ? `Gain (since purchased)`
+                        ? `Gain (available)`
                         : `Gain (${selectedRange})`;
 
                       const gainSinceRange =
@@ -402,7 +402,7 @@ export default function PortfolioPage() {
 
                           {/* Note in the same spot */}
                           {showHoldingNote && purchaseDate && (
-                            <div className="mt-2 ml-2 text-sm text-orange-600">
+                            <div className="mt-2 ml-2 text-base text-gray-500">
                               {noteMessage}
                             </div>
                           )}
