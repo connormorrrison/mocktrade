@@ -3,8 +3,7 @@ import React, {
   useState,
   useContext,
   useEffect,
-  useCallback,
-  useRef
+  useCallback
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -25,35 +24,23 @@ interface UserContextType {
   logout: () => void;
   login: (email: string, password: string) => Promise<void>;
   isLoading: boolean;
+  isInitialized: boolean;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start with loading true
+  const [isInitialized, setIsInitialized] = useState(false);
   const navigate = useNavigate();
-  
-  // Keep track of the current token to detect changes
-  const currentTokenRef = useRef<string | null>(localStorage.getItem('token'));
 
-  // Token change listener
-  const handleTokenChange = useCallback((newToken: string | null) => {
-    if (newToken !== currentTokenRef.current) {
-      currentTokenRef.current = newToken;
-      if (newToken) {
-        refreshUserData();
-      } else {
-        setUserData(null);
-      }
-    }
-  }, []);
-
+  // ----- refreshUserData -----
   const refreshUserData = useCallback(async () => {
     const token = localStorage.getItem('token');
     if (!token) {
       setUserData(null);
-      navigate('/login');
+      setIsLoading(false);
       return;
     }
 
@@ -74,64 +61,71 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Error fetching user data:', error);
       localStorage.removeItem('token');
-      handleTokenChange(null);
       setUserData(null);
       navigate('/login');
     } finally {
       setIsLoading(false);
     }
-  }, [navigate, handleTokenChange]);
+  }, [navigate]);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    handleTokenChange(null);
-    setUserData(null);
-    navigate('/login');
-  }, [navigate, handleTokenChange]);
-
+  // ----- login -----
   const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     try {
+      // Clear existing user data and token first
+      localStorage.removeItem('token');
+      setUserData(null);
+
       const response = await fetch('http://localhost:8000/api/v1/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: email, password })
       });
 
-      if (!response.ok) {
-        throw new Error('Login failed');
-      }
-
+      if (!response.ok) throw new Error('Login failed');
+      
       const data = await response.json();
       localStorage.setItem('token', data.access_token);
-      handleTokenChange(data.access_token);
       
-      // Navigate after successful data fetch to ensure UI consistency
-      await refreshUserData();
+      // Fetch user data
+      const userResponse = await fetch('http://localhost:8000/api/v1/auth/me', {
+        headers: {
+          Authorization: `Bearer ${data.access_token}`
+        }
+      });
+
+      if (!userResponse.ok) throw new Error('Failed to fetch user data');
+      
+      const userData = await userResponse.json();
+      setUserData(userData);
       navigate('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
-      throw error; // Allow the component to handle the error
+      setUserData(null);
+      throw error;
     } finally {
       setIsLoading(false);
     }
-  }, [navigate, handleTokenChange, refreshUserData]);
+  }, [navigate]);
 
-  // Monitor token changes in localStorage
+  // ----- logout -----
+  const logout = useCallback(() => {
+    setIsLoading(true);
+    localStorage.removeItem('token');
+    setUserData(null);
+    setIsLoading(false);
+    navigate('/login');
+  }, [navigate]);
+
+  // ----- Initial load -----
   useEffect(() => {
-    const checkToken = () => {
-      const token = localStorage.getItem('token');
-      handleTokenChange(token);
+    const initializeAuth = async () => {
+      await refreshUserData();
+      setIsInitialized(true);
     };
-
-    // Check for token changes periodically
-    const intervalId = setInterval(checkToken, 1000);
-
-    // Initial check
-    checkToken();
-
-    return () => clearInterval(intervalId);
-  }, [handleTokenChange]);
+    
+    initializeAuth();
+  }, [refreshUserData]);
 
   const value: UserContextType = {
     userData,
@@ -139,8 +133,16 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     refreshUserData,
     logout,
     login,
-    isLoading
+    isLoading,
+    isInitialized
   };
+
+  // Don't render anything until we've completed our initial auth check
+  if (!isInitialized) {
+    return <div className="w-full h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+    </div>;
+  }
 
   return (
     <UserContext.Provider value={value}>
@@ -151,7 +153,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
 export const useUser = () => {
   const context = useContext(UserContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useUser must be used within a UserProvider');
   }
   return context;
