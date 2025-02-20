@@ -313,9 +313,6 @@ export default function PortfolioPage() {
                     {positions.map((pos) => {
                       const purchaseDate = pos.created_at ? new Date(pos.created_at) : null;
                       const isMax = selectedRange === "max";
-                      // Show note if a purchase date exists and either:
-                      // - "max" is selected OR
-                      // - the purchase date is after the earliest date for the selected range.
                       const showHoldingNote =
                         purchaseDate && (isMax || (rangeEarliestDate && purchaseDate > rangeEarliestDate));
 
@@ -331,14 +328,26 @@ export default function PortfolioPage() {
                         (pos.current_price - (pos.price_at_selected_range || pos.average_price)) *
                         pos.shares;
 
+                      const gainPercentSinceRange =
+                        pos.price_at_selected_range && pos.price_at_selected_range > 0
+                          ? ((pos.current_price - pos.price_at_selected_range) /
+                             pos.price_at_selected_range) *
+                            100
+                          : 0;
+
                       const dailyPL = pos.previous_price
                         ? (pos.current_price - pos.previous_price) * pos.shares
                         : 0;
 
+                      const dailyPercent =
+                        pos.previous_price && pos.previous_price > 0
+                          ? ((pos.current_price - pos.previous_price) / pos.previous_price) * 100
+                          : 0;
+
                       const currentValue = pos.shares * pos.current_price;
 
                       return (
-                        <div key={pos.symbol} className="p-4 border rounded-lg shadow-md">
+                        <div key={pos.symbol} className="p-4 border rounded-lg shadow-md hover:shadow-lg transition-shadow">
                           <div className="flex justify-between items-center">
                             {/* Symbol & Shares */}
                             <div>
@@ -370,6 +379,11 @@ export default function PortfolioPage() {
                               >
                                 {gainSinceRange >= 0 ? '+' : ''}
                                 {formatMoney(gainSinceRange)}
+                                {' '}
+                                <span className={`font-medium ${gainSinceRange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                  ({gainPercentSinceRange >= 0 ? '+' : ''}
+                                  {gainPercentSinceRange.toFixed(2)}%)
+                                </span>
                               </p>
                             </div>
 
@@ -383,6 +397,11 @@ export default function PortfolioPage() {
                               >
                                 {dailyPL >= 0 ? '+' : ''}
                                 {formatMoney(dailyPL)}
+                                {' '}
+                                <span className={`font-medium ${dailyPL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                  ({dailyPercent >= 0 ? '+' : ''}
+                                  {dailyPercent.toFixed(2)}%)
+                                </span>
                               </p>
                             </div>
 
