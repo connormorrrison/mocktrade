@@ -202,3 +202,4 @@ Werkzeug==3.0.4
 wrapt==1.16.0
 yarl==1.8.2
 yfinance==0.2.54
+psycopg2-binary==2.9.9
