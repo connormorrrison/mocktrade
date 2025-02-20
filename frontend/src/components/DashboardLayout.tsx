@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { useUser } from '../contexts/UserContext';
-import mockTradeLogo from '../assets/MockTrade-logo-v1-size1.001.png';
+import mocktradeLogo from '../../../assets/mocktrade-logo-v1.png';
 import Profile from '@/components/Profile';
 
 const menuItems = [
@@ -79,7 +79,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="p-4">
           <div className="flex flex-col items-center justify-center">
             <img 
-              src={mockTradeLogo}
+              src={mocktradeLogo}
               alt="MockTrade" 
               className="h-30 w-auto cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => navigate('/home')}

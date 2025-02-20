@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react"
 import { useNavigate } from 'react-router-dom'
 import { authApi } from '../services/api'
-import mockTradeLogo from '../assets/MockTrade-logo-v1-size1.001.png'
+import mocktradeLogo from '../../../assets/mocktrade-logo-v1.png'
 import DynamicBackground from '../components/DynamicBackground'
 
 export default function LoginPage() {
@@ -60,7 +60,7 @@ export default function LoginPage() {
               <CardHeader className="pt-2 pb-2">
                 <div className="flex flex-col items-center">
                   <img
-                    src={mockTradeLogo}
+                    src={mocktradeLogo}
                     alt="MockTrade"
                     className="h-28 w-auto"
                   />

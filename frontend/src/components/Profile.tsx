@@ -2,6 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
+import mocktradeIcon from "../../../assets/mocktrade-icon-v1.png";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ export default function Profile() {
           <span className="text-sm text-gray-500">@{userData.username}</span>
         </div>
         <img
-          src={userData.profile_image_url || "/default-profile.png"}
+          src={mocktradeIcon}
           alt="Profile"
           className="h-12 w-12 rounded-full border border-gray-300"
         />
