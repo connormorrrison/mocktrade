@@ -215,12 +215,36 @@ export default function PortfolioPage() {
   const totalPortfolioValue =
     positions.reduce((sum, pos) => sum + pos.shares * pos.current_price, 0) + cashBalance;
 
+  // Calculate the starting portfolio value for the selected range.
+  const startingPortfolioValue =
+    positions.reduce(
+      (sum, pos) =>
+        sum + pos.shares * (pos.price_at_selected_range !== undefined ? pos.price_at_selected_range : pos.average_price),
+      0
+    ) + cashBalance;
   const cumulativeReturn =
-    initialInvestment > 0
-      ? ((totalPortfolioValue - initialInvestment) / initialInvestment) * 100
+    startingPortfolioValue > 0
+      ? ((totalPortfolioValue - startingPortfolioValue) / startingPortfolioValue) * 100
       : 0;
 
+  // --- NEW LINES START ---
+  // Compute the earliest purchase date from all positions.
+  const earliestPurchaseDate = positions.reduce((earliest: Date | null, pos) => {
+    if (!pos.created_at) return earliest;
+    const purchaseDate = new Date(pos.created_at);
+    if (!earliest || purchaseDate < earliest) return purchaseDate;
+    return earliest;
+  }, null);
+
+  // Determine the cumulative return label based on the selected range.
   const rangeEarliestDate = getEarliestDateForRange(selectedRange);
+  let cumulativeReturnLabel = '';
+  if (selectedRange === 'max' || !rangeEarliestDate || !earliestPurchaseDate || earliestPurchaseDate > rangeEarliestDate) {
+    cumulativeReturnLabel = 'Cumulative Return (available)';
+  } else {
+    cumulativeReturnLabel = `Cumulative Return (${selectedRange})`;
+  }
+  // --- NEW LINES END ---
 
   return (
     <div className="p-8 w-full mt-8">
@@ -261,7 +285,7 @@ export default function PortfolioPage() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-gray-500">Cumulative Return</p>
+                    <p className="text-gray-500">{cumulativeReturnLabel}</p>
                     <p
                       className={`text-2xl font-semibold ${
                         cumulativeReturn >= 0 ? 'text-green-600' : 'text-red-600'
@@ -311,6 +335,7 @@ export default function PortfolioPage() {
                 ) : (
                   <div className="space-y-6">
                     {positions.map((pos) => {
+                      console.log('Rendered position:', pos);
                       const purchaseDate = pos.created_at ? new Date(pos.created_at) : null;
                       const isMax = selectedRange === "max";
                       const showHoldingNote =
@@ -324,16 +349,19 @@ export default function PortfolioPage() {
                         ? `Gain (available)`
                         : `Gain (${selectedRange})`;
 
-                      const gainSinceRange =
-                        (pos.current_price - (pos.price_at_selected_range || pos.average_price)) *
-                        pos.shares;
-
-                      const gainPercentSinceRange =
-                        pos.price_at_selected_range && pos.price_at_selected_range > 0
-                          ? ((pos.current_price - pos.price_at_selected_range) /
-                             pos.price_at_selected_range) *
-                            100
-                          : 0;
+                      // --- CHANGED LINES START ---
+                      // Define an effective purchase price.
+                      // Use the historical price if it exists and differs from current_price,
+                      // otherwise use the average_price (actual transaction price).
+                      const effectivePurchasePrice =
+                        pos.price_at_selected_range && pos.price_at_selected_range !== pos.current_price
+                          ? pos.price_at_selected_range
+                          : pos.average_price;
+                      const gainSinceRange = (pos.current_price - effectivePurchasePrice) * pos.shares;
+                      const gainPercentSinceRange = effectivePurchasePrice > 0
+                        ? ((pos.current_price - effectivePurchasePrice) / effectivePurchasePrice) * 100
+                        : 0;
+                      // --- CHANGED LINES END ---
 
                       const dailyPL = pos.previous_price
                         ? (pos.current_price - pos.previous_price) * pos.shares
