@@ -1,6 +1,5 @@
 # app/schemas/auth.py
-
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, constr
 from datetime import datetime
 
 class Token(BaseModel):
@@ -22,6 +21,16 @@ class UserCreate(UserBase):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+class UserUpdate(BaseModel):
+    email: EmailStr
+    username: str
+    first_name: str
+    last_name: str
+
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: constr(min_length=8)  # Enforces minimum password length
 
 class User(UserBase):
     id: int

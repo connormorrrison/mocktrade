@@ -5,4 +5,6 @@ requirements.txt
 __pycache__/
 *.pyc
 *.db
-node_modules
+db.sqlite3
+node_modules/
+package-lock.json

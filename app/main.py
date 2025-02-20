@@ -1,49 +1,50 @@
 # app/main.py
-
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
+from app.api.v1.api import api_router
+from app.core.config import settings
 from fastapi.middleware.cors import CORSMiddleware
-from app.services.auth_service import AuthService
+import logging
+from app.db.base import Base, engine
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="Stock Trading Simulator",
-    description="A mock trading platform for learning stock trading",
-    version="0.1.0"
+    title=settings.PROJECT_NAME,
+    version=settings.VERSION,
+    openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
 
-# Configure CORS
+# Set up CORS
+origins = [
+    "http://localhost",
+    "http://localhost:5173",  # Vite's default port
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Import routers
-from app.api.v1.endpoints import stocks, auth, trading
+# Create database tables
+def init_db():
+    logger.info("Creating database tables...")
+    try:
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database tables created successfully")
+    except Exception as e:
+        logger.error(f"Error creating database tables: {e}")
+        raise e
 
-# Public routes
-app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
+# Initialize the database on startup
+@app.on_event("startup")
+async def startup_event():
+    logger.info(f"Starting application with DATABASE_URL: {settings.DATABASE_URL}")
+    init_db()
 
-# Protected routes
-app.include_router(
-    stocks.router,
-    prefix="/api/v1/stocks",
-    tags=["stocks"],
-    dependencies=[Depends(AuthService.get_current_user)]
-)
-
-app.include_router(
-    trading.router,
-    prefix="/api/v1/trading",
-    tags=["trading"],
-    dependencies=[Depends(AuthService.get_current_user)]
-)
-
-@app.get("/")
-async def root():
-    return {
-        "message": "Welcome to Stock Trading Simulator API",
-        "version": "0.1.0",
-        "docs_url": "/docs"
-    }
+# Add router
+app.include_router(api_router, prefix=settings.API_V1_STR)
