@@ -1,7 +1,6 @@
 .DS_Store
 venv/
 .env
-requirements.txt
 __pycache__/
 *.pyc
 *.db
