@@ -37,7 +37,6 @@ function getEarliestDateForRange(range: string): Date | null {
 export default function PortfolioPage() {
   const [positions, setPositions] = useState<PortfolioPosition[]>([]);
   const [cashBalance, setCashBalance] = useState(0);
-  const [initialInvestment, setInitialInvestment] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [hasFetched, setHasFetched] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -106,7 +105,6 @@ export default function PortfolioPage() {
 
       setPositions(validPositions);
       setCashBalance(data.cash_balance || 0);
-      setInitialInvestment(data.initial_investment || 100000);
       setError(null);
 
       // Fetch historical prices for each position based on the selected range.
