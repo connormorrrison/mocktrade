@@ -19,6 +19,8 @@ app = FastAPI(
 
 # List your allowed origins exactly as they appear
 origins = [
+    "https://www.mocktrade.ca",
+    "https://mocktrade.ca",
     "https://mocktrade-frontend.vercel.app",
     "http://localhost",
     "http://localhost:5173",  # Vite's default port
