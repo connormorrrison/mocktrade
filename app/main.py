@@ -20,6 +20,7 @@ app = FastAPI(
 origins = [
     "http://localhost",
     "http://localhost:5173",  # Vite's default port
+    "https://mocktrade.vercel.app",
 ]
 
 app.add_middleware(
