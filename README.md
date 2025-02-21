@@ -14,10 +14,10 @@
 - **Data Visualization:** Enjoy portfolio performance charts and detailed stock price histories.
 
 ## Tech Stack
-- **Frontend:** React (TypeScript), TailwindCSS, Chart.js
-- **Backend:** FastAPI (Python), PostgreSQL
-- **Authentication:** JWT-based authentication
-- **Market Data:** Fetch stock and index prices via the yfinance API
+- **Frontend:** React, TypeScript, TailwindCSS, Chart.js
+- **Backend:** FastAPI, Python, PostgreSQL
+- **Authentication:** JWT for authentication
+- **Market Data:** Yahoo Finance API (yfinance)
 
 ## Getting Started
 - **Try it live:** [mocktrade.ca](https://mocktrade.ca)
