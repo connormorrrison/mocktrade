@@ -1,6 +1,6 @@
 // src/services/api.ts
 
-const API_URL = 'http://localhost:8000/api/v1';  // Make sure this is exactly as shown
+const API_URL = 'http://mocktrade-backend.onrender.com/api/v1';  // Make sure this is exactly as shown
 
 export const authApi = {
   async login(email: string, password: string) {

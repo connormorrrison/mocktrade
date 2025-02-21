@@ -1,6 +1,6 @@
 // src/services/auth.ts
 
-const API_URL = 'http://localhost:8000/api/v1'
+const API_URL = 'http://mocktrade-backend.onrender.com/api/v1'
 
 interface LoginCredentials {
   email: string
