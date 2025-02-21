@@ -11,7 +11,7 @@ This guide explains how to set up and run **MockTrade** locally.
 ## Installation
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/mocktrade.git
+   git clone https://github.com/connormorrrison/mocktrade.git
    cd mocktrade/
    ```
 
