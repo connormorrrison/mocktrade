@@ -9,15 +9,23 @@ interface PortfolioPosition {
   symbol: string;
   shares: number;
   current_price: number;
-  previous_price?: number;
-  average_price: number;
+  previous_price?: number;  // "yesterday's close" price
+  average_price: number;    // average purchase price
   price_at_selected_range?: number;
-  created_at: string | null; 
+  created_at: string | null;
+}
+
+// Helper to check if two dates share the same calendar day
+function isSameDay(d1: Date, d2: Date) {
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+  );
 }
 
 // A helper to calculate the earliest date for a chosen range
 function getEarliestDateForRange(range: string): Date | null {
-  // Avoid mutating the same date object by using a fresh copy each time.
   const now = new Date();
   switch (range) {
     case "1mo":
@@ -32,6 +40,43 @@ function getEarliestDateForRange(range: string): Date | null {
     default:
       return null; // No limit
   }
+}
+
+// Compute the daily P/L based on whether the position existed before today's close.
+function getDailyPL(pos: PortfolioPosition): number {
+  if (!pos.created_at || pos.shares <= 0) return 0;
+
+  const purchaseDate = new Date(pos.created_at);
+  const today = new Date();
+
+  // If purchased today (same calendar day), daily P/L is current - purchase.
+  // Otherwise, daily P/L is current - yesterday’s close.
+  if (isSameDay(purchaseDate, today)) {
+    return (pos.current_price - pos.average_price) * pos.shares;
+  } else {
+    // If there's no valid previous_price, fallback to 0
+    if (typeof pos.previous_price !== 'number') return 0;
+    return (pos.current_price - pos.previous_price) * pos.shares;
+  }
+}
+
+// Percentage version of daily P/L
+function getDailyPercent(pos: PortfolioPosition, dailyPL: number): number {
+  if (!pos.created_at || pos.shares <= 0) return 0;
+
+  const purchaseDate = new Date(pos.created_at);
+  const today = new Date();
+
+  // If purchased today, compare to average_price; otherwise compare to previous_price
+  let baseline = 0;
+  if (isSameDay(purchaseDate, today)) {
+    baseline = pos.average_price;
+  } else {
+    baseline = pos.previous_price ?? 0;
+  }
+
+  if (baseline <= 0) return 0;
+  return (dailyPL / (baseline * pos.shares)) * 100;
 }
 
 export default function PortfolioPage() {
@@ -71,9 +116,12 @@ export default function PortfolioPage() {
   async function fetchPortfolioData() {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://mocktrade-backend.onrender.com/api/v1/trading/portfolio', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(
+        'https://mocktrade-backend.onrender.com/api/v1/trading/portfolio',
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to fetch portfolio data');
@@ -124,8 +172,9 @@ export default function PortfolioPage() {
 
       const updatedPositions = await Promise.all(
         positions.map(async (position) => {
-          // Determine final start date: max of rangeEarliestDate and purchaseDate
-          const purchaseDate = position.created_at ? new Date(position.created_at) : null;
+          const purchaseDate = position.created_at
+            ? new Date(position.created_at)
+            : null;
           let finalStartDate: Date | null = null;
 
           if (!earliestInRange && purchaseDate) {
@@ -133,7 +182,9 @@ export default function PortfolioPage() {
           } else if (earliestInRange && !purchaseDate) {
             finalStartDate = earliestInRange;
           } else if (earliestInRange && purchaseDate) {
-            finalStartDate = new Date(Math.max(earliestInRange.getTime(), purchaseDate.getTime()));
+            finalStartDate = new Date(
+              Math.max(earliestInRange.getTime(), purchaseDate.getTime())
+            );
           }
 
           const response = await fetch(
@@ -143,19 +194,21 @@ export default function PortfolioPage() {
 
           if (!response.ok) {
             console.warn(`Failed to fetch historical data for ${position.symbol}`);
-            return { ...position, price_at_selected_range: position.average_price };
+            return {
+              ...position,
+              price_at_selected_range: position.average_price,
+            };
           }
 
           const data = await response.json();
-          if (
-            data.historical_prices &&
-            data.historical_prices.length > 0 &&
-            finalStartDate
-          ) {
+          if (data.historical_prices && data.historical_prices.length > 0 && finalStartDate) {
             // Sort ascending, then find the first price AFTER finalStartDate
             const filteredPrices = data.historical_prices
               .filter((p: any) => new Date(p.date) >= finalStartDate)
-              .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+              .sort(
+                (a: any, b: any) =>
+                  new Date(a.date).getTime() - new Date(b.date).getTime()
+              );
 
             if (filteredPrices.length > 0) {
               const oldestPrice = filteredPrices[0].close;
@@ -180,9 +233,13 @@ export default function PortfolioPage() {
   async function fetchPortfolioHistory(range: string) {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://mocktrade-backend.onrender.com/api/v1/stocks/portfolio/history?range=${range}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(
+        `https://mocktrade-backend.onrender.com/api/v1/stocks/portfolio/history?range=${range}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
       if (!response.ok) {
         throw new Error('Failed to fetch portfolio history');
       }
@@ -211,18 +268,25 @@ export default function PortfolioPage() {
   }
 
   const totalPortfolioValue =
-    positions.reduce((sum, pos) => sum + pos.shares * pos.current_price, 0) + cashBalance;
+    positions.reduce((sum, pos) => sum + pos.shares * pos.current_price, 0) +
+    cashBalance;
 
   // Calculate the starting portfolio value for the selected range.
   const startingPortfolioValue =
     positions.reduce(
       (sum, pos) =>
-        sum + pos.shares * (pos.price_at_selected_range !== undefined ? pos.price_at_selected_range : pos.average_price),
+        sum +
+        pos.shares *
+          (pos.price_at_selected_range !== undefined
+            ? pos.price_at_selected_range
+            : pos.average_price),
       0
     ) + cashBalance;
+
   const cumulativeReturn =
     startingPortfolioValue > 0
-      ? ((totalPortfolioValue - startingPortfolioValue) / startingPortfolioValue) * 100
+      ? ((totalPortfolioValue - startingPortfolioValue) / startingPortfolioValue) *
+        100
       : 0;
 
   // --- NEW LINES START ---
@@ -237,7 +301,12 @@ export default function PortfolioPage() {
   // Determine the cumulative return label based on the selected range.
   const rangeEarliestDate = getEarliestDateForRange(selectedRange);
   let cumulativeReturnLabel = '';
-  if (selectedRange === 'max' || !rangeEarliestDate || !earliestPurchaseDate || earliestPurchaseDate > rangeEarliestDate) {
+  if (
+    selectedRange === 'max' ||
+    !rangeEarliestDate ||
+    !earliestPurchaseDate ||
+    earliestPurchaseDate > rangeEarliestDate
+  ) {
     cumulativeReturnLabel = 'Cumulative Return (available)';
   } else {
     cumulativeReturnLabel = `Cumulative Return (${selectedRange})`;
@@ -286,7 +355,7 @@ export default function PortfolioPage() {
                     <p className="text-gray-500">{cumulativeReturnLabel}</p>
                     <p
                       className={`text-2xl font-semibold ${
-                        cumulativeReturn >= 0 ? 'text-green-600' : 'text-red-600'
+                        cumulativeReturn >= 0 ? "text-green-600" : "text-red-600"
                       }`}
                     >
                       {cumulativeReturn >= 0
@@ -316,9 +385,9 @@ export default function PortfolioPage() {
                     </select>
                   </div>
                 </div>
-                <PortfolioHistoryChart 
-                  portfolioData={portfolioHistory} 
-                  currentPortfolioValue={totalPortfolioValue} 
+                <PortfolioHistoryChart
+                  portfolioData={portfolioHistory}
+                  currentPortfolioValue={totalPortfolioValue}
                 />
                 <p className="mt-2 text-base text-gray-500">
                   Note: Historical data includes only completed trading days.
@@ -332,128 +401,158 @@ export default function PortfolioPage() {
                   <p className="text-gray-500">No positions in portfolio</p>
                 ) : (
                   <div className="space-y-6">
-                    {positions.map((pos) => {
-                      console.log('Rendered position:', pos);
-                      const purchaseDate = pos.created_at ? new Date(pos.created_at) : null;
-                      const isMax = selectedRange === "max";
-                      const showHoldingNote =
-                        purchaseDate && (isMax || (rangeEarliestDate && purchaseDate > rangeEarliestDate));
+                    {/* SORT ALPHABETICALLY RIGHT HERE */}
+                    {positions
+                      .slice() // copy so we don't mutate state directly
+                      .sort((a, b) => a.symbol.localeCompare(b.symbol))
+                      .map((pos) => {
+                        const purchaseDate = pos.created_at
+                          ? new Date(pos.created_at)
+                          : null;
+                        const isMax = selectedRange === "max";
+                        const showHoldingNote =
+                          purchaseDate &&
+                          (isMax ||
+                            (rangeEarliestDate && purchaseDate > rangeEarliestDate));
 
-                      const noteMessage = isMax
-                        ? "Displaying max time period."
-                        : `Data available from ${purchaseDate?.toLocaleDateString()}. The selected range exceeds the holding period.`;
+                        const noteMessage = isMax
+                          ? "Displaying max time period."
+                          : `Data available from ${purchaseDate?.toLocaleDateString()}. The selected range exceeds the holding period.`;
 
-                      const label = showHoldingNote
-                        ? `Gain (available)`
-                        : `Gain (${selectedRange})`;
+                        const label = showHoldingNote
+                          ? `Gain (available)`
+                          : `Gain (${selectedRange})`;
 
-                      // --- CHANGED LINES START ---
-                      // Define an effective purchase price.
-                      // Use the historical price if it exists and differs from current_price,
-                      // otherwise use the average_price (actual transaction price).
-                      const effectivePurchasePrice =
-                        pos.price_at_selected_range && pos.price_at_selected_range !== pos.current_price
-                          ? pos.price_at_selected_range
-                          : pos.average_price;
-                      const gainSinceRange = (pos.current_price - effectivePurchasePrice) * pos.shares;
-                      const gainPercentSinceRange = effectivePurchasePrice > 0
-                        ? ((pos.current_price - effectivePurchasePrice) / effectivePurchasePrice) * 100
-                        : 0;
-                      // --- CHANGED LINES END ---
+                        // Define an effective purchase price for the range
+                        const effectivePurchasePrice =
+                          pos.price_at_selected_range &&
+                          pos.price_at_selected_range !== pos.current_price
+                            ? pos.price_at_selected_range
+                            : pos.average_price;
 
-                      const dailyPL = pos.previous_price
-                        ? (pos.current_price - pos.previous_price) * pos.shares
-                        : 0;
+                        const gainSinceRange =
+                          (pos.current_price - effectivePurchasePrice) * pos.shares;
+                        const gainPercentSinceRange =
+                          effectivePurchasePrice > 0
+                            ? ((pos.current_price - effectivePurchasePrice) /
+                                effectivePurchasePrice) *
+                              100
+                            : 0;
 
-                      const dailyPercent =
-                        pos.previous_price && pos.previous_price > 0
-                          ? ((pos.current_price - pos.previous_price) / pos.previous_price) * 100
-                          : 0;
+                        // --- Use our new daily P/L logic ---
+                        const dailyPL = getDailyPL(pos);
+                        const dailyPercent = getDailyPercent(pos, dailyPL);
 
-                      const currentValue = pos.shares * pos.current_price;
+                        const currentValue = pos.shares * pos.current_price;
 
-                      return (
-                        <div key={pos.symbol} className="p-4 border rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                          <div className="flex justify-between items-center">
-                            {/* Symbol & Shares */}
-                            <div>
-                              <p className="text-lg font-semibold ml-2">{pos.symbol}</p>
-                              <p className="text-gray-500 ml-2">
-                                {pos.shares} {pos.shares === 1 ? 'share' : 'shares'}
-                              </p>
+                        return (
+                          <div
+                            key={pos.symbol}
+                            className="p-4 border rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                          >
+                            <div className="flex justify-between items-center">
+                              {/* Symbol & Shares */}
+                              <div>
+                                <p className="text-lg font-semibold ml-2">
+                                  {pos.symbol}
+                                </p>
+                                <p className="text-gray-500 ml-2">
+                                  {pos.shares}{" "}
+                                  {pos.shares === 1 ? "share" : "shares"}
+                                </p>
+                              </div>
+
+                              {/* Current Price */}
+                              <div className="text-right">
+                                <p className="text-gray-500">Current Price</p>
+                                <p className="font-medium">
+                                  {formatMoney(pos.current_price)}
+                                </p>
+                              </div>
+
+                              {/* Current Value */}
+                              <div className="text-right">
+                                <p className="text-gray-500">Current Value</p>
+                                <p className="font-medium">
+                                  {formatMoney(currentValue)}
+                                </p>
+                              </div>
+
+                              {/* Gain (with dynamic label) */}
+                              <div className="text-right">
+                                <p className="text-gray-500">{label}</p>
+                                <p
+                                  className={`font-medium ${
+                                    gainSinceRange >= 0
+                                      ? "text-green-600"
+                                      : "text-red-600"
+                                  }`}
+                                >
+                                  {gainSinceRange >= 0 ? "+" : ""}
+                                  {formatMoney(gainSinceRange)}{" "}
+                                  <span
+                                    className={`font-medium ${
+                                      gainSinceRange >= 0
+                                        ? "text-green-600"
+                                        : "text-red-600"
+                                    }`}
+                                  >
+                                    (
+                                    {gainPercentSinceRange >= 0 ? "+" : ""}
+                                    {gainPercentSinceRange.toFixed(2)}%)
+                                  </span>
+                                </p>
+                              </div>
+
+                              {/* Daily P/L */}
+                              <div className="text-right">
+                                <p className="text-gray-500 mr-2">Daily P/L</p>
+                                <p
+                                  className={`font-medium mr-2 ${
+                                    dailyPL >= 0
+                                      ? "text-green-600"
+                                      : "text-red-600"
+                                  }`}
+                                >
+                                  {dailyPL >= 0 ? "+" : ""}
+                                  {formatMoney(dailyPL)}{" "}
+                                  <span
+                                    className={`font-medium ${
+                                      dailyPL >= 0
+                                        ? "text-green-600"
+                                        : "text-red-600"
+                                    }`}
+                                  >
+                                    (
+                                    {dailyPercent >= 0 ? "+" : ""}
+                                    {dailyPercent.toFixed(2)}%)
+                                  </span>
+                                </p>
+                              </div>
+
+                              {/* Trade Button */}
+                              <div className="text-right">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/trade/${pos.symbol}`);
+                                  }}
+                                  className="px-6 py-2 mr-2 bg-black text-white text-base hover:bg-gray-800"
+                                >
+                                  Trade
+                                </button>
+                              </div>
                             </div>
 
-                            {/* Current Price */}
-                            <div className="text-right">
-                              <p className="text-gray-500">Current Price</p>
-                              <p className="font-medium">{formatMoney(pos.current_price)}</p>
-                            </div>
-
-                            {/* Current Value */}
-                            <div className="text-right">
-                              <p className="text-gray-500">Current Value</p>
-                              <p className="font-medium">{formatMoney(currentValue)}</p>
-                            </div>
-
-                            {/* Gain (with dynamic label) */}
-                            <div className="text-right">
-                              <p className="text-gray-500">{label}</p>
-                              <p
-                                className={`font-medium ${
-                                  gainSinceRange >= 0 ? 'text-green-600' : 'text-red-600'
-                                }`}
-                              >
-                                {gainSinceRange >= 0 ? '+' : ''}
-                                {formatMoney(gainSinceRange)}
-                                {' '}
-                                <span className={`font-medium ${gainSinceRange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                  ({gainPercentSinceRange >= 0 ? '+' : ''}
-                                  {gainPercentSinceRange.toFixed(2)}%)
-                                </span>
-                              </p>
-                            </div>
-
-                            {/* Daily P/L */}
-                            <div className="text-right">
-                              <p className="text-gray-500 mr-2">Daily P/L</p>
-                              <p
-                                className={`font-medium mr-2 ${
-                                  dailyPL >= 0 ? 'text-green-600' : 'text-red-600'
-                                }`}
-                              >
-                                {dailyPL >= 0 ? '+' : ''}
-                                {formatMoney(dailyPL)}
-                                {' '}
-                                <span className={`font-medium ${dailyPL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                  ({dailyPercent >= 0 ? '+' : ''}
-                                  {dailyPercent.toFixed(2)}%)
-                                </span>
-                              </p>
-                            </div>
-
-                            {/* Trade Button */}
-                            <div className="text-right">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigate(`/trade/${pos.symbol}`);
-                                }}
-                                className="px-6 py-2 mr-2 bg-black text-white text-base hover:bg-gray-800"
-                              >
-                                Trade
-                              </button>
-                            </div>
+                            {/* Note in the same spot */}
+                            {showHoldingNote && purchaseDate && (
+                              <div className="mt-2 ml-2 text-base text-gray-500">
+                                {noteMessage}
+                              </div>
+                            )}
                           </div>
-
-                          {/* Note in the same spot */}
-                          {showHoldingNote && purchaseDate && (
-                            <div className="mt-2 ml-2 text-base text-gray-500">
-                              {noteMessage}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
                   </div>
                 )}
               </div>
