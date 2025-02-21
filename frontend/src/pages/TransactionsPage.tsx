@@ -42,7 +42,7 @@ export default function TransactionsPage() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/api/v1/trading/transactions', {
+      const response = await fetch('https://mocktrade-backend.onrender.com/api/v1/trading/transactions', {
         headers: {
           Authorization: `Bearer ${token}`,
         },

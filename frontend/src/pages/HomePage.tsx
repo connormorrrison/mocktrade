@@ -54,13 +54,13 @@ export default function HomePage() {
       }
 
       const [dowResp, spxResp, nasdaqResp] = await Promise.all([
-        fetch(`http://localhost:8000/api/v1/stocks/quote/^DJI`, {
+        fetch(`https://mocktrade-backend.onrender.com/api/v1/stocks/quote/^DJI`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch(`http://localhost:8000/api/v1/stocks/quote/^GSPC`, {
+        fetch(`https://mocktrade-backend.onrender.com/api/v1/stocks/quote/^GSPC`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch(`http://localhost:8000/api/v1/stocks/quote/^IXIC`, {
+        fetch(`https://mocktrade-backend.onrender.com/api/v1/stocks/quote/^IXIC`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);

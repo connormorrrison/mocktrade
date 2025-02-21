@@ -73,7 +73,7 @@ export default function ProfilePage() {
   
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/api/v1/auth/profile', {
+      const response = await fetch('https://mocktrade-backend.onrender.com/api/v1/auth/profile', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -117,7 +117,7 @@ export default function ProfilePage() {
   
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/api/v1/auth/change-password', {
+      const response = await fetch('https://mocktrade-backend.onrender.com/api/v1/auth/change-password', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
