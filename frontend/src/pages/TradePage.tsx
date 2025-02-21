@@ -95,7 +95,7 @@ export default function TradePage() {
   const fetchPortfolioData = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/api/v1/trading/portfolio', {
+      const response = await fetch('http://mocktrade-backend.onrender.com/api/v1/trading/portfolio', {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -122,10 +122,10 @@ export default function TradePage() {
       
       // Fetch both price and portfolio data concurrently
       const [priceResponse, portfolioResponse] = await Promise.all([
-        fetch(`http://localhost:8000/api/v1/stocks/quote/${symbol.toUpperCase()}`, {
+        fetch(`http://mocktrade-backend.onrender.com/api/v1/stocks/quote/${symbol.toUpperCase()}`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch(`http://localhost:8000/api/v1/trading/portfolio/${symbol.toUpperCase()}`, {
+        fetch(`http://mocktrade-backend.onrender.com/api/v1/trading/portfolio/${symbol.toUpperCase()}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
       ]);
@@ -177,7 +177,7 @@ export default function TradePage() {
     if (action === 'sell') {
       try {
         const token = localStorage.getItem('token');
-        const portfolioResponse = await fetch(`http://localhost:8000/api/v1/trading/portfolio/${symbol.toUpperCase()}`, {
+        const portfolioResponse = await fetch(`http://mocktrade-backend.onrender.com/api/v1/trading/portfolio/${symbol.toUpperCase()}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         
@@ -204,7 +204,7 @@ export default function TradePage() {
   const confirmOrder = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/api/v1/trading/orders', {
+      const response = await fetch('http://mocktrade-backend.onrender.com/api/v1/trading/orders', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

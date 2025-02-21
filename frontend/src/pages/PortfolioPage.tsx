@@ -71,7 +71,7 @@ export default function PortfolioPage() {
   async function fetchPortfolioData() {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/api/v1/trading/portfolio', {
+      const response = await fetch('http://mocktrade-backend.onrender.com/api/v1/trading/portfolio', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -137,7 +137,7 @@ export default function PortfolioPage() {
           }
 
           const response = await fetch(
-            `http://localhost:8000/api/v1/stocks/history/${position.symbol}?range=${range}`,
+            `http://mocktrade-backend.onrender.com/api/v1/stocks/history/${position.symbol}?range=${range}`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
 
@@ -180,7 +180,7 @@ export default function PortfolioPage() {
   async function fetchPortfolioHistory(range: string) {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8000/api/v1/stocks/portfolio/history?range=${range}`, {
+      const response = await fetch(`http://mocktrade-backend.onrender.com/api/v1/stocks/portfolio/history?range=${range}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) {
