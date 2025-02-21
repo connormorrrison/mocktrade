@@ -28,7 +28,7 @@ This guide explains how to set up and run **MockTrade** locally.
 ## Running the Application
 1. **Start the backend server:**
    ```bash
-   uvicorn main:app --reload
+   uvicorn app.main:app --reload
    ```
 
 2. **Start the frontend:**
