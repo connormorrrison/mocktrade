@@ -1,5 +1,4 @@
 // src/components/Profile.tsx
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
 import mocktradeIcon from "../../../assets/mocktrade-icon-v1.png";

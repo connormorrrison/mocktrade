@@ -161,7 +161,10 @@ const PortfolioHistoryChart: React.FC<PortfolioHistoryChartProps> = ({ portfolio
       y: {
         beginAtZero: false,
         ticks: {
-          callback: (value: number) => formatMoney(value),
+          callback: (tickValue: string | number) => {
+            const numericValue = Number(tickValue);
+            return formatMoney(numericValue);
+          },
         },
       },
     },
