@@ -1,8 +1,7 @@
-# app/main.py
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.api import api_router
 from app.core.config import settings
-from fastapi.middleware.cors import CORSMiddleware
 import logging
 from app.db.base import Base, engine
 
@@ -16,16 +15,17 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
 
-# Set up CORS
+# List your allowed origins exactly as they appear
 origins = [
+    "https://mocktrade.vercel.app",
     "http://localhost",
     "http://localhost:5173",  # Vite's default port
-    "https://mocktrade.vercel.app",
 ]
 
+# Add the CORS middleware BEFORE including any routers
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=origins,  # Allow only these origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -47,5 +47,5 @@ async def startup_event():
     logger.info(f"Starting application with DATABASE_URL: {settings.DATABASE_URL}")
     init_db()
 
-# Add router
+# Include the API router AFTER adding the middleware
 app.include_router(api_router, prefix=settings.API_V1_STR)
