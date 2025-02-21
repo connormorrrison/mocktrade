@@ -1,3 +1,5 @@
+# /Users/connormorrison/Developer/projects/mocktrade/app/main.py
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.api import api_router
@@ -17,7 +19,7 @@ app = FastAPI(
 
 # List your allowed origins exactly as they appear
 origins = [
-    "https://mocktrade.vercel.app",
+    "https://mocktrade-frontend.vercel.app",
     "http://localhost",
     "http://localhost:5173",  # Vite's default port
 ]
