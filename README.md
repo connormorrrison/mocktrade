@@ -1,4 +1,4 @@
-# MockTrade ↗
+# MockTrade
 
 **MockTrade** is a full-stack trading simulator that allows users to **practice trading stocks in a risk-free environment**. Users can search for stocks, execute buy/sell trades, view their portfolio performance, and track their transaction history.
 
