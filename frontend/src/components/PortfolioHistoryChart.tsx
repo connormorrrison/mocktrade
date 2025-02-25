@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -9,7 +9,6 @@ import {
   Title,
   Tooltip,
   Legend,
-  Plugin,
 } from 'chart.js';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -26,41 +25,6 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-
-// Create a constant start time for a continuous cycle.
-const startTime = Date.now();
-// Slow pulsation period: 4000ms (adjustable)
-const PULSATION_PERIOD = 4000;
-
-/**
- * Custom plugin to animate (pulsate) the last data point.
- * It draws an extra circle with a smoothly oscillating radius over the last point.
- */
-const pulsatePlugin: Plugin = {
-  id: 'pulsatePlugin',
-  beforeDraw: (chart) => {
-    const ctx = chart.ctx;
-    if (!ctx) return;
-    const meta = chart.getDatasetMeta(0);
-    const lastIndex = meta.data.length - 1;
-    const lastPoint = meta.data[lastIndex];
-    if (!lastPoint) return;
-
-    const baseRadius = lastPoint.options.radius || 3;
-    const elapsed = Date.now() - startTime;
-    const extraRadius = Math.abs(Math.sin((elapsed / PULSATION_PERIOD) * 2 * Math.PI)) * 5;
-    const pulsateRadius = baseRadius + extraRadius;
-
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(lastPoint.x, lastPoint.y, pulsateRadius, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(20, 50, 245, 0.4)';
-    ctx.fill();
-    ctx.restore();
-  },
-};
-
-ChartJS.register(pulsatePlugin);
 
 // Helper function to format money values.
 const formatMoney = (value: number | null | undefined) => {
@@ -142,7 +106,7 @@ const PortfolioHistoryChart: React.FC<PortfolioHistoryChartProps> = ({ portfolio
       {
         label: 'Portfolio Value',
         data: combinedHistory.map((item) => item.totalValue),
-        // Solid line color
+        // Solid line color kept the same
         borderColor: 'rgb(20, 50, 245)',
         pointRadius: 3,
         tension: 0.1,
@@ -173,24 +137,9 @@ const PortfolioHistoryChart: React.FC<PortfolioHistoryChartProps> = ({ portfolio
     },
   };
 
-  const chartRef = useRef<any>(null);
-
-  // Use requestAnimationFrame for smooth continuous updates for the pulsating effect.
-  useEffect(() => {
-    let animationFrameId: number;
-    const updateChart = () => {
-      if (chartRef.current) {
-        chartRef.current.update('none');
-      }
-      animationFrameId = requestAnimationFrame(updateChart);
-    };
-    animationFrameId = requestAnimationFrame(updateChart);
-    return () => cancelAnimationFrame(animationFrameId);
-  }, []);
-
   return (
     <div className="h-96 bg-white p-4 rounded-lg">
-      <Line ref={chartRef} data={chartData} options={chartOptions} />
+      <Line data={chartData} options={chartOptions} />
     </div>
   );
 };
