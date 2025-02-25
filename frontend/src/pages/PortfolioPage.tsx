@@ -54,7 +54,6 @@ function getDailyPL(pos: PortfolioPosition): number {
   if (isSameDay(purchaseDate, today)) {
     return (pos.current_price - pos.average_price) * pos.shares;
   } else {
-    // If there's no valid previous_price, fallback to 0
     if (typeof pos.previous_price !== 'number') return 0;
     return (pos.current_price - pos.previous_price) * pos.shares;
   }
@@ -67,7 +66,6 @@ function getDailyPercent(pos: PortfolioPosition, dailyPL: number): number {
   const purchaseDate = new Date(pos.created_at);
   const today = new Date();
 
-  // If purchased today, compare to average_price; otherwise compare to previous_price
   let baseline = 0;
   if (isSameDay(purchaseDate, today)) {
     baseline = pos.average_price;
@@ -165,6 +163,7 @@ export default function PortfolioPage() {
     }
   }
 
+  // --- FIXED HERE: Adjust how we pick the historical price for the start of the range.
   async function fetchHistoricalPrices(range: string, positions: PortfolioPosition[]) {
     try {
       const token = localStorage.getItem('token');
@@ -202,23 +201,25 @@ export default function PortfolioPage() {
 
           const data = await response.json();
           if (data.historical_prices && data.historical_prices.length > 0 && finalStartDate) {
-            // Sort ascending, then find the first price AFTER finalStartDate
+            // We want the price on or just BEFORE finalStartDate, so we filter <= instead of >=
             const filteredPrices = data.historical_prices
-              .filter((p: any) => new Date(p.date) >= finalStartDate)
+              .filter((p: any) => new Date(p.date) <= finalStartDate)
               .sort(
                 (a: any, b: any) =>
-                  new Date(a.date).getTime() - new Date(b.date).getTime()
+                  new Date(b.date).getTime() - new Date(a.date).getTime()
               );
 
             if (filteredPrices.length > 0) {
-              const oldestPrice = filteredPrices[0].close;
+              // The first element in descending order is the closest date on or before finalStartDate
+              const baselinePrice = filteredPrices[0].close;
               return {
                 ...position,
-                price_at_selected_range: oldestPrice,
+                price_at_selected_range: baselinePrice,
               };
             }
           }
 
+          // Fallback
           return { ...position, price_at_selected_range: position.average_price };
         })
       );
@@ -401,7 +402,6 @@ export default function PortfolioPage() {
                   <p className="text-gray-500">No positions in portfolio</p>
                 ) : (
                   <div className="space-y-6">
-                    {/* SORT ALPHABETICALLY RIGHT HERE */}
                     {positions
                       .slice() // copy so we don't mutate state directly
                       .sort((a, b) => a.symbol.localeCompare(b.symbol))
@@ -410,6 +410,7 @@ export default function PortfolioPage() {
                           ? new Date(pos.created_at)
                           : null;
                         const isMax = selectedRange === "max";
+                        const rangeEarliestDate = getEarliestDateForRange(selectedRange);
                         const showHoldingNote =
                           purchaseDate &&
                           (isMax ||
@@ -439,7 +440,7 @@ export default function PortfolioPage() {
                               100
                             : 0;
 
-                        // --- Use our new daily P/L logic ---
+                        // Use our daily P/L logic
                         const dailyPL = getDailyPL(pos);
                         const dailyPercent = getDailyPercent(pos, dailyPL);
 
@@ -544,7 +545,7 @@ export default function PortfolioPage() {
                               </div>
                             </div>
 
-                            {/* Note in the same spot */}
+                            {/* Optional note if the selected range is longer than holding period */}
                             {showHoldingNote && purchaseDate && (
                               <div className="mt-2 ml-2 text-base text-gray-500">
                                 {noteMessage}
