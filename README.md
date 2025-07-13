@@ -19,6 +19,20 @@
 - **Authentication:** JWT for authentication
 - **Market Data:** Yahoo Finance API (yfinance)
 
+## Project Structure
+
+```
+mocktrade/
+├── backend/          # FastAPI Python backend
+├── frontend/         # React TypeScript frontend
+├── assets/          # Shared assets (logos, icons)
+└── README.md        # This file
+```
+
 ## Getting Started
+
 - **Try it live:** [mocktrade.ca](https://mocktrade.ca)
-- **Run it locally:** See the [Developer Guide](./DEVELOPER_SETUP.md) for setup instructions.
+- **Run locally:** 
+  - Backend: See `backend/README.md`
+  - Frontend: See `frontend/README.md`
+- **Full setup guide:** [Developer Guide](./DEVELOPER_SETUP.md)

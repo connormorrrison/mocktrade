@@ -1,7 +1,7 @@
 // src/components/Profile.tsx
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
-import mocktradeIcon from "../../../assets/mocktrade-icon-v1.png";
+import mocktradeIcon from "../../../assets/mocktrade-icon.png";
 
 export default function Profile() {
   const navigate = useNavigate();

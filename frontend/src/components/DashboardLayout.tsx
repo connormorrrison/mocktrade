@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { useUser } from '../contexts/UserContext';
-import mocktradeLogo from '../../../assets/mocktrade-logo-v1.png';
+import mocktradeLogo from '../../../assets/mocktrade-logo.png';
 import Profile from '@/components/Profile';
 
 const menuItems = [

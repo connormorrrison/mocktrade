@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react"
 import { useNavigate } from 'react-router-dom'
 import { authApi } from '../services/api'
-import mocktradeLogo from '../../../assets/mocktrade-logo-v1.png'
+import mocktradeLogo from '../../../assets/mocktrade-logo.png'
 import DynamicBackground from '../components/DynamicBackground'
 
 export default function LoginPage() {
