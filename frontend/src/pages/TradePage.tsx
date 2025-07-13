@@ -14,6 +14,8 @@ import {
   DialogFooter 
 } from "@/components/ui/dialog";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function TradePage() {
   // State declarations
   // (1) Add union types where needed
@@ -95,7 +97,7 @@ export default function TradePage() {
   const fetchPortfolioData = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://mocktrade-backend.onrender.com/api/v1/trading/portfolio', {
+      const response = await fetch(`${API_URL}/trading/portfolio`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -122,10 +124,10 @@ export default function TradePage() {
       
       // Fetch both price and portfolio data concurrently
       const [priceResponse, portfolioResponse] = await Promise.all([
-        fetch(`https://mocktrade-backend.onrender.com/api/v1/stocks/quote/${symbol.toUpperCase()}`, {
+        fetch(`${API_URL}/stocks/quote/${symbol.toUpperCase()}`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch(`https://mocktrade-backend.onrender.com/api/v1/trading/portfolio/${symbol.toUpperCase()}`, {
+        fetch(`${API_URL}/trading/portfolio/${symbol.toUpperCase()}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
       ]);
@@ -177,7 +179,7 @@ export default function TradePage() {
     if (action === 'sell') {
       try {
         const token = localStorage.getItem('token');
-        const portfolioResponse = await fetch(`https://mocktrade-backend.onrender.com/api/v1/trading/portfolio/${symbol.toUpperCase()}`, {
+        const portfolioResponse = await fetch(`${API_URL}/trading/portfolio/${symbol.toUpperCase()}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         
@@ -204,7 +206,7 @@ export default function TradePage() {
   const confirmOrder = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://mocktrade-backend.onrender.com/api/v1/trading/orders', {
+      const response = await fetch(`${API_URL}/trading/orders`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

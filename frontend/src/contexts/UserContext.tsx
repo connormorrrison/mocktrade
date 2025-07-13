@@ -7,6 +7,8 @@ import React, {
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 interface UserData {
   id: string;
   email: string;
@@ -46,7 +48,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
     setIsLoading(true);
     try {
-      const response = await fetch('https://mocktrade-backend.onrender.com/api/v1/auth/me', {
+      const response = await fetch(`${API_URL}/auth/me`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -76,7 +78,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem('token');
       setUserData(null);
 
-      const response = await fetch('https://mocktrade-backend.onrender.com/api/v1/auth/login', {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: email, password })
@@ -88,7 +90,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('token', data.access_token);
       
       // Fetch user data
-      const userResponse = await fetch('https://mocktrade-backend.onrender.com/api/v1/auth/me', {
+      const userResponse = await fetch(`${API_URL}/auth/me`, {
         headers: {
           Authorization: `Bearer ${data.access_token}`
         }

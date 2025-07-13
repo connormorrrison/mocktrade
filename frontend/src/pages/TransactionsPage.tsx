@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 interface Transaction {
   id: number;
   symbol: string;
@@ -42,7 +44,7 @@ export default function TransactionsPage() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://mocktrade-backend.onrender.com/api/v1/trading/transactions', {
+      const response = await fetch(`${API_URL}/trading/transactions`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

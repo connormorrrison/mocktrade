@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import PortfolioHistoryChart from '../components/PortfolioHistoryChart';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 interface PortfolioPosition {
   symbol: string;
   shares: number;
@@ -117,7 +119,7 @@ export default function PortfolioPage() {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        'https://mocktrade-backend.onrender.com/api/v1/trading/portfolio',
+        `${API_URL}/trading/portfolio`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -188,7 +190,7 @@ export default function PortfolioPage() {
           }
 
           const response = await fetch(
-            `https://mocktrade-backend.onrender.com/api/v1/stocks/history/${position.symbol}?range=${range}`,
+            `${API_URL}/stocks/history/${position.symbol}?range=${range}`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
 
@@ -234,7 +236,7 @@ export default function PortfolioPage() {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `https://mocktrade-backend.onrender.com/api/v1/stocks/portfolio/history?range=${range}`,
+        `${API_URL}/stocks/portfolio/history?range=${range}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { Eye, EyeOff } from "lucide-react";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 interface UserProfile {
   first_name: string;
   last_name: string;
@@ -73,7 +75,7 @@ export default function ProfilePage() {
   
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://mocktrade-backend.onrender.com/api/v1/auth/profile', {
+      const response = await fetch(`${API_URL}/auth/profile`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -117,7 +119,7 @@ export default function ProfilePage() {
   
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://mocktrade-backend.onrender.com/api/v1/auth/change-password', {
+      const response = await fetch(`${API_URL}/auth/change-password`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

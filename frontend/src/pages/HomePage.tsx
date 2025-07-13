@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUser } from '../contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const getTimeBasedGreeting = () => {
   const hour = new Date().getHours();
   if (hour >= 5 && hour < 12) return "Good morning";
@@ -54,13 +56,13 @@ export default function HomePage() {
       }
 
       const [dowResp, spxResp, nasdaqResp] = await Promise.all([
-        fetch(`https://mocktrade-backend.onrender.com/api/v1/stocks/quote/^DJI`, {
+        fetch(`${API_URL}/stocks/quote/^DJI`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch(`https://mocktrade-backend.onrender.com/api/v1/stocks/quote/^GSPC`, {
+        fetch(`${API_URL}/stocks/quote/^GSPC`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch(`https://mocktrade-backend.onrender.com/api/v1/stocks/quote/^IXIC`, {
+        fetch(`${API_URL}/stocks/quote/^IXIC`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
