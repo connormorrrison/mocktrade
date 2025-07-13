@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     VERSION: str = "0.1.0"
     API_V1_STR: str = "/api/v1"
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-here")  # Change in production
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./stock_trading.db")
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./development.db")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     ALGORITHM: str = "HS256"    
 
