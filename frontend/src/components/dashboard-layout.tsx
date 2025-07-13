@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useUser } from '../contexts/UserContext';
 import mocktradeLogo from '../../../assets/mocktrade-logo.png';
-import Profile from '@/components/Profile';
+import Profile from '@/components/profile';
 
 const menuItems = [
   {

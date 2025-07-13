@@ -7,7 +7,7 @@ import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react"
 import { useNavigate } from 'react-router-dom'
 import { authApi } from '../services/api'
 import mocktradeLogo from '../../../assets/mocktrade-logo.png'
-import DynamicBackground from '../components/DynamicBackground'
+import DynamicBackground from '../components/dynamic-background'
 
 export default function LoginPage() {
   const navigate = useNavigate()

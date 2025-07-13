@@ -8,7 +8,7 @@ import PortfolioPage from './pages/PortfolioPage'
 import TradePage from './pages/TradePage'
 import TransactionPage from './pages/TransactionsPage'
 import ProfilePage from './pages/ProfilePage'
-import DashboardLayout from './components/DashboardLayout'
+import DashboardLayout from './components/dashboard-layout'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem('token')
