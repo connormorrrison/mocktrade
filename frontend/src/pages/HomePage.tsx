@@ -14,6 +14,26 @@ const getTimeBasedGreeting = () => {
   return "Good night";
 };
 
+const isMarketOpen = () => {
+  const now = new Date();
+  const easternTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+  const day = easternTime.getDay(); // 0 = Sunday, 6 = Saturday
+  const hour = easternTime.getHours();
+  const minute = easternTime.getMinutes();
+  const currentTime = hour + minute / 60;
+
+  // Market is closed on weekends
+  if (day === 0 || day === 6) {
+    return false;
+  }
+
+  // Market hours: 9:30 AM - 4:00 PM Eastern Time
+  const marketOpen = 9.5; // 9:30 AM
+  const marketClose = 16; // 4:00 PM
+
+  return currentTime >= marketOpen && currentTime < marketClose;
+};
+
 export default function HomePage() {
   const { userData, refreshUserData } = useUser();
   const navigate = useNavigate();
@@ -103,10 +123,21 @@ export default function HomePage() {
     
     fetchIndexData();
     
-    // Optional: Set up polling for market data
-    const intervalId = setInterval(fetchIndexData, 60000); // Update every minute
+    // Set up polling for market data every 5 minutes, but only during market hours
+    let intervalId: NodeJS.Timeout | null = null;
     
-    return () => clearInterval(intervalId);
+    if (isMarketOpen()) {
+      intervalId = setInterval(() => {
+        // Check market status before each fetch
+        if (isMarketOpen()) {
+          fetchIndexData();
+        }
+      }, 300000); // Update every 5 minutes
+    }
+    
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [refreshUserData, fetchIndexData, navigate, userData]);
 
   const formatMoney = (value: number | null, currency = 'USD') => {
@@ -161,8 +192,17 @@ export default function HomePage() {
           <CardHeader className="py-2">
             <CardTitle className="text-lg font-medium flex items-center gap-2">
               <span className="mr-3">Market Indices</span>
-              <span className="h-3 w-3 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-green-600 text-base font-normal animate-pulse">1 min. delay</span>
+              {isMarketOpen() ? (
+                <>
+                  <span className="h-3 w-3 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-green-600 text-base font-normal animate-pulse">Market Open - 5 min. delay</span>
+                </>
+              ) : (
+                <>
+                  <span className="h-3 w-3 rounded-full bg-red-500" />
+                  <span className="text-red-600 text-base font-normal">Market Closed</span>
+                </>
+              )}
             </CardTitle>
           </CardHeader>
         </Card>
