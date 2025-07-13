@@ -6,6 +6,13 @@ import { useNavigate } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+// Market indices configuration
+const MARKET_INDICES = [
+  { symbol: '^DJI', key: 'dow', name: 'DJIA' },
+  { symbol: '^GSPC', key: 'spx', name: 'S&P 500' },
+  { symbol: '^IXIC', key: 'nasdaq', name: 'Nasdaq' }
+];
+
 const getTimeBasedGreeting = () => {
   const hour = new Date().getHours();
   if (hour >= 5 && hour < 12) return "Good morning";
@@ -46,6 +53,7 @@ export default function HomePage() {
   const [indexError, setIndexError] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [greeting, setGreeting] = useState(getTimeBasedGreeting());
+  const [isPageVisible, setIsPageVisible] = useState(!document.hidden);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
@@ -60,11 +68,24 @@ export default function HomePage() {
     };
   }, []);
 
+  // Handle page visibility changes
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      setIsPageVisible(!document.hidden);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   const baseCardClass = "transform transition-all duration-500 ease-out";
   const hiddenCardClass = "opacity-0 translate-y-4 scale-95";
   const visibleCardClass = "opacity-100 translate-y-0 scale-100";
 
-  // Memoize fetchIndexData
+  // Elegant fetchIndexData with individual error handling
   const fetchIndexData = useCallback(async () => {
     setIsIndexLoading(true);
     setIndexError(null);
@@ -75,39 +96,54 @@ export default function HomePage() {
         throw new Error('No token found. Please log in.');
       }
 
-      const [dowResp, spxResp, nasdaqResp] = await Promise.all([
-        fetch(`${API_URL}/stocks/quote/^DJI`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        fetch(`${API_URL}/stocks/quote/^GSPC`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        fetch(`${API_URL}/stocks/quote/^IXIC`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-      ]);
+      // Helper function to fetch individual symbol
+      const fetchSymbol = async (index: typeof MARKET_INDICES[0]) => {
+        try {
+          const response = await fetch(`${API_URL}/stocks/quote/${index.symbol}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          
+          if (!response.ok) {
+            console.warn(`Failed to fetch ${index.symbol}: ${response.status}`);
+            return { [index.key]: null }; // Graceful degradation
+          }
+          
+          const data = await response.json();
+          return { [index.key]: data.current_price };
+        } catch (error) {
+          console.warn(`Error fetching ${index.symbol}:`, error);
+          return { [index.key]: null };
+        }
+      };
 
-      if (!dowResp.ok || !spxResp.ok || !nasdaqResp.ok) {
-        throw new Error('Failed to fetch market data');
+      // Fetch all symbols with individual error handling
+      const results = await Promise.allSettled(
+        MARKET_INDICES.map(fetchSymbol)
+      );
+      
+      // Merge successful results
+      const newMarketData = results.reduce((acc, result, i) => {
+        if (result.status === 'fulfilled') {
+          return { ...acc, ...result.value };
+        } else {
+          console.warn(`Failed to fetch ${MARKET_INDICES[i].symbol}:`, result.reason);
+          return { ...acc, [MARKET_INDICES[i].key]: null };
+        }
+      }, {} as typeof marketData);
+
+      setMarketData(newMarketData);
+      
+      // Only show error if ALL requests failed
+      const hasAnyData = Object.values(newMarketData).some(value => value !== null);
+      if (!hasAnyData) {
+        setIndexError('Failed to fetch any market data');
       }
-
-      const [dowData, spxData, nasdaqData] = await Promise.all([
-        dowResp.json(),
-        spxResp.json(),
-        nasdaqResp.json()
-      ]);
-
-      setMarketData({
-        dow: dowData.current_price,
-        spx: spxData.current_price,
-        nasdaq: nasdaqData.current_price
-      });
     } catch (err: any) {
       setIndexError(err.message || 'Error fetching indices');
     } finally {
       setIsIndexLoading(false);
     }
-  }, []); // Empty dependency array as it doesn't depend on any props or state
+  }, []);
 
   // Check authentication and fetch data once on mount
   useEffect(() => {
@@ -122,14 +158,17 @@ export default function HomePage() {
     }
     
     fetchIndexData();
-    
-    // Set up polling for market data every 5 minutes, but only during market hours
+  }, [refreshUserData, fetchIndexData, navigate, userData]);
+
+  // Separate useEffect for interval management based on market hours and page visibility
+  useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
     
-    if (isMarketOpen()) {
+    // Only start interval if market is open AND page is visible
+    if (isMarketOpen() && isPageVisible) {
       intervalId = setInterval(() => {
-        // Check market status before each fetch
-        if (isMarketOpen()) {
+        // Double-check both conditions before each fetch
+        if (isMarketOpen() && !document.hidden) {
           fetchIndexData();
         }
       }, 300000); // Update every 5 minutes
@@ -138,7 +177,7 @@ export default function HomePage() {
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [refreshUserData, fetchIndexData, navigate, userData]);
+  }, [isPageVisible, fetchIndexData]); // Re-run when visibility changes
 
   const formatMoney = (value: number | null, currency = 'USD') => {
     if (value === null) return 'Loading...';
@@ -194,8 +233,10 @@ export default function HomePage() {
               <span className="mr-3">Market Indices</span>
               {isMarketOpen() ? (
                 <>
-                  <span className="h-3 w-3 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-green-600 text-base font-normal animate-pulse">Market Open - 5 min. delay</span>
+                  <span className={`h-3 w-3 rounded-full bg-green-500 ${isPageVisible ? 'animate-pulse' : ''}`} />
+                  <span className={`text-green-600 text-base font-normal ${isPageVisible ? 'animate-pulse' : ''}`}>
+                    Market Open - {isPageVisible ? '5 min. delay' : 'Paused'}
+                  </span>
                 </>
               ) : (
                 <>
