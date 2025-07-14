@@ -1,37 +1,45 @@
-import { useState } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from "@/components/theme-provider"
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import Sidebar from "@/components/sidebar"
+
+// Placeholder pages
+function HomePage() {
+  return <div className="p-8"><h1 className="text-2xl font-bold">Home Page</h1></div>
+}
+
+function PortfolioPage() {
+  return <div className="p-8"><h1 className="text-2xl font-bold">Portfolio Page</h1></div>
+}
+
+function TradePage() {
+  return <div className="p-8"><h1 className="text-2xl font-bold">Trade Page</h1></div>
+}
+
+function TransactionsPage() {
+  return <div className="p-8"><h1 className="text-2xl font-bold">Transactions Page</h1></div>
+}
+
+function ProfilePage() {
+  return <div className="p-8"><h1 className="text-2xl font-bold">Profile Page</h1></div>
+}
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1 className="text-3xl font-bold underline">Vite + React + Tailwind</h1>
-      <div className="card">
-        <button 
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          count is {count}
-        </button>
-        <p className="mt-4">
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs text-gray-500">
-        Click on the Vite and React logos to learn more
-      </p>
+      <BrowserRouter>
+        <div className="flex h-screen">
+          <Sidebar />
+          <main className="flex-1">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/portfolio" element={<PortfolioPage />} />
+              <Route path="/trade" element={<TradePage />} />
+              <Route path="/transactions" element={<TransactionsPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+            </Routes>
+          </main>
+        </div>
+      </BrowserRouter>
     </ThemeProvider>
   )
 }
