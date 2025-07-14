@@ -46,7 +46,7 @@ export default function PortfolioPage() {
   }
 
   return (
-    <div className="w-full" style={{ marginTop: '96px' }}>
+    <div className="w-full" style={{ marginTop: '32px' }}>
       <Tile className="w-full shadow-lg hover:shadow-xl transition-shadow">
         <div className="p-6">
           <h1 className="text-3xl font-normal mb-6">Portfolio</h1>
