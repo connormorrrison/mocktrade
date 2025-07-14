@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from "@/components/theme-provider"
 import { UserProvider } from "@/contexts/UserContext"
 import Sidebar from "@/components/sidebar"
+import Profile from "@/components/profile"
 import HomePage from "@/pages/HomePage"
 import PortfolioPage from "@/pages/PortfolioPage"
 import TradePage from "@/pages/TradePage"
@@ -15,7 +16,8 @@ function App() {
         <BrowserRouter>
           <div className="grid grid-cols-[auto_1fr] h-screen">
             <Sidebar />
-            <main className="flex justify-center items-start py-8 overflow-y-auto" style={{ width: 'calc(100vw - 256px)', paddingLeft: '32px', paddingRight: '16px' }}>
+            <main className="flex justify-center items-start py-8 overflow-y-auto relative" style={{ width: 'calc(100vw - 256px)', paddingLeft: '32px', paddingRight: '16px' }}>
+              <Profile />
               <div style={{ width: 'calc(100vw - 32px)' }}>
                 <Routes>
                   <Route path="/" element={<HomePage />} />
