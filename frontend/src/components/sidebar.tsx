@@ -1,8 +1,9 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Card } from '@/components/ui/card'
 import { House, ChartCandlestick, ArrowLeftRight, FileText, User } from 'lucide-react'
 
 export default function Sidebar() {
+  const location = useLocation()
 
   const menuItems = [
     { name: 'Home', path: '/', icon: House },
@@ -29,11 +30,14 @@ export default function Sidebar() {
           <ul className="space-y-1">
             {menuItems.map(item => {
               const IconComponent = item.icon
+              const isActive = location.pathname === item.path
               return (
                 <li key={item.name}>
                   <Link
                     to={item.path}
-                    className="flex items-center gap-3 px-4 py-2 rounded-lg text-lg font-normal !text-white hover:bg-accent hover:!text-white"
+                    className={`flex items-center gap-3 px-4 py-2 rounded-lg text-lg font-normal !text-white hover:bg-accent hover:!text-white ${
+                      isActive ? 'bg-accent' : ''
+                    }`}
                   >
                     <IconComponent size={20} className="flex-shrink-0" />
                     {item.name}

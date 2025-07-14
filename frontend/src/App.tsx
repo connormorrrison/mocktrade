@@ -15,8 +15,8 @@ function App() {
         <BrowserRouter>
           <div className="grid grid-cols-[auto_1fr] h-screen">
             <Sidebar />
-            <main className="flex justify-center items-center py-8" style={{ width: 'calc(100vw - 256px)' }}>
-              <div className="w-full max-w-4xl">
+            <main className="flex justify-center items-start py-8 overflow-y-auto" style={{ width: 'calc(100vw - 256px)', paddingLeft: '32px', paddingRight: '16px' }}>
+              <div style={{ width: 'calc(100vw - 32px)' }}>
                 <Routes>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/portfolio" element={<PortfolioPage />} />
