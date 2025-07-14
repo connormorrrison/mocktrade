@@ -3,7 +3,6 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { UserProvider } from "@/contexts/UserContext"
 import Sidebar from "@/components/sidebar"
 import Profile from "@/components/profile"
-import BlackBox from "@/components/blackbox"
 import HomePage from "@/pages/HomePage"
 import PortfolioPage from "@/pages/PortfolioPage"
 import TradePage from "@/pages/TradePage"
@@ -18,7 +17,6 @@ function App() {
           <div className="grid grid-cols-[auto_1fr] h-screen">
             <Sidebar />
             <main className="flex justify-center items-start py-8 overflow-y-auto relative" style={{ width: 'calc(100vw - 256px)', paddingLeft: '32px', paddingRight: '16px' }}>
-              <BlackBox />
               <Profile />
               <div style={{ width: 'calc(100vw - 32px)' }}>
                 <Routes>
