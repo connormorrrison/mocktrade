@@ -1,27 +1,11 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from "@/components/theme-provider"
 import Sidebar from "@/components/sidebar"
-
-// Placeholder pages
-function HomePage() {
-  return <div className="p-8"></div>
-}
-
-function PortfolioPage() {
-  return <div className="p-8"></div>
-}
-
-function TradePage() {
-  return <div className="p-8"></div>
-}
-
-function TransactionsPage() {
-  return <div className="p-8"></div>
-}
-
-function ProfilePage() {
-  return <div className="p-8"></div>
-}
+import HomePage from "@/pages/HomePage"
+import PortfolioPage from "@/pages/PortfolioPage"
+import TradePage from "@/pages/TradePage"
+import TransactionsPage from "@/pages/TransactionsPage"
+import ProfilePage from "@/pages/ProfilePage"
 
 function App() {
   return (
