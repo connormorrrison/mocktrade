@@ -4,23 +4,23 @@ import Sidebar from "@/components/sidebar"
 
 // Placeholder pages
 function HomePage() {
-  return <div className="p-8"><h1 className="text-2xl font-bold">Home Page</h1></div>
+  return <div className="p-8"></div>
 }
 
 function PortfolioPage() {
-  return <div className="p-8"><h1 className="text-2xl font-bold">Portfolio Page</h1></div>
+  return <div className="p-8"></div>
 }
 
 function TradePage() {
-  return <div className="p-8"><h1 className="text-2xl font-bold">Trade Page</h1></div>
+  return <div className="p-8"></div>
 }
 
 function TransactionsPage() {
-  return <div className="p-8"><h1 className="text-2xl font-bold">Transactions Page</h1></div>
+  return <div className="p-8"></div>
 }
 
 function ProfilePage() {
-  return <div className="p-8"><h1 className="text-2xl font-bold">Profile Page</h1></div>
+  return <div className="p-8"></div>
 }
 
 function App() {
