@@ -49,10 +49,10 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div className="w-full" style={{ marginTop: '32px' }}>
+    <div className="w-full" style={{ marginTop: '0px' }}>
       <Tile className="w-full shadow-lg hover:shadow-xl transition-shadow">
         <div className="p-6">
-          <h1 className="text-3xl font-normal mb-6">Transactions</h1>
+          <h2 className="text-4xl font-normal mb-6">Transactions</h2>
           
           <div className="space-y-6">
             {/* Filters Section */}
