@@ -31,7 +31,7 @@ export default function Sidebar() {
               <li key={item.name}>
                 <Link
                   to={item.path}
-                  className="block px-4 py-2 rounded-lg text-lg font-normal text-foreground hover:bg-accent hover:text-accent-foreground"
+                  className="block px-4 py-2 rounded-lg text-lg font-normal !text-white hover:bg-accent hover:!text-white"
                 >
                   {item.name}
                 </Link>
