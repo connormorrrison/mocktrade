@@ -1,14 +1,15 @@
 import { Link } from 'react-router-dom'
 import { Card } from '@/components/ui/card'
+import { House, ChartCandlestick, ArrowLeftRight, FileText, User } from 'lucide-react'
 
 export default function Sidebar() {
 
   const menuItems = [
-    { name: 'Home', path: '/' },
-    { name: 'Portfolio', path: '/portfolio' },
-    { name: 'Trade', path: '/trade' },
-    { name: 'Transactions', path: '/transactions' },
-    { name: 'Profile', path: '/profile' },
+    { name: 'Home', path: '/', icon: House },
+    { name: 'Portfolio', path: '/portfolio', icon: ChartCandlestick },
+    { name: 'Trade', path: '/trade', icon: ArrowLeftRight },
+    { name: 'Transactions', path: '/transactions', icon: FileText },
+    { name: 'Profile', path: '/profile', icon: User },
   ]
 
   return (
@@ -16,7 +17,7 @@ export default function Sidebar() {
       <Card
         className="
           relative flex flex-col
-          w-48 p-4 rounded-xl border border-gray-300 dark:border-zinc-700 bg-background/30 dark:bg-input/30 shadow-none
+          w-52 p-4 rounded-xl border border-gray-300 dark:border-zinc-700 bg-background/30 dark:bg-input/30 shadow-none
         "
         style={{
           height: 'calc(100vh - 64px)',
@@ -26,16 +27,20 @@ export default function Sidebar() {
       >
         <nav className="flex-1">
           <ul className="space-y-1">
-            {menuItems.map(item => (
-              <li key={item.name}>
-                <Link
-                  to={item.path}
-                  className="block px-4 py-2 rounded-lg text-lg font-normal !text-white hover:bg-accent hover:!text-white"
-                >
-                  {item.name}
-                </Link>
-              </li>
-            ))}
+            {menuItems.map(item => {
+              const IconComponent = item.icon
+              return (
+                <li key={item.name}>
+                  <Link
+                    to={item.path}
+                    className="flex items-center gap-3 px-4 py-2 rounded-lg text-lg font-normal !text-white hover:bg-accent hover:!text-white"
+                  >
+                    <IconComponent size={20} className="flex-shrink-0" />
+                    {item.name}
+                  </Link>
+                </li>
+              )
+            })}
           </ul>
         </nav>
       </Card>
