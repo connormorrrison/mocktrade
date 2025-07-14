@@ -67,7 +67,7 @@ export default function Profile() {
             </div>
             <div 
               className={`text-content flex flex-col overflow-hidden transition-all duration-200 ease-out ${
-                isScrolled ? 'w-0 opacity-0 ml-0 scale-95' : 'w-auto opacity-100 ml-3 scale-100'
+                isScrolled ? 'w-0 opacity-0 ml-0 scale-95 group-hover:w-auto group-hover:opacity-100 group-hover:ml-3 group-hover:scale-100' : 'w-auto opacity-100 ml-3 scale-100'
               }`}
             >
               <span className="text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">Sam Smith</span>
