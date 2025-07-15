@@ -60,7 +60,7 @@ export default function Profile() {
           }
         }}
       >
-        <Tile className="h-full w-full overflow-hidden flex items-center justify-center p-0 px-4 py-4 !bg-zinc-800">
+        <Tile className="h-full w-full overflow-hidden flex items-center justify-center p-0 px-4 py-4 !bg-zinc-800 hover:!bg-zinc-700">
           <div ref={contentRef} className="flex items-center">
             <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
               <span className="text-white text-base font-semibold">SM</span>

@@ -3,6 +3,9 @@ import { Tile } from "@/components/tile";
 import { TextField } from "@/components/text-field";
 import { SecondaryTitle } from "@/components/secondary-title";
 import { PrimaryTitle } from "@/components/primary-title";
+import { TertiaryTitle } from "@/components/tertiary-title";
+import { SecondaryButton } from "@/components/secondary-button";
+import { PrimaryButton } from "@/components/primary-button";
 
 export default function TradePage() {
   // State
@@ -39,28 +42,28 @@ export default function TradePage() {
                   value={symbol}
                   readOnly
                 />
-                <button className="px-4 py-2 bg-blue-600 !text-white !text-base !rounded-xl hover:bg-blue-700 h-12">
+                <SecondaryButton>
                   Search
-                </button>
+                </SecondaryButton>
               </div>
             </div>
 
             {/* Stock Price Display */}
-            <div className="p-4 bg-input/30 !rounded-xl shadow-md border border-zinc-700">
+            <Tile>
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-base text-zinc-400">
+                  <TertiaryTitle>
                     Market Price for {symbol}
-                  </p>
+                  </TertiaryTitle>
                   <p className="text-2xl font-semibold">
                     {formatMoney(price)}
                   </p>
-                  <p className="text-base text-zinc-400">
+                  <TertiaryTitle>
                     You own {sharesOwned.toLocaleString()} shares of {symbol}
-                  </p>
+                  </TertiaryTitle>
                 </div>
                 <div className="text-right">
-                  <p className="text-base text-zinc-400">Status</p>
+                  <TertiaryTitle>Status</TertiaryTitle>
                   <div className="flex items-center justify-end">
                     <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse mr-2" />
                     <p className="text-base text-green-600 font-medium animate-pulse">
@@ -69,32 +72,26 @@ export default function TradePage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </Tile>
 
             {/* Action Section */}
             <div>
               <SecondaryTitle>Action</SecondaryTitle>
               <div className="flex gap-2">
-                <button 
+                <PrimaryButton 
                   onClick={() => setAction('buy')}
-                  className={`flex-1 px-4 py-2 !text-base !font-medium !rounded-xl transition-colors focus:!outline-none h-10 ${
-                    action === 'buy' 
-                      ? '!bg-blue-600 !text-white hover:!bg-blue-700' 
-                      : '!bg-input/30 !text-white !border !border-zinc-700 hover:!bg-blue-600 hover:!text-white'
-                  }`}
+                  className="flex-1"
+                  variant={action === 'buy' ? 'primary' : 'secondary'}
                 >
                   Buy
-                </button>
-                <button 
+                </PrimaryButton>
+                <PrimaryButton 
                   onClick={() => setAction('sell')}
-                  className={`flex-1 px-4 py-2 !text-base !font-medium !rounded-xl transition-colors focus:!outline-none h-10 ${
-                    action === 'sell' 
-                      ? '!bg-blue-600 !text-white hover:!bg-blue-700' 
-                      : '!bg-input/30 !text-white border !border-zinc-700 hover:!bg-blue-600 hover:!text-white'
-                  }`}
+                  className="flex-1"
+                  variant={action === 'sell' ? 'primary' : 'secondary'}
                 >
                   Sell
-                </button>
+                </PrimaryButton>
               </div>
             </div>
 
@@ -113,21 +110,21 @@ export default function TradePage() {
               <SecondaryTitle>Order Preview</SecondaryTitle>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-base font-normal text-zinc-400">Order</span>
+                  <TertiaryTitle>Order</TertiaryTitle>
                   <span className="text-base font-medium">
                     {action === 'buy' ? 'Buy' : 'Sell'} {Number(quantity).toLocaleString()} shares at Market
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-base font-normal text-zinc-400">Price per Share</span>
+                  <TertiaryTitle>Price per Share</TertiaryTitle>
                   <span className="text-base font-medium">{formatMoney(price)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-base font-normal text-zinc-400">Cash Available</span>
+                  <TertiaryTitle>Cash Available</TertiaryTitle>
                   <span className="text-base font-medium">{formatMoney(availableCash)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-base font-normal text-zinc-400">Total Value</span>
+                  <TertiaryTitle>Total Value</TertiaryTitle>
                   <span className="text-xl font-medium">
                     {formatMoney(price * Number(quantity))}
                   </span>
@@ -136,9 +133,9 @@ export default function TradePage() {
             </div>
 
             {/* Submit Order Button */}
-            <button className="w-full bg-blue-600 hover:bg-blue-700 !text-white !text-base py-2 px-4 !rounded-xl h-12">
+            <PrimaryButton className="w-full" disabled>
               Submit Order
-            </button>
+            </PrimaryButton>
           </div>
         </div>
       </Tile>

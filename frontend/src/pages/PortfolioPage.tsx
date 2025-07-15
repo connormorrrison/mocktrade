@@ -8,6 +8,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import { PrimaryTitle } from "@/components/primary-title";
+import { SecondaryTitle } from "@/components/secondary-title";
+import { TertiaryTitle } from "@/components/tertiary-title";
+import { PrimaryButton } from "@/components/primary-button";
 
 export default function PortfolioPage() {
   // Mock data to match the original structure
@@ -63,22 +66,22 @@ export default function PortfolioPage() {
           <div className="space-y-6">
             {/* Account Summary */}
             <div className="space-y-2">
-              <h3 className="text-xl font-normal">Account Summary</h3>
+              <SecondaryTitle>Account Summary</SecondaryTitle>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <p className="text-zinc-400">Total Portfolio Value</p>
+                  <TertiaryTitle>Total Portfolio Value</TertiaryTitle>
                   <p className="text-4xl font-semibold">
                     {formatMoney(totalPortfolioValue)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-zinc-400">Cash Balance</p>
+                  <TertiaryTitle>Cash Balance</TertiaryTitle>
                   <p className="text-2xl font-semibold">
                     {formatMoney(cashBalance)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-zinc-400">Cumulative Return ({selectedRange})</p>
+                  <TertiaryTitle>Cumulative Return ({selectedRange})</TertiaryTitle>
                   <p className={`text-2xl font-semibold ${cumulativeReturn >= 0 ? "text-green-600" : "text-red-600"}`}>
                     {cumulativeReturn >= 0 ? `+${cumulativeReturn.toFixed(2)}%` : `${cumulativeReturn.toFixed(2)}%`}
                   </p>
@@ -88,50 +91,48 @@ export default function PortfolioPage() {
 
             {/* Portfolio History Section */}
             <div>
-              <div className="flex items-center mb-4">
-                <h3 className="text-xl font-normal mr-4">Performance</h3>
-                <div className="flex items-center">
-                  <label className="mr-2 text-zinc-400">Range:</label>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] px-3 py-2 border border-gray-300 dark:border-gray-600 !rounded-xl bg-zinc-700 hover:bg-accent hover:text-accent-foreground text-base">
-                      {selectedRange === "1mo" && "1 Month"}
-                      {selectedRange === "3mo" && "3 Months"}
-                      {selectedRange === "6mo" && "6 Months"}
-                      {selectedRange === "1y" && "1 Year"}
-                      {selectedRange === "max" && "Max"}
-                      <ChevronDown className="h-4 w-4 ml-2" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem onClick={() => setSelectedRange("1mo")} className="text-base">
-                        1 Month
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setSelectedRange("3mo")} className="text-base">
-                        3 Months
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setSelectedRange("6mo")} className="text-base">
-                        6 Months
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setSelectedRange("1y")} className="text-base">
-                        1 Year
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setSelectedRange("max")} className="text-base">
-                        Max
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+              <SecondaryTitle>Performance</SecondaryTitle>
+              <div className="mb-4">
+                <TertiaryTitle className="mb-2">Range</TertiaryTitle>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] px-3 py-2 border border-gray-300 dark:border-gray-600 !rounded-xl bg-zinc-700 hover:bg-accent hover:text-accent-foreground text-base">
+                    {selectedRange === "1mo" && "1 Month"}
+                    {selectedRange === "3mo" && "3 Months"}
+                    {selectedRange === "6mo" && "6 Months"}
+                    {selectedRange === "1y" && "1 Year"}
+                    {selectedRange === "max" && "Max"}
+                    <ChevronDown className="h-4 w-4 ml-2" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => setSelectedRange("1mo")} className="text-base">
+                      1 Month
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSelectedRange("3mo")} className="text-base">
+                      3 Months
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSelectedRange("6mo")} className="text-base">
+                      6 Months
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSelectedRange("1y")} className="text-base">
+                      1 Year
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSelectedRange("max")} className="text-base">
+                      Max
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               <div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
                 <p className="text-zinc-400">Portfolio History Chart (Mock)</p>
               </div>
-              <p className="mt-2 text-base text-zinc-400">
+              <TertiaryTitle className="mt-2">
                 Note: Historical data includes only completed trading days.
-              </p>
+              </TertiaryTitle>
             </div>
 
             {/* Holdings */}
             <div>
-              <h3 className="text-xl font-normal pb-4">Holdings</h3>
+              <SecondaryTitle className="pb-2">Holdings</SecondaryTitle>
               <div className="space-y-6">
                 {positions.map((pos) => {
                   const effectivePurchasePrice = pos.price_at_selected_range || pos.average_price;
@@ -148,31 +149,31 @@ export default function PortfolioPage() {
                   const currentValue = pos.shares * pos.current_price;
 
                   return (
-                    <div key={pos.symbol} className="p-4 border rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                    <Tile key={pos.symbol}>
                       <div className="flex justify-between items-center">
                         {/* Symbol & Shares */}
                         <div>
                           <p className="text-lg font-semibold ml-2">{pos.symbol}</p>
-                          <p className="text-zinc-400 ml-2">
+                          <TertiaryTitle className="ml-2">
                             {pos.shares} {pos.shares === 1 ? "share" : "shares"}
-                          </p>
+                          </TertiaryTitle>
                         </div>
 
                         {/* Current Price */}
                         <div className="text-right">
-                          <p className="text-zinc-400">Current Price</p>
+                          <TertiaryTitle>Current Price</TertiaryTitle>
                           <p className="font-medium">{formatMoney(pos.current_price)}</p>
                         </div>
 
                         {/* Current Value */}
                         <div className="text-right">
-                          <p className="text-zinc-400">Current Value</p>
+                          <TertiaryTitle>Current Value</TertiaryTitle>
                           <p className="font-medium">{formatMoney(currentValue)}</p>
                         </div>
 
                         {/* Gain */}
                         <div className="text-right">
-                          <p className="text-zinc-400">Gain ({selectedRange})</p>
+                          <TertiaryTitle>Gain ({selectedRange})</TertiaryTitle>
                           <p className={`font-medium ${gainSinceRange >= 0 ? "text-green-600" : "text-red-600"}`}>
                             {gainSinceRange >= 0 ? "+" : ""}{formatMoney(gainSinceRange)}{" "}
                             <span className={`font-medium ${gainSinceRange >= 0 ? "text-green-600" : "text-red-600"}`}>
@@ -183,7 +184,7 @@ export default function PortfolioPage() {
 
                         {/* Daily P/L */}
                         <div className="text-right">
-                          <p className="text-zinc-400 mr-2">Daily P/L</p>
+                          <TertiaryTitle className="mr-2">Daily P/L</TertiaryTitle>
                           <p className={`font-medium mr-2 ${dailyPL >= 0 ? "text-green-600" : "text-red-600"}`}>
                             {dailyPL >= 0 ? "+" : ""}{formatMoney(dailyPL)}{" "}
                             <span className={`font-medium ${dailyPL >= 0 ? "text-green-600" : "text-red-600"}`}>
@@ -194,12 +195,12 @@ export default function PortfolioPage() {
 
                         {/* Trade Button */}
                         <div className="text-right">
-                          <button className="px-6 py-2 mr-2 !bg-blue-600 !text-white dark:text-gray-900 text-base hover:bg-blue-600 dark:hover:bg-blue-300 !rounded-xl transition-colors">
+                          <PrimaryButton className="mr-2">
                             Trade
-                          </button>
+                          </PrimaryButton>
                         </div>
                       </div>
-                    </div>
+                    </Tile>
                   );
                 })}
               </div>

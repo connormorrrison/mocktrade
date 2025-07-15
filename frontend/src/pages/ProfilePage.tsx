@@ -3,6 +3,7 @@ import { SecondaryButton } from "@/components/secondary-button";
 import { TextField } from "@/components/text-field";
 import { SecondaryTitle } from "@/components/secondary-title";
 import { PrimaryTitle } from "@/components/primary-title";
+import { TertiaryTitle } from "@/components/tertiary-title";
 import { Lock, Settings2 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -35,28 +36,28 @@ export default function ProfilePage() {
               <SecondaryTitle>Personal Information</SecondaryTitle>
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-base text-zinc-400 mb-2">First Name</label>
+                  <TertiaryTitle className="mb-2">First Name</TertiaryTitle>
                   <TextField
                     value={profile.first_name}
                     disabled
                   />
                 </div>
                 <div>
-                  <label className="block text-base text-zinc-400 mb-2">Last Name</label>
+                  <TertiaryTitle className="mb-2">Last Name</TertiaryTitle>
                   <TextField
                     value={profile.last_name}
                     disabled
                   />
                 </div>
                 <div>
-                  <label className="block text-base text-zinc-400 mb-2">Email</label>
+                  <TertiaryTitle className="mb-2">Email</TertiaryTitle>
                   <TextField
                     value={profile.email}
                     disabled
                   />
                 </div>
                 <div>
-                  <label className="block text-base text-zinc-400 mb-2">Username</label>
+                  <TertiaryTitle className="mb-2">Username</TertiaryTitle>
                   <TextField
                     value={profile.username}
                     disabled
@@ -69,7 +70,7 @@ export default function ProfilePage() {
             <div>
               <SecondaryTitle>Account Details</SecondaryTitle>
               <div>
-                <label className="block text-base text-zinc-400 mb-2">Joined</label>
+                <TertiaryTitle className="mb-2">Joined</TertiaryTitle>
                 <p className="text-lg">
                   {new Date(profile.created_at).toLocaleDateString('en-US', {
                     month: 'long',

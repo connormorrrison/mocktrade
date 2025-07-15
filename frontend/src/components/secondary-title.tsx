@@ -10,7 +10,7 @@ export const SecondaryTitle = ({ children, className, ...props }: SecondaryTitle
   return (
     <label
       className={cn(
-        "block !text-xl !font-normal text-white mb-2",
+        "!block !text-xl !font-normal !text-white !mb-2",
         className
       )}
       {...props}
