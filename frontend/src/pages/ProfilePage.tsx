@@ -19,19 +19,19 @@ export default function ProfilePage() {
           <div className="space-y-6">
             {/* Action Buttons */}
             <div className="flex items-center justify-between mb-6">
-              <button className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+              <button className="px-4 py-2 bg-blue-600 !text-white !text-base !rounded-xl hover:bg-blue-700">
                 Edit Profile
               </button>
             </div>
 
             {/* Personal Information */}
             <div>
-              <h3 className="text-xl font-medium mb-4">Personal Information</h3>
+              <h3 className="text-xl font-normal mb-4">Personal Information</h3>
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-base text-zinc-400 mb-2">First Name</label>
+                  <label className="block text-lg text-zinc-400 mb-2">First Name</label>
                   <input
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                    className="w-full px-4 py-2 text-lg text-muted-foreground bg-input/30 border border-zinc-700 !rounded-xl focus:outline-none focus:ring"
                     value={profile.first_name}
                     disabled
                   />
@@ -39,7 +39,7 @@ export default function ProfilePage() {
                 <div>
                   <label className="block text-base text-zinc-400 mb-2">Last Name</label>
                   <input
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                    className="w-full px-4 py-2 text-lg text-muted-foreground bg-input/30 border border-zinc-700 !rounded-xl focus:outline-none focus:ring"
                     value={profile.last_name}
                     disabled
                   />
@@ -47,7 +47,7 @@ export default function ProfilePage() {
                 <div>
                   <label className="block text-base text-zinc-400 mb-2">Email</label>
                   <input
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                    className="w-full px-4 py-2 text-lg text-muted-foreground bg-input/30 border border-zinc-700 !rounded-xl focus:outline-none focus:ring"
                     value={profile.email}
                     disabled
                   />
@@ -55,7 +55,7 @@ export default function ProfilePage() {
                 <div>
                   <label className="block text-base text-zinc-400 mb-2">Username</label>
                   <input
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                    className="w-full px-4 py-2 text-lg text-muted-foreground bg-input/30 border border-zinc-700 !rounded-xl focus:outline-none focus:ring"
                     value={profile.username}
                     disabled
                   />
@@ -65,7 +65,7 @@ export default function ProfilePage() {
 
             {/* Account Details */}
             <div>
-              <h3 className="text-xl font-medium mb-4">Account Details</h3>
+              <h3 className="text-xl font-normal mb-4">Account Details</h3>
               <div>
                 <label className="block text-base text-zinc-400 mb-2">Joined</label>
                 <p className="text-base">
@@ -80,8 +80,8 @@ export default function ProfilePage() {
 
             {/* Security */}
             <div>
-              <h3 className="text-xl font-medium mb-4">Security</h3>
-              <button className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 flex items-center gap-2">
+              <h3 className="text-xl font-normal mb-4">Security</h3>
+              <button className="px-4 py-2 bg-blue-600 !text-white !text-base !rounded-xl hover:bg-blue-700 flex items-center gap-2">
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
