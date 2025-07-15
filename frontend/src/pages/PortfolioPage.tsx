@@ -165,7 +165,7 @@ export default function PortfolioPage() {
 
                         {/* Trade Button */}
                         <div className="text-right">
-                          <button className="px-6 py-2 mr-2 bg-black text-white text-base hover:bg-gray-800">
+                          <button className="px-6 py-2 mr-2 bg-black dark:bg-white text-white dark:text-black text-base hover:bg-gray-800 dark:hover:bg-gray-200 rounded-md transition-colors">
                             Trade
                           </button>
                         </div>

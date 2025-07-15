@@ -1,10 +1,11 @@
 import { Link, useLocation } from 'react-router-dom'
 import { Card } from '@/components/ui/card'
-import { House, ChartCandlestick, ArrowLeftRight, FileText, User } from 'lucide-react'
+import { Badge } from '@/components/badge'
+import { House, ChartCandlestick, ArrowLeftRight, FileText, User, LogOut } from 'lucide-react'
 
 export default function Sidebar() {
   const location = useLocation()
-
+  
   const menuItems = [
     { name: 'Home', path: '/', icon: House },
     { name: 'Portfolio', path: '/portfolio', icon: ChartCandlestick },
@@ -12,6 +13,11 @@ export default function Sidebar() {
     { name: 'Transactions', path: '/transactions', icon: FileText },
     { name: 'Profile', path: '/profile', icon: User },
   ]
+
+  const handleLogout = () => {
+    // Add your logout logic here
+    console.log('Logout clicked')
+  }
 
   return (
     <div className="relative h-full">
@@ -35,8 +41,8 @@ export default function Sidebar() {
                 <li key={item.name}>
                   <Link
                     to={item.path}
-                    className={`flex items-center gap-3 px-4 py-2 rounded-lg text-lg font-normal !text-white hover:bg-accent hover:!text-white ${
-                      isActive ? 'bg-accent' : ''
+                    className={`flex items-center gap-3 px-4 py-2 rounded-lg text-lg font-normal hover:bg-accent transition-colors ${
+                      isActive ? 'bg-accent !text-green-600' : '!text-white hover:!text-white'
                     }`}
                   >
                     <IconComponent size={20} className="flex-shrink-0" />
@@ -47,6 +53,14 @@ export default function Sidebar() {
             })}
           </ul>
         </nav>
+        
+        {/* Logout badge at bottom */}
+        <div className="mt-4 flex justify-start">
+          <Badge className="!bg-zinc-800"
+            text="Logout" 
+            icon={<LogOut className="text-red-600" style={{width: '1.25rem', height: '1.25rem'}} />} 
+          />
+        </div>
       </Card>
     </div>
   )
