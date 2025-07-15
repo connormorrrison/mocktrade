@@ -31,7 +31,7 @@ export default function TradePage() {
               <label className="block text-lg font-normal text-white mb-2">Search</label>
               <div className="flex gap-2">
                 <input
-                  className="flex-1 px-4 py-2 text-lg text-muted-foreground bg-background dark:bg-input/30 border border-gray-300 dark:border-zinc-700 !rounded-xl focus:outline-none focus:ring"
+                  className="flex-1 px-4 py-2 text-lg text-muted-foreground bg-input/30 border border-zinc-700 !rounded-xl focus:outline-none focus:ring"
                   placeholder="Enter symbol (e.g., AAPL)"
                   value={symbol}
                   readOnly
@@ -43,21 +43,21 @@ export default function TradePage() {
             </div>
 
             {/* Stock Price Display */}
-            <div className="p-4 bg-background/30 dark:bg-input/30 !rounded-xl shadow-md border border-gray-300 dark:border-zinc-700">
+            <div className="p-4 bg-input/30 !rounded-xl shadow-md border border-zinc-700">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-base text-gray-500">
+                  <p className="text-base text-zinc-400">
                     Market Price for {symbol}
                   </p>
                   <p className="text-2xl font-semibold">
                     {formatMoney(price)}
                   </p>
-                  <p className="text-base text-gray-500">
+                  <p className="text-base text-zinc-400">
                     You own {sharesOwned.toLocaleString()} shares of {symbol}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-base text-gray-500">Status</p>
+                  <p className="text-base text-zinc-400">Status</p>
                   <div className="flex items-center justify-end">
                     <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse mr-2" />
                     <p className="text-base text-green-600 font-medium animate-pulse">
@@ -77,7 +77,7 @@ export default function TradePage() {
                   className={`flex-1 px-4 py-2 !text-base !rounded-xl transition-colors focus:!outline-none ${
                     action === 'buy' 
                       ? '!bg-blue-600 !text-white hover:!bg-blue-700' 
-                      : '!bg-background dark:!bg-input/30 !text-blue-600 border border-blue-600 hover:!bg-blue-600 hover:!text-white'
+                      : '!bg-input/30 !text-blue-600 border border-blue-600 hover:!bg-blue-600 hover:!text-white'
                   }`}
                 >
                   Buy
@@ -87,7 +87,7 @@ export default function TradePage() {
                   className={`flex-1 px-4 py-2 !text-base !rounded-xl transition-colors focus:!outline-none ${
                     action === 'sell' 
                       ? '!bg-blue-600 !text-white hover:!bg-blue-700' 
-                      : '!bg-background dark:!bg-input/30 !text-blue-600 border border-blue-600 hover:!bg-blue-600 hover:!text-white'
+                      : '!bg-input/30 !text-blue-600 border border-blue-600 hover:!bg-blue-600 hover:!text-white'
                   }`}
                 >
                   Sell
@@ -100,7 +100,7 @@ export default function TradePage() {
               <label className="block text-lg font-normal text-white mb-2">Quantity</label>
               <input
                 type="number"
-                className="w-full px-4 py-2 text-lg text-muted-foreground bg-background dark:bg-input/30 border border-gray-300 dark:border-zinc-700 !rounded-xl focus:outline-none focus:ring"
+                className="w-full px-4 py-2 text-lg text-muted-foreground bg-input/30 border border-zinc-700 !rounded-xl focus:outline-none focus:ring"
                 value={quantity}
                 readOnly
               />

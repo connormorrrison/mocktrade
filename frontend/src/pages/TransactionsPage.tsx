@@ -59,7 +59,7 @@ export default function TransactionsPage() {
             <div className="flex flex-col md:flex-row gap-4">
               {/* From Date */}
               <div className="flex items-center gap-2">
-                <label className="text-base text-gray-500">From:</label>
+                <label className="text-base text-zinc-400">From:</label>
                 <input
                   type="date"
                   className="border rounded-md px-2 py-1"
@@ -69,7 +69,7 @@ export default function TransactionsPage() {
 
               {/* To Date */}
               <div className="flex items-center gap-2">
-                <label className="text-base text-gray-500">To:</label>
+                <label className="text-base text-zinc-400">To:</label>
                 <input
                   type="date"
                   className="border rounded-md px-2 py-1"
@@ -79,7 +79,7 @@ export default function TransactionsPage() {
 
               {/* Transaction Type Filter */}
               <div className="flex items-center gap-2">
-                <label className="text-base text-gray-500">Filter:</label>
+                <label className="text-base text-zinc-400">Filter:</label>
                 <select className="border rounded-md px-2 py-1" defaultValue="All">
                   <option value="All">All</option>
                   <option value="BUY">Buy</option>
@@ -100,33 +100,33 @@ export default function TransactionsPage() {
               <table className="min-w-full divide-y divide-gray-200 border-4 border-gray-200 rounded-xl overflow-hidden">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-gray-700">ID</th>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-gray-700">Date</th>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-gray-700">Type</th>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-gray-700">Symbol</th>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-gray-700">Shares</th>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-gray-700">Price per Share</th>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-gray-700">Total</th>
+                    <th className="px-4 py-2 text-left text-base font-semibold text-zinc-700">ID</th>
+                    <th className="px-4 py-2 text-left text-base font-semibold text-zinc-700">Date</th>
+                    <th className="px-4 py-2 text-left text-base font-semibold text-zinc-700">Type</th>
+                    <th className="px-4 py-2 text-left text-base font-semibold text-zinc-700">Symbol</th>
+                    <th className="px-4 py-2 text-left text-base font-semibold text-zinc-700">Shares</th>
+                    <th className="px-4 py-2 text-left text-base font-semibold text-zinc-700">Price per Share</th>
+                    <th className="px-4 py-2 text-left text-base font-semibold text-zinc-700">Total</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {transactions.map(tx => (
                     <tr key={tx.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-2 text-base text-gray-700">{tx.id}</td>
-                      <td className="px-4 py-2 text-base text-gray-700">
+                      <td className="px-4 py-2 text-base text-zinc-700">{tx.id}</td>
+                      <td className="px-4 py-2 text-base text-zinc-700">
                         {new Date(tx.created_at).toLocaleString()}
                       </td>
-                      <td className="px-4 py-2 text-base text-gray-700">
+                      <td className="px-4 py-2 text-base text-zinc-700">
                         {tx.transaction_type}
                       </td>
-                      <td className="px-4 py-2 text-base text-gray-700">{tx.symbol}</td>
-                      <td className="px-4 py-2 text-base text-gray-700">
+                      <td className="px-4 py-2 text-base text-zinc-700">{tx.symbol}</td>
+                      <td className="px-4 py-2 text-base text-zinc-700">
                         {tx.shares.toLocaleString()}
                       </td>
-                      <td className="px-4 py-2 text-base text-gray-700">
+                      <td className="px-4 py-2 text-base text-zinc-700">
                         {formatMoney(tx.price)}
                       </td>
-                      <td className="px-4 py-2 text-base text-gray-700">
+                      <td className="px-4 py-2 text-base text-zinc-700">
                         {formatMoney(tx.total_amount)}
                       </td>
                     </tr>

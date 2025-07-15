@@ -65,19 +65,19 @@ export default function PortfolioPage() {
               <h3 className="text-xl font-medium">Account Summary</h3>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <p className="text-gray-500">Total Portfolio Value</p>
+                  <p className="text-zinc-400">Total Portfolio Value</p>
                   <p className="text-4xl font-semibold">
                     {formatMoney(totalPortfolioValue)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Cash Balance</p>
+                  <p className="text-zinc-400">Cash Balance</p>
                   <p className="text-2xl font-semibold">
                     {formatMoney(cashBalance)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Cumulative Return ({selectedRange})</p>
+                  <p className="text-zinc-400">Cumulative Return ({selectedRange})</p>
                   <p className={`text-2xl font-semibold ${cumulativeReturn >= 0 ? "text-green-600" : "text-red-600"}`}>
                     {cumulativeReturn >= 0 ? `+${cumulativeReturn.toFixed(2)}%` : `${cumulativeReturn.toFixed(2)}%`}
                   </p>
@@ -90,7 +90,7 @@ export default function PortfolioPage() {
               <div className="flex items-center mb-4">
                 <h3 className="text-xl font-medium mr-4">Performance</h3>
                 <div className="flex items-center">
-                  <label className="mr-2 text-gray-500">Range:</label>
+                  <label className="mr-2 text-zinc-400">Range:</label>
                   <DropdownMenu>
                     <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] px-3 py-2 border border-gray-300 dark:border-gray-600 !rounded-xl bg-zinc-700 hover:bg-accent hover:text-accent-foreground text-base">
                       {selectedRange === "1mo" && "1 Month"}
@@ -121,9 +121,9 @@ export default function PortfolioPage() {
                 </div>
               </div>
               <div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
-                <p className="text-gray-500">Portfolio History Chart (Mock)</p>
+                <p className="text-zinc-400">Portfolio History Chart (Mock)</p>
               </div>
-              <p className="mt-2 text-base text-gray-500">
+              <p className="mt-2 text-base text-zinc-400">
                 Note: Historical data includes only completed trading days.
               </p>
             </div>
@@ -152,26 +152,26 @@ export default function PortfolioPage() {
                         {/* Symbol & Shares */}
                         <div>
                           <p className="text-lg font-semibold ml-2">{pos.symbol}</p>
-                          <p className="text-gray-500 ml-2">
+                          <p className="text-zinc-400 ml-2">
                             {pos.shares} {pos.shares === 1 ? "share" : "shares"}
                           </p>
                         </div>
 
                         {/* Current Price */}
                         <div className="text-right">
-                          <p className="text-gray-500">Current Price</p>
+                          <p className="text-zinc-400">Current Price</p>
                           <p className="font-medium">{formatMoney(pos.current_price)}</p>
                         </div>
 
                         {/* Current Value */}
                         <div className="text-right">
-                          <p className="text-gray-500">Current Value</p>
+                          <p className="text-zinc-400">Current Value</p>
                           <p className="font-medium">{formatMoney(currentValue)}</p>
                         </div>
 
                         {/* Gain */}
                         <div className="text-right">
-                          <p className="text-gray-500">Gain ({selectedRange})</p>
+                          <p className="text-zinc-400">Gain ({selectedRange})</p>
                           <p className={`font-medium ${gainSinceRange >= 0 ? "text-green-600" : "text-red-600"}`}>
                             {gainSinceRange >= 0 ? "+" : ""}{formatMoney(gainSinceRange)}{" "}
                             <span className={`font-medium ${gainSinceRange >= 0 ? "text-green-600" : "text-red-600"}`}>
@@ -182,7 +182,7 @@ export default function PortfolioPage() {
 
                         {/* Daily P/L */}
                         <div className="text-right">
-                          <p className="text-gray-500 mr-2">Daily P/L</p>
+                          <p className="text-zinc-400 mr-2">Daily P/L</p>
                           <p className={`font-medium mr-2 ${dailyPL >= 0 ? "text-green-600" : "text-red-600"}`}>
                             {dailyPL >= 0 ? "+" : ""}{formatMoney(dailyPL)}{" "}
                             <span className={`font-medium ${dailyPL >= 0 ? "text-green-600" : "text-red-600"}`}>

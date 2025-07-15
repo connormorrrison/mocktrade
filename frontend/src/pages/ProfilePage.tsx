@@ -29,7 +29,7 @@ export default function ProfilePage() {
               <h3 className="text-xl font-medium mb-4">Personal Information</h3>
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-base text-gray-500 mb-2">First Name</label>
+                  <label className="block text-base text-zinc-400 mb-2">First Name</label>
                   <input
                     className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
                     value={profile.first_name}
@@ -37,7 +37,7 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-base text-gray-500 mb-2">Last Name</label>
+                  <label className="block text-base text-zinc-400 mb-2">Last Name</label>
                   <input
                     className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
                     value={profile.last_name}
@@ -45,7 +45,7 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-base text-gray-500 mb-2">Email</label>
+                  <label className="block text-base text-zinc-400 mb-2">Email</label>
                   <input
                     className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
                     value={profile.email}
@@ -53,7 +53,7 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-base text-gray-500 mb-2">Username</label>
+                  <label className="block text-base text-zinc-400 mb-2">Username</label>
                   <input
                     className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
                     value={profile.username}
@@ -67,7 +67,7 @@ export default function ProfilePage() {
             <div>
               <h3 className="text-xl font-medium mb-4">Account Details</h3>
               <div>
-                <label className="block text-base text-gray-500 mb-2">Joined</label>
+                <label className="block text-base text-zinc-400 mb-2">Joined</label>
                 <p className="text-base">
                   {new Date(profile.created_at).toLocaleDateString('en-US', {
                     month: 'long',
