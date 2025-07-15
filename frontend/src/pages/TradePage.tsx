@@ -6,6 +6,7 @@ import { PrimaryTitle } from "@/components/primary-title";
 import { TertiaryTitle } from "@/components/tertiary-title";
 import { SecondaryButton } from "@/components/secondary-button";
 import { PrimaryButton } from "@/components/primary-button";
+import SlideUpAnimation from "@/components/slide-up-animation";
 
 export default function TradePage() {
   // State
@@ -27,7 +28,8 @@ export default function TradePage() {
 
   return (
     <div className="w-full" style={{ marginTop: '0px' }}>
-      <Tile className="w-full shadow-lg hover:shadow-xl transition-shadow">
+      <SlideUpAnimation>
+        <Tile className="w-full shadow-lg hover:shadow-xl transition-shadow">
         <div className="p-6">
           <PrimaryTitle>Trade</PrimaryTitle>
           
@@ -139,6 +141,7 @@ export default function TradePage() {
           </div>
         </div>
       </Tile>
+      </SlideUpAnimation>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { TextField } from "@/components/text-field";
 import { SecondaryTitle } from "@/components/secondary-title";
 import { PrimaryTitle } from "@/components/primary-title";
 import { TertiaryTitle } from "@/components/tertiary-title";
+import SlideUpAnimation from "@/components/slide-up-animation";
 import { Lock, Settings2 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -18,7 +19,8 @@ export default function ProfilePage() {
 
   return (
     <div className="w-full" style={{ marginTop: '0px' }}>
-      <Tile className="w-full shadow-lg hover:shadow-xl transition-shadow">
+      <SlideUpAnimation>
+        <Tile className="w-full shadow-lg hover:shadow-xl transition-shadow">
         <div className="p-6">
           <PrimaryTitle>Profile</PrimaryTitle>
           
@@ -92,6 +94,7 @@ export default function ProfilePage() {
           </div>
         </div>
       </Tile>
+      </SlideUpAnimation>
     </div>
   );
 }

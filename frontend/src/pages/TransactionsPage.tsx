@@ -10,6 +10,7 @@ import {
 import { ChevronDown } from "lucide-react";
 import { PrimaryTitle } from "@/components/primary-title";
 import { SecondaryButton } from "@/components/secondary-button";
+import SlideUpAnimation from "@/components/slide-up-animation";
 
 export default function TransactionsPage() {
   const [selectedFilter, setSelectedFilter] = useState("All");
@@ -62,7 +63,8 @@ export default function TransactionsPage() {
 
   return (
     <div className="w-full" style={{ marginTop: '0px' }}>
-      <Tile className="w-full shadow-lg hover:shadow-xl transition-shadow">
+      <SlideUpAnimation>
+        <Tile className="w-full shadow-lg hover:shadow-xl transition-shadow">
         <div className="p-6">
           <PrimaryTitle>Transactions</PrimaryTitle>
           
@@ -153,6 +155,7 @@ export default function TransactionsPage() {
           </div>
         </div>
       </Tile>
+      </SlideUpAnimation>
     </div>
   );
 }

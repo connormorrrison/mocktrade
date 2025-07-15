@@ -11,6 +11,7 @@ import { PrimaryTitle } from "@/components/primary-title";
 import { SecondaryTitle } from "@/components/secondary-title";
 import { TertiaryTitle } from "@/components/tertiary-title";
 import { PrimaryButton } from "@/components/primary-button";
+import SlideUpAnimation from "@/components/slide-up-animation";
 
 export default function PortfolioPage() {
   // Mock data to match the original structure
@@ -59,7 +60,8 @@ export default function PortfolioPage() {
 
   return (
     <div className="w-full" style={{ marginTop: '0px' }}>
-      <Tile className="w-full shadow-lg hover:shadow-xl transition-shadow">
+      <SlideUpAnimation>
+        <Tile className="w-full shadow-lg hover:shadow-xl transition-shadow">
         <div className="p-6">
           <PrimaryTitle>Portfolio</PrimaryTitle>
           
@@ -208,6 +210,7 @@ export default function PortfolioPage() {
           </div>
         </div>
       </Tile>
+      </SlideUpAnimation>
     </div>
   );
 }
