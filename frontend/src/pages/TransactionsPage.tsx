@@ -1,6 +1,17 @@
+import { useState } from "react";
 import { Tile } from "@/components/tile";
+import { Calendar22 } from "@/components/ui/date-picker";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
+import { PrimaryTitle } from "@/components/primary-title";
 
 export default function TransactionsPage() {
+  const [selectedFilter, setSelectedFilter] = useState("All");
   // Mock data
   const transactions = [
     {
@@ -52,44 +63,47 @@ export default function TransactionsPage() {
     <div className="w-full" style={{ marginTop: '0px' }}>
       <Tile className="w-full shadow-lg hover:shadow-xl transition-shadow">
         <div className="p-6">
-          <h2 className="text-4xl font-normal mb-6">Transactions</h2>
+          <PrimaryTitle>Transactions</PrimaryTitle>
           
           <div className="space-y-6">
             {/* Filters Section */}
             <div className="flex flex-col md:flex-row gap-4">
               {/* From Date */}
-              <div className="flex items-center gap-2">
-                <label className="text-base text-zinc-400">From:</label>
-                <input
-                  type="date"
-                  className="border rounded-md px-2 py-1"
-                  defaultValue="2025-01-01"
-                />
+              <div>
+                <Calendar22 label="From" placeholder="Select from date" />
               </div>
 
               {/* To Date */}
-              <div className="flex items-center gap-2">
-                <label className="text-base text-zinc-400">To:</label>
-                <input
-                  type="date"
-                  className="border rounded-md px-2 py-1"
-                  defaultValue="2025-01-15"
-                />
+              <div>
+                <Calendar22 label="To" placeholder="Select to date" />
               </div>
 
               {/* Transaction Type Filter */}
-              <div className="flex items-center gap-2">
-                <label className="text-base text-zinc-400">Filter:</label>
-                <select className="border rounded-md px-2 py-1" defaultValue="All">
-                  <option value="All">All</option>
-                  <option value="BUY">Buy</option>
-                  <option value="SELL">Sell</option>
-                </select>
+              <div className="flex flex-col gap-3">
+                <label className="text-base text-zinc-400 px-1">Filter</label>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] px-4 py-2 text-lg text-muted-foreground bg-input/30 border border-zinc-700 !rounded-xl hover:bg-input/50">
+                    {selectedFilter}
+                    <ChevronDown className="h-4 w-4 ml-2" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => setSelectedFilter("All")} className="text-base">
+                      All
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSelectedFilter("Buy")} className="text-base">
+                      Buy
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSelectedFilter("Sell")} className="text-base">
+                      Sell
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
               {/* Export Button */}
-              <div className="flex items-center mt-2 md:mt-0">
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+              <div className="flex flex-col gap-3 mt-2 md:mt-0">
+                <div className="px-1 text-base text-zinc-400 invisible">Export</div>
+                <button className="px-4 py-2 bg-blue-600 !text-white !text-base !rounded-xl hover:bg-blue-700 h-12">
                   Export
                 </button>
               </div>
@@ -97,36 +111,37 @@ export default function TransactionsPage() {
 
             {/* Transactions Table */}
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 border-4 border-gray-200 rounded-xl overflow-hidden">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-zinc-700 border border-zinc-700 rounded-xl overflow-hidden">
+                <thead className="bg-input/30">
                   <tr>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-zinc-700">ID</th>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-zinc-700">Date</th>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-zinc-700">Type</th>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-zinc-700">Symbol</th>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-zinc-700">Shares</th>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-zinc-700">Price per Share</th>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-zinc-700">Total</th>
+                    <th className="px-4 py-2 text-left text-base font-semibold text-white">ID</th>
+                    <th className="px-4 py-2 text-left text-base font-semibold text-white">Date</th>
+                    <th className="px-4 py-2 text-left text-base font-semibold text-white">Type</th>
+                    <th className="px-4 py-2 text-left text-base font-semibold text-white">Symbol</th>
+                    <th className="px-4 py-2 text-left text-base font-semibold text-white">Shares</th>
+                    <th className="px-4 py-2 text-left text-base font-semibold text-white">Price per Share</th>
+                    <th className="px-4 py-2 text-left text-base font-semibold text-white">Total</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-input/30 divide-y divide-zinc-700">
                   {transactions.map(tx => (
-                    <tr key={tx.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-2 text-base text-zinc-700">{tx.id}</td>
-                      <td className="px-4 py-2 text-base text-zinc-700">
+                    <tr key={tx.id} className="hover:bg-zinc-700
+                    ">
+                      <td className="px-4 py-2 text-base text-white">{tx.id}</td>
+                      <td className="px-4 py-2 text-base text-white">
                         {new Date(tx.created_at).toLocaleString()}
                       </td>
-                      <td className="px-4 py-2 text-base text-zinc-700">
+                      <td className="px-4 py-2 text-base text-white">
                         {tx.transaction_type}
                       </td>
-                      <td className="px-4 py-2 text-base text-zinc-700">{tx.symbol}</td>
-                      <td className="px-4 py-2 text-base text-zinc-700">
+                      <td className="px-4 py-2 text-base text-white">{tx.symbol}</td>
+                      <td className="px-4 py-2 text-base text-white">
                         {tx.shares.toLocaleString()}
                       </td>
-                      <td className="px-4 py-2 text-base text-zinc-700">
+                      <td className="px-4 py-2 text-base text-white">
                         {formatMoney(tx.price)}
                       </td>
-                      <td className="px-4 py-2 text-base text-zinc-700">
+                      <td className="px-4 py-2 text-base text-white">
                         {formatMoney(tx.total_amount)}
                       </td>
                     </tr>

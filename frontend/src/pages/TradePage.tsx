@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { Tile } from "@/components/tile";
+import { TextField } from "@/components/text-field";
+import { SecondaryTitle } from "@/components/secondary-title";
+import { PrimaryTitle } from "@/components/primary-title";
 
 export default function TradePage() {
   // State
@@ -23,20 +26,20 @@ export default function TradePage() {
     <div className="w-full" style={{ marginTop: '0px' }}>
       <Tile className="w-full shadow-lg hover:shadow-xl transition-shadow">
         <div className="p-6">
-          <h2 className="text-4xl font-normal mb-6">Trade</h2>
+          <PrimaryTitle>Trade</PrimaryTitle>
           
           <div className="space-y-6">
             {/* Search Section */}
             <div>
-              <label className="block text-lg font-normal text-white mb-2">Search</label>
+              <SecondaryTitle>Search</SecondaryTitle>
               <div className="flex gap-2">
-                <input
-                  className="flex-1 px-4 py-2 text-lg text-muted-foreground bg-input/30 border border-zinc-700 !rounded-xl focus:outline-none focus:ring"
+                <TextField
+                  className="flex-1"
                   placeholder="Enter symbol (e.g., AAPL)"
                   value={symbol}
                   readOnly
                 />
-                <button className="px-4 py-2 bg-blue-600 !text-white !text-base !rounded-xl hover:bg-blue-700">
+                <button className="px-4 py-2 bg-blue-600 !text-white !text-base !rounded-xl hover:bg-blue-700 h-12">
                   Search
                 </button>
               </div>
@@ -70,24 +73,24 @@ export default function TradePage() {
 
             {/* Action Section */}
             <div>
-              <label className="block text-lg font-normal text-white mb-2">Action</label>
+              <SecondaryTitle>Action</SecondaryTitle>
               <div className="flex gap-2">
                 <button 
                   onClick={() => setAction('buy')}
-                  className={`flex-1 px-4 py-2 !text-base !rounded-xl transition-colors focus:!outline-none ${
+                  className={`flex-1 px-4 py-2 !text-base !font-medium !rounded-xl transition-colors focus:!outline-none h-10 ${
                     action === 'buy' 
                       ? '!bg-blue-600 !text-white hover:!bg-blue-700' 
-                      : '!bg-input/30 !text-blue-600 border border-blue-600 hover:!bg-blue-600 hover:!text-white'
+                      : '!bg-input/30 !text-white !border !border-zinc-700 hover:!bg-blue-600 hover:!text-white'
                   }`}
                 >
                   Buy
                 </button>
                 <button 
                   onClick={() => setAction('sell')}
-                  className={`flex-1 px-4 py-2 !text-base !rounded-xl transition-colors focus:!outline-none ${
+                  className={`flex-1 px-4 py-2 !text-base !font-medium !rounded-xl transition-colors focus:!outline-none h-10 ${
                     action === 'sell' 
                       ? '!bg-blue-600 !text-white hover:!bg-blue-700' 
-                      : '!bg-input/30 !text-blue-600 border border-blue-600 hover:!bg-blue-600 hover:!text-white'
+                      : '!bg-input/30 !text-white border !border-zinc-700 hover:!bg-blue-600 hover:!text-white'
                   }`}
                 >
                   Sell
@@ -97,10 +100,9 @@ export default function TradePage() {
 
             {/* Quantity Input */}
             <div>
-              <label className="block text-lg font-normal text-white mb-2">Quantity</label>
-              <input
+              <SecondaryTitle>Quantity</SecondaryTitle>
+              <TextField
                 type="number"
-                className="w-full px-4 py-2 text-lg text-muted-foreground bg-input/30 border border-zinc-700 !rounded-xl focus:outline-none focus:ring"
                 value={quantity}
                 readOnly
               />
@@ -108,7 +110,7 @@ export default function TradePage() {
 
             {/* Order Summary */}
             <div>
-              <label className="block text-lg font-normal text-white mb-2">Order Preview</label>
+              <SecondaryTitle>Order Preview</SecondaryTitle>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-base font-normal text-zinc-400">Order</span>
@@ -134,7 +136,7 @@ export default function TradePage() {
             </div>
 
             {/* Submit Order Button */}
-            <button className="w-full bg-blue-600 hover:bg-blue-700 !text-white !text-base py-2 px-4 !rounded-xl">
+            <button className="w-full bg-blue-600 hover:bg-blue-700 !text-white !text-base py-2 px-4 !rounded-xl h-12">
               Submit Order
             </button>
           </div>

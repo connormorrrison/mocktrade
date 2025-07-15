@@ -1,4 +1,8 @@
 import { Tile } from "@/components/tile";
+import { SecondaryButton } from "@/components/secondary-button";
+import { TextField } from "@/components/text-field";
+import { SecondaryTitle } from "@/components/secondary-title";
+import { PrimaryTitle } from "@/components/primary-title";
 import { Lock, Settings2 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -15,49 +19,45 @@ export default function ProfilePage() {
     <div className="w-full" style={{ marginTop: '0px' }}>
       <Tile className="w-full shadow-lg hover:shadow-xl transition-shadow">
         <div className="p-6">
-          <h2 className="text-4xl font-normal mb-6">Profile</h2>
+          <PrimaryTitle>Profile</PrimaryTitle>
           
           <div className="space-y-6">
             {/* Action Buttons */}
             <div className="flex items-center justify-between mb-6">
-              <button className="px-4 py-2 bg-blue-600 !text-white !text-base !font-medium !rounded-xl hover:bg-blue-700 flex items-center gap-2">
+              <SecondaryButton>
                 <Settings2 size={20} className="flex-shrink-0" />
                 Edit Profile
-              </button>
+              </SecondaryButton>
             </div>
 
             {/* Personal Information */}
             <div>
-              <h3 className="text-xl font-normal mb-4">Personal Information</h3>
+              <SecondaryTitle>Personal Information</SecondaryTitle>
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <label className="block text-base text-zinc-400 mb-2">First Name</label>
-                  <input
-                    className="w-full px-4 py-2 text-lg text-muted-foreground bg-input/30 border border-zinc-700 !rounded-xl focus:outline-none focus:ring"
+                  <TextField
                     value={profile.first_name}
                     disabled
                   />
                 </div>
                 <div>
                   <label className="block text-base text-zinc-400 mb-2">Last Name</label>
-                  <input
-                    className="w-full px-4 py-2 text-lg text-muted-foreground bg-input/30 border border-zinc-700 !rounded-xl focus:outline-none focus:ring"
+                  <TextField
                     value={profile.last_name}
                     disabled
                   />
                 </div>
                 <div>
                   <label className="block text-base text-zinc-400 mb-2">Email</label>
-                  <input
-                    className="w-full px-4 py-2 text-lg text-muted-foreground bg-input/30 border border-zinc-700 !rounded-xl focus:outline-none focus:ring"
+                  <TextField
                     value={profile.email}
                     disabled
                   />
                 </div>
                 <div>
                   <label className="block text-base text-zinc-400 mb-2">Username</label>
-                  <input
-                    className="w-full px-4 py-2 text-lg text-muted-foreground bg-input/30 border border-zinc-700 !rounded-xl focus:outline-none focus:ring"
+                  <TextField
                     value={profile.username}
                     disabled
                   />
@@ -67,7 +67,7 @@ export default function ProfilePage() {
 
             {/* Account Details */}
             <div>
-              <h3 className="text-xl font-normal mb-4">Account Details</h3>
+              <SecondaryTitle>Account Details</SecondaryTitle>
               <div>
                 <label className="block text-base text-zinc-400 mb-2">Joined</label>
                 <p className="text-lg">
@@ -82,11 +82,11 @@ export default function ProfilePage() {
 
             {/* Security */}
             <div>
-              <h3 className="text-xl font-normal mb-4">Security</h3>
-              <button className="px-4 py-2 bg-blue-600 !text-white !text-base !font-medium !rounded-xl hover:bg-blue-700 flex items-center gap-2">
+              <SecondaryTitle className="!text-xl">Security</SecondaryTitle>
+              <SecondaryButton>
                 <Lock size={20} className="flex-shrink-0" />
                 Change Password
-              </button>
+              </SecondaryButton>
             </div>
           </div>
         </div>

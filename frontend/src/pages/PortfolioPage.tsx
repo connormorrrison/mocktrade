@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
+import { PrimaryTitle } from "@/components/primary-title";
 
 export default function PortfolioPage() {
   // Mock data to match the original structure
@@ -57,12 +58,12 @@ export default function PortfolioPage() {
     <div className="w-full" style={{ marginTop: '0px' }}>
       <Tile className="w-full shadow-lg hover:shadow-xl transition-shadow">
         <div className="p-6">
-          <h2 className="text-4xl font-normal mb-6">Portfolio</h2>
+          <PrimaryTitle>Portfolio</PrimaryTitle>
           
           <div className="space-y-6">
             {/* Account Summary */}
             <div className="space-y-2">
-              <h3 className="text-xl font-medium">Account Summary</h3>
+              <h3 className="text-xl font-normal">Account Summary</h3>
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <p className="text-zinc-400">Total Portfolio Value</p>
@@ -88,7 +89,7 @@ export default function PortfolioPage() {
             {/* Portfolio History Section */}
             <div>
               <div className="flex items-center mb-4">
-                <h3 className="text-xl font-medium mr-4">Performance</h3>
+                <h3 className="text-xl font-normal mr-4">Performance</h3>
                 <div className="flex items-center">
                   <label className="mr-2 text-zinc-400">Range:</label>
                   <DropdownMenu>
@@ -130,7 +131,7 @@ export default function PortfolioPage() {
 
             {/* Holdings */}
             <div>
-              <h3 className="text-xl font-medium pb-4">Holdings</h3>
+              <h3 className="text-xl font-normal pb-4">Holdings</h3>
               <div className="space-y-6">
                 {positions.map((pos) => {
                   const effectivePurchasePrice = pos.price_at_selected_range || pos.average_price;
