@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import { PrimaryTitle } from "@/components/primary-title";
+import { SecondaryButton } from "@/components/secondary-button";
 
 export default function TransactionsPage() {
   const [selectedFilter, setSelectedFilter] = useState("All");
@@ -82,7 +83,7 @@ export default function TransactionsPage() {
               <div className="flex flex-col gap-3">
                 <label className="text-base text-zinc-400 px-1">Filter</label>
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] px-4 py-2 text-lg text-muted-foreground bg-input/30 border border-zinc-700 !rounded-xl hover:bg-input/50">
+                  <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-zinc-700 !rounded-xl hover:!bg-zinc-700 h-10 focus:!outline-none focus:!ring-0">
                     {selectedFilter}
                     <ChevronDown className="h-4 w-4 ml-2" />
                   </DropdownMenuTrigger>
@@ -103,9 +104,9 @@ export default function TransactionsPage() {
               {/* Export Button */}
               <div className="flex flex-col gap-3 mt-2 md:mt-0">
                 <div className="px-1 text-base text-zinc-400 invisible">Export</div>
-                <button className="px-4 py-2 bg-blue-600 !text-white !text-base !rounded-xl hover:bg-blue-700 h-12">
+                <SecondaryButton>
                   Export
-                </button>
+                </SecondaryButton>
               </div>
             </div>
 

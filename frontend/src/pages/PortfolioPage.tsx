@@ -95,7 +95,7 @@ export default function PortfolioPage() {
               <div className="mb-4">
                 <TertiaryTitle className="mb-2">Range</TertiaryTitle>
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] px-3 py-2 border border-gray-300 dark:border-gray-600 !rounded-xl bg-zinc-700 hover:bg-accent hover:text-accent-foreground text-base">
+                  <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-zinc-700 !rounded-xl hover:!bg-zinc-700 h-10 focus:!outline-none focus:!ring-0">
                     {selectedRange === "1mo" && "1 Month"}
                     {selectedRange === "3mo" && "3 Months"}
                     {selectedRange === "6mo" && "6 Months"}

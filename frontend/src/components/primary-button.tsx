@@ -16,7 +16,7 @@ export const PrimaryButton = ({ children, className, variant = 'primary', disabl
           ? '!bg-zinc-900 !text-zinc-300 !cursor-not-allowed focus:!outline-none focus:!ring-0' 
           : variant === 'primary' 
             ? '!bg-blue-600 !text-white hover:!bg-blue-700' 
-            : '!bg-zinc-800 !text-white !border !border-zinc-700 hover:!bg-blue-600 hover:!text-white',
+            : '!bg-zinc-800/55 !text-white !border !border-zinc-700 hover:!bg-blue-600 hover:!text-white',
         className
       )}
       disabled={disabled}
