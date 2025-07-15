@@ -1,5 +1,11 @@
-import { useState } from "react";
 import { Tile } from "@/components/tile";
+import { PrimaryTitle } from "@/components/primary-title";
+import { SecondaryTitle } from "@/components/secondary-title";
+import { TertiaryTitle } from "@/components/tertiary-title";
+import { PrimaryButton } from "@/components/primary-button";
+import SlideUpAnimation from "@/components/slide-up-animation";
+import { SimpleChart } from "@/components/simple-chart";
+import { useState } from "react";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -7,11 +13,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
-import { PrimaryTitle } from "@/components/primary-title";
-import { SecondaryTitle } from "@/components/secondary-title";
-import { TertiaryTitle } from "@/components/tertiary-title";
-import { PrimaryButton } from "@/components/primary-button";
-import SlideUpAnimation from "@/components/slide-up-animation";
 
 export default function PortfolioPage() {
   // Mock data to match the original structure
@@ -19,7 +20,7 @@ export default function PortfolioPage() {
   const totalPortfolioValue = 127450.32;
   const startingPortfolioValue = 100000;
   const cumulativeReturn = ((totalPortfolioValue - startingPortfolioValue) / startingPortfolioValue) * 100;
-  const [selectedRange, setSelectedRange] = useState("1mo");
+  const [selectedFilter, setSelectedFilter] = useState("1mo");
 
   const positions = [
     {
@@ -83,7 +84,7 @@ export default function PortfolioPage() {
                   </p>
                 </div>
                 <div>
-                  <TertiaryTitle>Cumulative Return ({selectedRange})</TertiaryTitle>
+                  <TertiaryTitle>Cumulative Return (1mo)</TertiaryTitle>
                   <p className={`text-2xl font-semibold ${cumulativeReturn >= 0 ? "text-green-600" : "text-red-600"}`}>
                     {cumulativeReturn >= 0 ? `+${cumulativeReturn.toFixed(2)}%` : `${cumulativeReturn.toFixed(2)}%`}
                   </p>
@@ -94,39 +95,39 @@ export default function PortfolioPage() {
             {/* Portfolio History Section */}
             <div>
               <SecondaryTitle>Performance</SecondaryTitle>
-              <div className="mb-4">
-                <TertiaryTitle className="mb-2">Range</TertiaryTitle>
+              <div className="flex flex-col gap-3 mb-4 w-fit">
+                <label className="text-base text-zinc-400 px-1">Filter</label>
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-zinc-700 !rounded-xl hover:!bg-zinc-700 h-10 focus:!outline-none focus:!ring-0">
-                    {selectedRange === "1mo" && "1 Month"}
-                    {selectedRange === "3mo" && "3 Months"}
-                    {selectedRange === "6mo" && "6 Months"}
-                    {selectedRange === "1y" && "1 Year"}
-                    {selectedRange === "max" && "Max"}
+                    {selectedFilter === "1mo" && "1 Month"}
+                    {selectedFilter === "3mo" && "3 Months"}
+                    {selectedFilter === "6mo" && "6 Months"}
+                    {selectedFilter === "1y" && "1 Year"}
+                    {selectedFilter === "max" && "Max"}
                     <ChevronDown className="h-4 w-4 ml-2" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => setSelectedRange("1mo")} className="text-base">
+                    <DropdownMenuItem onClick={() => setSelectedFilter("1mo")} className="text-base">
                       1 Month
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSelectedRange("3mo")} className="text-base">
+                    <DropdownMenuItem onClick={() => setSelectedFilter("3mo")} className="text-base">
                       3 Months
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSelectedRange("6mo")} className="text-base">
+                    <DropdownMenuItem onClick={() => setSelectedFilter("6mo")} className="text-base">
                       6 Months
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSelectedRange("1y")} className="text-base">
+                    <DropdownMenuItem onClick={() => setSelectedFilter("1y")} className="text-base">
                       1 Year
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSelectedRange("max")} className="text-base">
+                    <DropdownMenuItem onClick={() => setSelectedFilter("max")} className="text-base">
                       Max
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              <div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
-                <p className="text-zinc-400">Portfolio History Chart (Mock)</p>
-              </div>
+              <Tile>
+                <SimpleChart />
+              </Tile>
               <TertiaryTitle className="mt-2">
                 Note: Historical data includes only completed trading days.
               </TertiaryTitle>
@@ -175,7 +176,7 @@ export default function PortfolioPage() {
 
                         {/* Gain */}
                         <div className="text-right">
-                          <TertiaryTitle>Gain ({selectedRange})</TertiaryTitle>
+                          <TertiaryTitle>Gain (1mo)</TertiaryTitle>
                           <p className={`font-medium ${gainSinceRange >= 0 ? "text-green-600" : "text-red-600"}`}>
                             {gainSinceRange >= 0 ? "+" : ""}{formatMoney(gainSinceRange)}{" "}
                             <span className={`font-medium ${gainSinceRange >= 0 ? "text-green-600" : "text-red-600"}`}>

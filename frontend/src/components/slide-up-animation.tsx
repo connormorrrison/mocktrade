@@ -29,7 +29,7 @@ export default function SlideUpAnimation({
     <div 
       className={`${animationClass} ${className}`}
       style={{ 
-        transitionTimingFunction: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+        transitionTimingFunction: 'cubic-bezier(0.25, 0.90, 0.90, 0.94)'
       }}
     >
       {children}
