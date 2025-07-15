@@ -1,5 +1,4 @@
-import React from "react";
-import { AreaChart, Area, XAxis, ResponsiveContainer } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 
 const chartData = [
   { date: "2024-04-01", desktop: 222, mobile: 150 },
@@ -96,6 +95,18 @@ const chartData = [
 ];
 
 export function SimpleChart() {
+  // Calculate dynamic width based on max value
+  const maxValue = Math.max(...chartData.map(item => item.desktop));
+  const maxValueLength = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(maxValue).length;
+  
+  // Calculate width: roughly 8px per character + some padding
+  const yAxisWidth = Math.max(40, maxValueLength * 8 + 10);
+
   return (
     <div className="h-64 w-full">
       <ResponsiveContainer width="100%" height="100%">
@@ -112,14 +123,48 @@ export function SimpleChart() {
             axisLine={false}
             tickLine={false}
             tick={{ fill: '#9CA3AF', fontSize: 12 }}
+            tickMargin={8}
             minTickGap={32}
             interval="preserveStartEnd"
+          />
+          <YAxis
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: '#9CA3AF', fontSize: 12 }}
+            tickMargin={8}
+            width={yAxisWidth}
+            tickFormatter={(value) => {
+              return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              }).format(value)
+            }}
+          />
+          <Tooltip
+            labelFormatter={(value) => {
+              const date = new Date(value)
+              return date.toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })
+            }}
+            formatter={(value) => [value, "Portfolio Value"]}
+            contentStyle={{
+              backgroundColor: '#1f2937',
+              border: '1px solid #374151',
+              borderRadius: '8px',
+              color: '#f9fafb'
+            }}
+            labelStyle={{ color: '#f9fafb' }}
           />
           <Area
             type="monotone"
             dataKey="desktop"
-            stroke="#2563eb"
-            fill="#2563eb"
+            stroke="#1D4FBC"
+            fill="#163B8D"
             fillOpacity={0.6}
           />
         </AreaChart>
