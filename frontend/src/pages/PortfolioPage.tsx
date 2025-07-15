@@ -92,7 +92,7 @@ export default function PortfolioPage() {
                 <div className="flex items-center">
                   <label className="mr-2 text-gray-500">Range:</label>
                   <DropdownMenu>
-                    <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-background hover:bg-accent hover:text-accent-foreground text-base">
+                    <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] px-3 py-2 border border-gray-300 dark:border-gray-600 !rounded-xl bg-zinc-700 hover:bg-accent hover:text-accent-foreground text-base">
                       {selectedRange === "1mo" && "1 Month"}
                       {selectedRange === "3mo" && "3 Months"}
                       {selectedRange === "6mo" && "6 Months"}
@@ -193,7 +193,7 @@ export default function PortfolioPage() {
 
                         {/* Trade Button */}
                         <div className="text-right">
-                          <button className="px-6 py-2 mr-2 !bg-blue-600 !text-white dark:text-gray-900 text-base hover:bg-blue-600 dark:hover:bg-blue-300 rounded-md transition-colors">
+                          <button className="px-6 py-2 mr-2 !bg-blue-600 !text-white dark:text-gray-900 text-base hover:bg-blue-600 dark:hover:bg-blue-300 !rounded-xl transition-colors">
                             Trade
                           </button>
                         </div>

@@ -1,6 +1,10 @@
+import { useState } from "react";
 import { Tile } from "@/components/tile";
 
 export default function TradePage() {
+  // State
+  const [action, setAction] = useState<'buy' | 'sell'>('buy');
+  
   // Mock data
   const symbol = "AAPL";
   const price = 150.25;
@@ -24,39 +28,39 @@ export default function TradePage() {
           <div className="space-y-6">
             {/* Search Section */}
             <div>
-              <label className="block text-base text-gray-500 mb-2">Search</label>
+              <label className="block text-lg font-normal text-white mb-2">Search</label>
               <div className="flex gap-2">
                 <input
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
+                  className="flex-1 px-4 py-2 text-lg text-muted-foreground bg-background dark:bg-input/30 border border-gray-300 dark:border-zinc-700 !rounded-xl focus:outline-none focus:ring"
                   placeholder="Enter symbol (e.g., AAPL)"
                   value={symbol}
                   readOnly
                 />
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                <button className="px-4 py-2 bg-blue-600 !text-white !text-base !rounded-xl hover:bg-blue-700">
                   Search
                 </button>
               </div>
             </div>
 
             {/* Stock Price Display */}
-            <div className="mb-6 p-4 bg-blue-50 rounded-lg shadow-md border-2">
+            <div className="p-4 bg-background/30 dark:bg-input/30 !rounded-xl shadow-md border border-gray-300 dark:border-zinc-700">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-base text-gray-500 ml-2">
+                  <p className="text-base text-gray-500">
                     Market Price for {symbol}
                   </p>
-                  <p className="text-2xl font-semibold ml-2">
+                  <p className="text-2xl font-semibold">
                     {formatMoney(price)}
                   </p>
-                  <p className="text-base text-gray-500 ml-2">
+                  <p className="text-base text-gray-500">
                     You own {sharesOwned.toLocaleString()} shares of {symbol}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-base text-gray-500 mr-4">Status</p>
-                  <div className="flex items-center justify-end mr-4">
+                  <p className="text-base text-gray-500">Status</p>
+                  <div className="flex items-center justify-end">
                     <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse mr-2" />
-                    <p className="text-green-600 font-medium animate-pulse">
+                    <p className="text-base text-green-600 font-medium animate-pulse">
                       Live
                     </p>
                   </div>
@@ -66,12 +70,26 @@ export default function TradePage() {
 
             {/* Action Section */}
             <div>
-              <label className="block text-base text-gray-500 mb-2">Action</label>
+              <label className="block text-lg font-normal text-white mb-2">Action</label>
               <div className="flex gap-2">
-                <button className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                <button 
+                  onClick={() => setAction('buy')}
+                  className={`flex-1 px-4 py-2 !text-base !rounded-xl transition-colors focus:!outline-none ${
+                    action === 'buy' 
+                      ? '!bg-blue-600 !text-white hover:!bg-blue-700' 
+                      : '!bg-background dark:!bg-input/30 !text-blue-600 border border-blue-600 hover:!bg-blue-600 hover:!text-white'
+                  }`}
+                >
                   Buy
                 </button>
-                <button className="flex-1 px-4 py-2 bg-white text-blue-600 border border-gray-200 rounded-md hover:bg-blue-600 hover:text-white">
+                <button 
+                  onClick={() => setAction('sell')}
+                  className={`flex-1 px-4 py-2 !text-base !rounded-xl transition-colors focus:!outline-none ${
+                    action === 'sell' 
+                      ? '!bg-blue-600 !text-white hover:!bg-blue-700' 
+                      : '!bg-background dark:!bg-input/30 !text-blue-600 border border-blue-600 hover:!bg-blue-600 hover:!text-white'
+                  }`}
+                >
                   Sell
                 </button>
               </div>
@@ -79,41 +97,44 @@ export default function TradePage() {
 
             {/* Quantity Input */}
             <div>
-              <label className="block text-base text-gray-500 mb-2">Quantity</label>
+              <label className="block text-lg font-normal text-white mb-2">Quantity</label>
               <input
                 type="number"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-lg"
+                className="w-full px-4 py-2 text-lg text-muted-foreground bg-background dark:bg-input/30 border border-gray-300 dark:border-zinc-700 !rounded-xl focus:outline-none focus:ring"
                 value={quantity}
                 readOnly
               />
             </div>
 
             {/* Order Summary */}
-            <div className="space-y-1 pt-4 border-t">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500">Order</span>
-                <span className="font-medium">
-                  Buy {Number(quantity).toLocaleString()} shares at Market
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500">Price per Share</span>
-                <span className="font-medium">{formatMoney(price)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500">Cash Available</span>
-                <span className="font-medium">{formatMoney(availableCash)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500">Total Value</span>
-                <span className="text-xl font-semibold">
-                  {formatMoney(price * Number(quantity))}
-                </span>
+            <div>
+              <label className="block text-lg font-normal text-white mb-2">Order Preview</label>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-base font-normal text-zinc-400">Order</span>
+                  <span className="text-base font-medium">
+                    {action === 'buy' ? 'Buy' : 'Sell'} {Number(quantity).toLocaleString()} shares at Market
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-base font-normal text-zinc-400">Price per Share</span>
+                  <span className="text-base font-medium">{formatMoney(price)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-base font-normal text-zinc-400">Cash Available</span>
+                  <span className="text-base font-medium">{formatMoney(availableCash)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-base font-normal text-zinc-400">Total Value</span>
+                  <span className="text-xl font-medium">
+                    {formatMoney(price * Number(quantity))}
+                  </span>
+                </div>
               </div>
             </div>
 
             {/* Submit Order Button */}
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md mt-2">
+            <button className="w-full bg-blue-600 hover:bg-blue-700 !text-white !text-base py-2 px-4 !rounded-xl">
               Submit Order
             </button>
           </div>
