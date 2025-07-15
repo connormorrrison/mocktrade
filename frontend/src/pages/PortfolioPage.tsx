@@ -1,4 +1,12 @@
+import { useState } from "react";
 import { Tile } from "@/components/tile";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
 
 export default function PortfolioPage() {
   // Mock data to match the original structure
@@ -6,7 +14,7 @@ export default function PortfolioPage() {
   const totalPortfolioValue = 127450.32;
   const startingPortfolioValue = 100000;
   const cumulativeReturn = ((totalPortfolioValue - startingPortfolioValue) / startingPortfolioValue) * 100;
-  const selectedRange = "1mo";
+  const [selectedRange, setSelectedRange] = useState("1mo");
 
   const positions = [
     {
@@ -80,16 +88,36 @@ export default function PortfolioPage() {
             {/* Portfolio History Section */}
             <div>
               <div className="flex items-center mb-4">
-                <h3 className="text-xl font-medium mr-4">Portfolio History</h3>
+                <h3 className="text-xl font-medium mr-4">Performance</h3>
                 <div className="flex items-center">
                   <label className="mr-2 text-gray-500">Range:</label>
-                  <select className="border p-2 rounded-md" value={selectedRange} disabled>
-                    <option value="1mo">1 Month</option>
-                    <option value="3mo">3 Months</option>
-                    <option value="6mo">6 Months</option>
-                    <option value="1y">1 Year</option>
-                    <option value="max">Max</option>
-                  </select>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-background hover:bg-accent hover:text-accent-foreground text-base">
+                      {selectedRange === "1mo" && "1 Month"}
+                      {selectedRange === "3mo" && "3 Months"}
+                      {selectedRange === "6mo" && "6 Months"}
+                      {selectedRange === "1y" && "1 Year"}
+                      {selectedRange === "max" && "Max"}
+                      <ChevronDown className="h-4 w-4 ml-2" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onClick={() => setSelectedRange("1mo")} className="text-base">
+                        1 Month
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setSelectedRange("3mo")} className="text-base">
+                        3 Months
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setSelectedRange("6mo")} className="text-base">
+                        6 Months
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setSelectedRange("1y")} className="text-base">
+                        1 Year
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setSelectedRange("max")} className="text-base">
+                        Max
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
               <div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
@@ -165,7 +193,7 @@ export default function PortfolioPage() {
 
                         {/* Trade Button */}
                         <div className="text-right">
-                          <button className="px-6 py-2 mr-2 bg-black dark:bg-white text-white dark:text-black text-base hover:bg-gray-800 dark:hover:bg-gray-200 rounded-md transition-colors">
+                          <button className="px-6 py-2 mr-2 !bg-blue-600 !text-white dark:text-gray-900 text-base hover:bg-blue-600 dark:hover:bg-blue-300 rounded-md transition-colors">
                             Trade
                           </button>
                         </div>
