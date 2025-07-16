@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Tile } from "@/components/tile";
 import { Calendar22 } from "@/components/ui/date-picker";
 import { 
   DropdownMenu,
@@ -64,7 +63,6 @@ export default function TransactionsPage() {
   return (
     <div className="w-full" style={{ marginTop: '0px' }}>
       <SlideUpAnimation>
-        <Tile className="w-full shadow-lg hover:shadow-xl transition-shadow">
         <div className="p-6">
           <PrimaryTitle>Transactions</PrimaryTitle>
           
@@ -85,7 +83,7 @@ export default function TransactionsPage() {
               <div className="flex flex-col gap-3">
                 <label className="text-base text-zinc-400 px-1">Filter</label>
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-zinc-700 !rounded-xl hover:!bg-zinc-700 h-10 focus:!outline-none focus:!ring-0">
+                  <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 h-10 focus:!outline-none focus:!ring-0">
                     {selectedFilter}
                     <ChevronDown className="h-4 w-4 ml-2" />
                   </DropdownMenuTrigger>
@@ -113,8 +111,8 @@ export default function TransactionsPage() {
             </div>
 
             {/* Transactions Table */}
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-zinc-700 border border-zinc-700 rounded-xl overflow-hidden">
+            <div className="overflow-hidden rounded-xl border !border-[oklch(1_0_0_/_10%)]">
+              <table className="min-w-full divide-y divide-zinc-800">
                 <thead className="bg-input/30">
                   <tr>
                     <th className="px-4 py-2 text-left text-base font-semibold text-white">ID</th>
@@ -126,10 +124,9 @@ export default function TransactionsPage() {
                     <th className="px-4 py-2 text-left text-base font-semibold text-white">Total</th>
                   </tr>
                 </thead>
-                <tbody className="bg-input/30 divide-y divide-zinc-700">
+                <tbody className="divide-y divide-zinc-800 bg-input/30">
                   {transactions.map(tx => (
-                    <tr key={tx.id} className="hover:bg-zinc-700
-                    ">
+                    <tr key={tx.id} className="hover:bg-zinc-700">
                       <td className="px-4 py-2 text-base text-white">{tx.id}</td>
                       <td className="px-4 py-2 text-base text-white">
                         {new Date(tx.created_at).toLocaleString()}
@@ -154,7 +151,6 @@ export default function TransactionsPage() {
             </div>
           </div>
         </div>
-      </Tile>
       </SlideUpAnimation>
     </div>
   );

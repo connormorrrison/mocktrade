@@ -1,61 +1,136 @@
 import { Tile } from "@/components/tile";
+import { PrimaryTitle } from "@/components/primary-title";
+import { SecondaryTitle } from "@/components/secondary-title";
+import { TertiaryTitle } from "@/components/tertiary-title";
+import { SecondaryButton } from "@/components/secondary-button";
+import SlideUpAnimation from "@/components/slide-up-animation";
+import { TrendingUp, Wallet, Receipt } from "lucide-react";
 
 export default function HomePage() {
+  // Mock market data
+  const marketData = {
+    isOpen: false,
+    indices: [
+      { symbol: "DOW", value: 34256.78, change: 89.12, percent: 0.26 },
+      { symbol: "S&P 500", value: 4456.24, change: 12.34, percent: 0.28 },
+      { symbol: "NASDAQ", value: 13567.89, change: -45.67, percent: -0.34 },
+      { symbol: "VIX", value: 18.45, change: -0.67, percent: -3.5 }
+    ]
+  };
+
+  const marketMovers = {
+    gainers: [
+      { symbol: "NVDA", change: 5.67 },
+      { symbol: "AMD", change: 3.45 },
+      { symbol: "TSLA", change: 2.89 }
+    ],
+    losers: [
+      { symbol: "META", change: -2.34 },
+      { symbol: "NFLX", change: -1.78 },
+      { symbol: "PYPL", change: -1.45 }
+    ]
+  };
+
+  function formatMoney(value: number) {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(value);
+  }
+
   return (
-    <div className="flex flex-col justify-center items-center h-full">
-      {/* Welcome Message Block */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-        <Tile className="col-span-1 sm:col-span-2 lg:col-span-3 hover:scale-[1.02]">
-          <div className="text-center">
-            <h1 className="text-4xl font-medium text-blue-700 -mb-2 mt-2">
-              Good morning, John
-            </h1>
-            <p className="text-lg font-normal mb-2 mt-4">
-              Today is January 15, 2025
-            </p>
-          </div>
-        </Tile>
-      </div>
+    <div className="w-full" style={{ marginTop: '0px' }}>
+      <SlideUpAnimation>
+        <Tile className="w-full shadow-lg hover:shadow-xl transition-shadow">
+          <div className="p-6">
+            <PrimaryTitle>Home</PrimaryTitle>
+            
+            <div className="space-y-8 mt-6">
+              {/* Welcome Section */}
+              <div>
+                <SecondaryTitle>Welcome back, Sam</SecondaryTitle>
+              </div>
 
-      {/* Market Indices Header Block */}
-      <div className="w-full mt-8 flex justify-start">
-        <Tile className="hover:scale-[1.02]">
-          <div className="py-2">
-            <h2 className="text-lg font-medium flex items-center gap-2">
-              <span className="mr-3">Market Indices</span>
-              <span className="h-3 w-3 rounded-full bg-red-500" />
-              <span className="text-red-600 text-base font-normal">Market Closed</span>
-            </h2>
-          </div>
-        </Tile>
-      </div>
+              {/* Market Overview */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <SecondaryTitle>Market Overview</SecondaryTitle>
+                  <div className="flex items-center gap-2">
+                    <div className={`h-3 w-3 rounded-full ${marketData.isOpen ? "bg-green-500" : "bg-red-500"}`} />
+                    <span className={`text-sm ${marketData.isOpen ? "text-green-600" : "text-red-600"}`}>
+                      {marketData.isOpen ? "Market Open" : "Market Closed"}
+                    </span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  {marketData.indices.map((index, i) => (
+                    <Tile key={i}>
+                      <div className="text-center">
+                        <TertiaryTitle className="mb-2">{index.symbol}</TertiaryTitle>
+                        <p className="text-xl font-semibold">{formatMoney(index.value)}</p>
+                        <p className={`text-sm ${index.change >= 0 ? "text-green-600" : "text-red-600"}`}>
+                          {index.change >= 0 ? "+" : ""}{index.change.toFixed(2)} ({index.percent >= 0 ? "+" : ""}{index.percent.toFixed(2)}%)
+                        </p>
+                      </div>
+                    </Tile>
+                  ))}
+                </div>
+              </div>
 
-      {/* Indices Grid Block */}
-      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-        <Tile className="hover:scale-[1.02]">
-          <div>
-            <h3 className="text-lg font-medium mb-4">DJIA (^DJI)</h3>
-            <p className="text-green-600 text-base font-normal mr-2">Latest price</p>
-            <p className="text-3xl font-normal">$34,256.78</p>
-          </div>
-        </Tile>
+              {/* Market Movers */}
+              <div>
+                <SecondaryTitle>Market Movers</SecondaryTitle>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+                  {/* Top Gainers */}
+                  <div>
+                    <TertiaryTitle className="mb-3">Top Gainers</TertiaryTitle>
+                    <div className="space-y-2">
+                      {marketMovers.gainers.map((stock, i) => (
+                        <div key={i} className="flex justify-between items-center p-3 bg-zinc-800/30 rounded-lg">
+                          <span className="font-medium">{stock.symbol}</span>
+                          <span className="text-green-600 font-medium">+{stock.change.toFixed(2)}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
-        <Tile className="hover:scale-[1.02]">
-          <div>
-            <h3 className="text-lg font-medium mb-4">S&P 500 (^GSPC)</h3>
-            <p className="text-green-600 text-base font-normal mr-2">Latest price</p>
-            <p className="text-3xl font-normal">$4,456.24</p>
-          </div>
-        </Tile>
+                  {/* Top Losers */}
+                  <div>
+                    <TertiaryTitle className="mb-3">Top Losers</TertiaryTitle>
+                    <div className="space-y-2">
+                      {marketMovers.losers.map((stock, i) => (
+                        <div key={i} className="flex justify-between items-center p-3 bg-zinc-800/30 rounded-lg">
+                          <span className="font-medium">{stock.symbol}</span>
+                          <span className="text-red-600 font-medium">{stock.change.toFixed(2)}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-        <Tile className="hover:scale-[1.02]">
-          <div>
-            <h3 className="text-lg font-medium mb-4">Nasdaq Composite (^IXIC)</h3>
-            <p className="text-green-600 text-base font-normal mr-2">Latest price</p>
-            <p className="text-3xl font-normal">$13,567.89</p>
+              {/* Quick Actions */}
+              <div>
+                <SecondaryTitle>Quick Actions</SecondaryTitle>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                  <SecondaryButton>
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    Trade Now
+                  </SecondaryButton>
+                  <SecondaryButton>
+                    <Wallet className="w-4 h-4 mr-2" />
+                    View Portfolio
+                  </SecondaryButton>
+                  <SecondaryButton>
+                    <Receipt className="w-4 h-4 mr-2" />
+                    View Transactions
+                  </SecondaryButton>
+                </div>
+              </div>
+            </div>
           </div>
         </Tile>
-      </div>
+      </SlideUpAnimation>
     </div>
   );
 }

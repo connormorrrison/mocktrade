@@ -29,7 +29,6 @@ export default function TradePage() {
   return (
     <div className="w-full" style={{ marginTop: '0px' }}>
       <SlideUpAnimation>
-        <Tile className="w-full shadow-lg hover:shadow-xl transition-shadow">
         <div className="p-6">
           <PrimaryTitle>Trade</PrimaryTitle>
           
@@ -140,7 +139,6 @@ export default function TradePage() {
             </PrimaryButton>
           </div>
         </div>
-      </Tile>
       </SlideUpAnimation>
     </div>
   );

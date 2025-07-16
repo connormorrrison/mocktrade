@@ -4,7 +4,7 @@ import { SecondaryTitle } from "@/components/secondary-title";
 import { TertiaryTitle } from "@/components/tertiary-title";
 import { PrimaryButton } from "@/components/primary-button";
 import SlideUpAnimation from "@/components/slide-up-animation";
-import { SimpleChart } from "@/components/simple-chart";
+import { PortfolioChart } from "@/components/portfolio-chart";
 import { useState } from "react";
 import { 
   DropdownMenu,
@@ -62,7 +62,6 @@ export default function PortfolioPage() {
   return (
     <div className="w-full" style={{ marginTop: '0px' }}>
       <SlideUpAnimation>
-        <Tile className="w-full shadow-lg hover:shadow-xl transition-shadow">
         <div className="p-6">
           <PrimaryTitle>Portfolio</PrimaryTitle>
           
@@ -98,7 +97,7 @@ export default function PortfolioPage() {
               <div className="flex flex-col gap-3 mb-4 w-fit">
                 <label className="text-base text-zinc-400 px-1">Filter</label>
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-zinc-700 !rounded-xl hover:!bg-zinc-700 h-10 focus:!outline-none focus:!ring-0">
+                  <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 h-10 focus:!outline-none focus:!ring-0">
                     {selectedFilter === "1mo" && "1 Month"}
                     {selectedFilter === "3mo" && "3 Months"}
                     {selectedFilter === "6mo" && "6 Months"}
@@ -126,7 +125,7 @@ export default function PortfolioPage() {
                 </DropdownMenu>
               </div>
               <Tile>
-                <SimpleChart />
+                <PortfolioChart />
               </Tile>
               <TertiaryTitle className="mt-2">
                 Note: Historical data includes only completed trading days.
@@ -210,7 +209,6 @@ export default function PortfolioPage() {
             </div>
           </div>
         </div>
-      </Tile>
       </SlideUpAnimation>
     </div>
   );

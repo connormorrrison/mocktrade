@@ -1,4 +1,3 @@
-import { Tile } from "@/components/tile";
 import { SecondaryButton } from "@/components/secondary-button";
 import { TextField } from "@/components/text-field";
 import { SecondaryTitle } from "@/components/secondary-title";
@@ -20,7 +19,6 @@ export default function ProfilePage() {
   return (
     <div className="w-full" style={{ marginTop: '0px' }}>
       <SlideUpAnimation>
-        <Tile className="w-full shadow-lg hover:shadow-xl transition-shadow">
         <div className="p-6">
           <PrimaryTitle>Profile</PrimaryTitle>
           
@@ -93,7 +91,6 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-      </Tile>
       </SlideUpAnimation>
     </div>
   );

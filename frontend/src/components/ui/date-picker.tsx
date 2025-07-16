@@ -32,7 +32,7 @@ export function Calendar22({ label = "Date", placeholder = "Select date", classN
           <Button
             variant="outline"
             id="date"
-            className={`w-full justify-between font-normal px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-zinc-700 !rounded-xl hover:!bg-zinc-700 h-10 ${className || ""}`}
+            className={`w-full justify-between font-normal px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 h-10 ${className || ""}`}
           >
             {date ? date.toLocaleDateString() : placeholder}
             <ChevronDownIcon />

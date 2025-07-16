@@ -19,7 +19,7 @@ export default function Sidebar() {
       <Card
         className="
           relative flex flex-col
-          w-52 p-4 rounded-xl border border-gray-300 dark:border-zinc-700 bg-background/30 dark:bg-input/30 shadow-none
+          w-52 p-4 rounded-xl !border-[oklch(1_0_0_/_10%)] dark:bg-input/30 shadow-none
         "
         style={{
           height: 'calc(100vh - 64px)',

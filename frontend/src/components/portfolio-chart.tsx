@@ -1,274 +1,174 @@
-"use client"
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 
-import * as React from "react"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
-
-import { Tile } from "@/components/tile"
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/chart"
-import type { ChartConfig } from "@/components/chart"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { ChevronDown } from "lucide-react"
-
-// Mock portfolio data - replace with real data later
 const chartData = [
-  { date: "2024-10-01", value: 100000 },
-  { date: "2024-10-02", value: 101200 },
-  { date: "2024-10-03", value: 99800 },
-  { date: "2024-10-04", value: 102500 },
-  { date: "2024-10-05", value: 104200 },
-  { date: "2024-10-06", value: 103800 },
-  { date: "2024-10-07", value: 105600 },
-  { date: "2024-10-08", value: 107200 },
-  { date: "2024-10-09", value: 106800 },
-  { date: "2024-10-10", value: 108500 },
-  { date: "2024-10-11", value: 110200 },
-  { date: "2024-10-12", value: 109800 },
-  { date: "2024-10-13", value: 111500 },
-  { date: "2024-10-14", value: 113200 },
-  { date: "2024-10-15", value: 112800 },
-  { date: "2024-10-16", value: 114500 },
-  { date: "2024-10-17", value: 116200 },
-  { date: "2024-10-18", value: 115800 },
-  { date: "2024-10-19", value: 117500 },
-  { date: "2024-10-20", value: 119200 },
-  { date: "2024-10-21", value: 118800 },
-  { date: "2024-10-22", value: 120500 },
-  { date: "2024-10-23", value: 122200 },
-  { date: "2024-10-24", value: 121800 },
-  { date: "2024-10-25", value: 123500 },
-  { date: "2024-10-26", value: 125200 },
-  { date: "2024-10-27", value: 124800 },
-  { date: "2024-10-28", value: 126500 },
-  { date: "2024-10-29", value: 128200 },
-  { date: "2024-10-30", value: 127800 },
-  { date: "2024-10-31", value: 127450 },
-  { date: "2024-11-01", value: 126200 },
-  { date: "2024-11-02", value: 124800 },
-  { date: "2024-11-03", value: 123500 },
-  { date: "2024-11-04", value: 125200 },
-  { date: "2024-11-05", value: 126800 },
-  { date: "2024-11-06", value: 128500 },
-  { date: "2024-11-07", value: 127200 },
-  { date: "2024-11-08", value: 125800 },
-  { date: "2024-11-09", value: 124500 },
-  { date: "2024-11-10", value: 126200 },
-  { date: "2024-11-11", value: 127800 },
-  { date: "2024-11-12", value: 129500 },
-  { date: "2024-11-13", value: 128200 },
-  { date: "2024-11-14", value: 126800 },
-  { date: "2024-11-15", value: 125500 },
-  { date: "2024-11-16", value: 127200 },
-  { date: "2024-11-17", value: 128800 },
-  { date: "2024-11-18", value: 130500 },
-  { date: "2024-11-19", value: 129200 },
-  { date: "2024-11-20", value: 127800 },
-  { date: "2024-11-21", value: 126500 },
-  { date: "2024-11-22", value: 128200 },
-  { date: "2024-11-23", value: 129800 },
-  { date: "2024-11-24", value: 131500 },
-  { date: "2024-11-25", value: 130200 },
-  { date: "2024-11-26", value: 128800 },
-  { date: "2024-11-27", value: 127500 },
-  { date: "2024-11-28", value: 129200 },
-  { date: "2024-11-29", value: 130800 },
-  { date: "2024-11-30", value: 132500 },
-  { date: "2024-12-01", value: 131200 },
-  { date: "2024-12-02", value: 129800 },
-  { date: "2024-12-03", value: 128500 },
-  { date: "2024-12-04", value: 130200 },
-  { date: "2024-12-05", value: 131800 },
-  { date: "2024-12-06", value: 133500 },
-  { date: "2024-12-07", value: 132200 },
-  { date: "2024-12-08", value: 130800 },
-  { date: "2024-12-09", value: 129500 },
-  { date: "2024-12-10", value: 131200 },
-  { date: "2024-12-11", value: 132800 },
-  { date: "2024-12-12", value: 134500 },
-  { date: "2024-12-13", value: 133200 },
-  { date: "2024-12-14", value: 131800 },
-  { date: "2024-12-15", value: 130500 },
-  { date: "2024-12-16", value: 132200 },
-  { date: "2024-12-17", value: 133800 },
-  { date: "2024-12-18", value: 135500 },
-  { date: "2024-12-19", value: 134200 },
-  { date: "2024-12-20", value: 132800 },
-  { date: "2024-12-21", value: 131500 },
-  { date: "2024-12-22", value: 133200 },
-  { date: "2024-12-23", value: 134800 },
-  { date: "2024-12-24", value: 136500 },
-  { date: "2024-12-25", value: 135200 },
-  { date: "2024-12-26", value: 133800 },
-  { date: "2024-12-27", value: 132500 },
-  { date: "2024-12-28", value: 134200 },
-  { date: "2024-12-29", value: 135800 },
-  { date: "2024-12-30", value: 137500 },
-  { date: "2024-12-31", value: 136200 },
-  { date: "2025-01-01", value: 134800 },
-  { date: "2025-01-02", value: 133500 },
-  { date: "2025-01-03", value: 135200 },
-  { date: "2025-01-04", value: 136800 },
-  { date: "2025-01-05", value: 138500 },
-  { date: "2025-01-06", value: 137200 },
-  { date: "2025-01-07", value: 135800 },
-  { date: "2025-01-08", value: 134500 },
-  { date: "2025-01-09", value: 136200 },
-  { date: "2025-01-10", value: 137800 },
-  { date: "2025-01-11", value: 139500 },
-  { date: "2025-01-12", value: 138200 },
-  { date: "2025-01-13", value: 136800 },
-  { date: "2025-01-14", value: 135500 },
-  { date: "2025-01-15", value: 137200 },
-]
+  { date: "2024-04-01", desktop: 222, mobile: 150 },
+  { date: "2024-04-02", desktop: 97, mobile: 180 },
+  { date: "2024-04-03", desktop: 167, mobile: 120 },
+  { date: "2024-04-04", desktop: 242, mobile: 260 },
+  { date: "2024-04-05", desktop: 373, mobile: 290 },
+  { date: "2024-04-06", desktop: 301, mobile: 340 },
+  { date: "2024-04-07", desktop: 245, mobile: 180 },
+  { date: "2024-04-08", desktop: 409, mobile: 320 },
+  { date: "2024-04-09", desktop: 59, mobile: 110 },
+  { date: "2024-04-10", desktop: 261, mobile: 190 },
+  { date: "2024-04-11", desktop: 327, mobile: 350 },
+  { date: "2024-04-12", desktop: 292, mobile: 210 },
+  { date: "2024-04-13", desktop: 342, mobile: 380 },
+  { date: "2024-04-14", desktop: 137, mobile: 220 },
+  { date: "2024-04-15", desktop: 120, mobile: 170 },
+  { date: "2024-04-16", desktop: 138, mobile: 190 },
+  { date: "2024-04-17", desktop: 446, mobile: 360 },
+  { date: "2024-04-18", desktop: 364, mobile: 410 },
+  { date: "2024-04-19", desktop: 243, mobile: 180 },
+  { date: "2024-04-20", desktop: 89, mobile: 150 },
+  { date: "2024-04-21", desktop: 137, mobile: 200 },
+  { date: "2024-04-22", desktop: 224, mobile: 170 },
+  { date: "2024-04-23", desktop: 138, mobile: 230 },
+  { date: "2024-04-24", desktop: 387, mobile: 290 },
+  { date: "2024-04-25", desktop: 215, mobile: 250 },
+  { date: "2024-04-26", desktop: 75, mobile: 130 },
+  { date: "2024-04-27", desktop: 383, mobile: 420 },
+  { date: "2024-04-28", desktop: 122, mobile: 180 },
+  { date: "2024-04-29", desktop: 315, mobile: 240 },
+  { date: "2024-04-30", desktop: 454, mobile: 380 },
+  { date: "2024-05-01", desktop: 165, mobile: 220 },
+  { date: "2024-05-02", desktop: 293, mobile: 310 },
+  { date: "2024-05-03", desktop: 247, mobile: 190 },
+  { date: "2024-05-04", desktop: 385, mobile: 420 },
+  { date: "2024-05-05", desktop: 481, mobile: 390 },
+  { date: "2024-05-06", desktop: 498, mobile: 520 },
+  { date: "2024-05-07", desktop: 388, mobile: 300 },
+  { date: "2024-05-08", desktop: 149, mobile: 210 },
+  { date: "2024-05-09", desktop: 227, mobile: 180 },
+  { date: "2024-05-10", desktop: 293, mobile: 330 },
+  { date: "2024-05-11", desktop: 335, mobile: 270 },
+  { date: "2024-05-12", desktop: 197, mobile: 240 },
+  { date: "2024-05-13", desktop: 197, mobile: 160 },
+  { date: "2024-05-14", desktop: 448, mobile: 490 },
+  { date: "2024-05-15", desktop: 473, mobile: 380 },
+  { date: "2024-05-16", desktop: 338, mobile: 400 },
+  { date: "2024-05-17", desktop: 499, mobile: 420 },
+  { date: "2024-05-18", desktop: 315, mobile: 350 },
+  { date: "2024-05-19", desktop: 235, mobile: 180 },
+  { date: "2024-05-20", desktop: 177, mobile: 230 },
+  { date: "2024-05-21", desktop: 82, mobile: 140 },
+  { date: "2024-05-22", desktop: 81, mobile: 120 },
+  { date: "2024-05-23", desktop: 252, mobile: 290 },
+  { date: "2024-05-24", desktop: 294, mobile: 220 },
+  { date: "2024-05-25", desktop: 201, mobile: 250 },
+  { date: "2024-05-26", desktop: 213, mobile: 170 },
+  { date: "2024-05-27", desktop: 420, mobile: 460 },
+  { date: "2024-05-28", desktop: 233, mobile: 190 },
+  { date: "2024-05-29", desktop: 78, mobile: 130 },
+  { date: "2024-05-30", desktop: 340, mobile: 280 },
+  { date: "2024-05-31", desktop: 178, mobile: 230 },
+  { date: "2024-06-01", desktop: 178, mobile: 200 },
+  { date: "2024-06-02", desktop: 470, mobile: 410 },
+  { date: "2024-06-03", desktop: 103, mobile: 160 },
+  { date: "2024-06-04", desktop: 439, mobile: 380 },
+  { date: "2024-06-05", desktop: 88, mobile: 140 },
+  { date: "2024-06-06", desktop: 294, mobile: 250 },
+  { date: "2024-06-07", desktop: 323, mobile: 370 },
+  { date: "2024-06-08", desktop: 385, mobile: 320 },
+  { date: "2024-06-09", desktop: 438, mobile: 480 },
+  { date: "2024-06-10", desktop: 155, mobile: 200 },
+  { date: "2024-06-11", desktop: 92, mobile: 150 },
+  { date: "2024-06-12", desktop: 492, mobile: 420 },
+  { date: "2024-06-13", desktop: 81, mobile: 130 },
+  { date: "2024-06-14", desktop: 426, mobile: 380 },
+  { date: "2024-06-15", desktop: 307, mobile: 350 },
+  { date: "2024-06-16", desktop: 371, mobile: 310 },
+  { date: "2024-06-17", desktop: 475, mobile: 520 },
+  { date: "2024-06-18", desktop: 107, mobile: 170 },
+  { date: "2024-06-19", desktop: 341, mobile: 290 },
+  { date: "2024-06-20", desktop: 408, mobile: 450 },
+  { date: "2024-06-21", desktop: 169, mobile: 210 },
+  { date: "2024-06-22", desktop: 317, mobile: 270 },
+  { date: "2024-06-23", desktop: 480, mobile: 530 },
+  { date: "2024-06-24", desktop: 132, mobile: 180 },
+  { date: "2024-06-25", desktop: 141, mobile: 190 },
+  { date: "2024-06-26", desktop: 434, mobile: 380 },
+  { date: "2024-06-27", desktop: 448, mobile: 490 },
+  { date: "2024-06-28", desktop: 149, mobile: 200 },
+  { date: "2024-06-29", desktop: 103, mobile: 160 },
+  { date: "2024-06-30", desktop: 446, mobile: 400 },
+];
 
-const chartConfig = {
-  value: {
-    label: "Portfolio Value",
-    color: "hsl(var(--chart-1))",
-  },
-} satisfies ChartConfig
-
-interface PortfolioChartProps {
-  selectedRange: string
-  onRangeChange: (range: string) => void
-}
-
-export function PortfolioChart({ selectedRange, onRangeChange }: PortfolioChartProps) {
-  const filteredData = React.useMemo(() => {
-    const referenceDate = new Date("2025-01-15")
-    let daysToSubtract = 30
-    
-    if (selectedRange === "1mo") {
-      daysToSubtract = 30
-    } else if (selectedRange === "3mo") {
-      daysToSubtract = 90
-    } else if (selectedRange === "6mo") {
-      daysToSubtract = 180
-    } else if (selectedRange === "1y") {
-      daysToSubtract = 365
-    } else if (selectedRange === "max") {
-      return chartData
-    }
-    
-    const startDate = new Date(referenceDate)
-    startDate.setDate(startDate.getDate() - daysToSubtract)
-    
-    return chartData.filter((item) => {
-      const date = new Date(item.date)
-      return date >= startDate
-    })
-  }, [selectedRange])
-
-  function formatMoney(value: number) {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-    }).format(value)
-  }
+export function PortfolioChart() {
+  // Calculate dynamic width based on max value
+  const maxValue = Math.max(...chartData.map(item => item.desktop));
+  const maxValueLength = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(maxValue).length;
+  
+  // Calculate width: roughly 8px per character + some padding
+  const yAxisWidth = Math.max(40, maxValueLength * 8 + 10);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Portfolio Performance</h3>
-        <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-zinc-700 !rounded-xl hover:!bg-zinc-700 h-10 focus:!outline-none focus:!ring-0">
-            {selectedRange === "1mo" && "1 Month"}
-            {selectedRange === "3mo" && "3 Months"}
-            {selectedRange === "6mo" && "6 Months"}
-            {selectedRange === "1y" && "1 Year"}
-            {selectedRange === "max" && "Max"}
-            <ChevronDown className="h-4 w-4 ml-2" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => onRangeChange("1mo")} className="text-base">
-              1 Month
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onRangeChange("3mo")} className="text-base">
-              3 Months
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onRangeChange("6mo")} className="text-base">
-              6 Months
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onRangeChange("1y")} className="text-base">
-              1 Year
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onRangeChange("max")} className="text-base">
-              Max
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      <Tile className="p-4">
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-[300px] w-full"
-        >
-          <AreaChart data={filteredData}>
-            <defs>
-              <linearGradient id="fillValue" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="hsl(var(--chart-1))"
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="hsl(var(--chart-1))"
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              minTickGap={32}
-              tickFormatter={(value) => {
-                const date = new Date(value)
-                return date.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })
-              }}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={
-                <ChartTooltipContent
-                  labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })
-                  }}
-                  formatter={(value) => [formatMoney(value as number), "Portfolio Value"]}
-                  indicator="dot"
-                />
-              }
-            />
-            <Area
-              dataKey="value"
-              type="natural"
-              fill="url(#fillValue)"
-              stroke="hsl(var(--chart-1))"
-              strokeWidth={2}
-            />
-          </AreaChart>
-        </ChartContainer>
-      </Tile>
+    <div className="h-64 w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={chartData}>
+          <XAxis 
+            dataKey="date" 
+            tickFormatter={(value) => {
+              const date = new Date(value)
+              return date.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+              })
+            }}
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: '#9CA3AF', fontSize: 12 }}
+            tickMargin={8}
+            minTickGap={32}
+            interval="preserveStartEnd"
+          />
+          <YAxis
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: '#9CA3AF', fontSize: 12 }}
+            tickMargin={8}
+            width={yAxisWidth}
+            tickFormatter={(value) => {
+              return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              }).format(value)
+            }}
+          />
+          <Tooltip
+            labelFormatter={(value) => {
+              const date = new Date(value)
+              return date.toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })
+            }}
+            formatter={(value) => [value, "Portfolio Value"]}
+            contentStyle={{
+              backgroundColor: '#1f2937',
+              border: '1px solid #374151',
+              borderRadius: '8px',
+              color: '#f9fafb'
+            }}
+            labelStyle={{ color: '#f9fafb' }}
+          />
+          <Area
+            type="monotone"
+            dataKey="desktop"
+            stroke="#1D4FBC"
+            fill="#163B8D"
+            fillOpacity={0.6}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
     </div>
-  )
+  );
 }
