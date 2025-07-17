@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, TrendingUp } from "lucide-react";
 import { Button1 } from "@/components/button-1";
 import { PageLayout } from "@/components/page-layout";
 import { PortfolioChart } from "@/components/portfolio-chart";
@@ -25,6 +25,7 @@ export default function PortfolioPage() {
     ((totalPortfolioValue - startingPortfolioValue) / startingPortfolioValue) *
     100;
   const [selectedFilter, setSelectedFilter] = useState("1mo");
+  const [sortBy, setSortBy] = useState("symbol");
 
   const positions = [
     {
@@ -161,8 +162,65 @@ export default function PortfolioPage() {
         {/* Holdings */}
         <div>
           <Title2 className="pb-2">Holdings</Title2>
-          <div className="space-y-6">
-            {positions.map((pos) => {
+          <div className="flex flex-col mb-4 w-full sm:w-fit">
+            <Title3 className="px-1">Sort By</Title3>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center justify-between px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 h-10 focus:!outline-none focus:!ring-0">
+                {sortBy === "symbol" && "Symbol"}
+                {sortBy === "value" && "Current Value"}
+                {sortBy === "gain" && "Gain"}
+                {sortBy === "daily" && "Daily P/L"}
+                <ChevronDown className="h-5 w-5 ml-2" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem
+                  onClick={() => setSortBy("symbol")}
+                  className="text-base"
+                >
+                  Symbol
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setSortBy("value")}
+                  className="text-base"
+                >
+                  Current Value
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setSortBy("gain")}
+                  className="text-base"
+                >
+                  Gain
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setSortBy("daily")}
+                  className="text-base"
+                >
+                  Daily P/L
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <div className="space-y-4">
+            {positions
+              .sort((a, b) => {
+                switch (sortBy) {
+                  case "symbol":
+                    return a.symbol.localeCompare(b.symbol);
+                  case "value":
+                    return (b.shares * b.current_price) - (a.shares * a.current_price);
+                  case "gain":
+                    const aGain = (a.current_price - (a.price_at_selected_range || a.average_price)) * a.shares;
+                    const bGain = (b.current_price - (b.price_at_selected_range || b.average_price)) * b.shares;
+                    return bGain - aGain;
+                  case "daily":
+                    const aDailyPL = (a.current_price - a.previous_price) * a.shares;
+                    const bDailyPL = (b.current_price - b.previous_price) * b.shares;
+                    return bDailyPL - aDailyPL;
+                  default:
+                    return 0;
+                }
+              })
+              .map((pos) => {
               const effectivePurchasePrice =
                 pos.price_at_selected_range || pos.average_price;
               const gainSinceRange =
@@ -188,8 +246,8 @@ export default function PortfolioPage() {
               return (
                 <Tile key={pos.symbol}>
                   {/* CHANGE: Reduced vertical padding (py-4) and gap (gap-y-4) to decrease height. */}
-                  <div className="grid grid-cols-2 lg:flex lg:items-center lg:justify-between">
-                    <div className="col-span-2 lg:col-span-auto lg:text-left">
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div className="lg:text-left">
                       <p className="text-lg font-medium ml-2">{pos.symbol}</p>
                       <Text4 className="ml-2">
                         {pos.shares} {pos.shares === 1 ? "share" : "shares"}
@@ -263,8 +321,11 @@ export default function PortfolioPage() {
                       </p>
                     </div>
 
-                    <div className="col-span-2 flex justify-end lg:col-span-auto lg:block">
-                      <Button1 className="mr-2">Trade</Button1>
+                    <div className="lg:mr-2">
+                      <Button1>
+                        <TrendingUp />
+                        Trade
+                      </Button1>
                     </div>
                   </div>
                 </Tile>

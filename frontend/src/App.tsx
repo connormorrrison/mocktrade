@@ -6,6 +6,8 @@ import Profile from "@/components/profile"
 import HomePage from "@/pages/HomePage"
 import PortfolioPage from "@/pages/PortfolioPage"
 import TradePage from "@/pages/TradePage"
+import WatchlistPage from "@/pages/WatchlistPage"
+import LeaderboardPage from "@/pages/LeaderboardPage"
 import TransactionsPage from "@/pages/TransactionsPage"
 import ProfilePage from "@/pages/ProfilePage"
 
@@ -23,6 +25,8 @@ function App() {
                   <Route path="/" element={<HomePage />} />
                   <Route path="/portfolio" element={<PortfolioPage />} />
                   <Route path="/trade" element={<TradePage />} />
+                  <Route path="/watchlist" element={<WatchlistPage />} />
+                  <Route path="/leaderboard" element={<LeaderboardPage />} />
                   <Route path="/transactions" element={<TransactionsPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                 </Routes>

@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { Card } from '@/components/ui/card'
 import { Button2 } from '@/components/button-2'
-import { House, Wallet, TrendingUp, FileText, User, LogOut } from 'lucide-react'
+import { House, Wallet, TrendingUp, FileText, User, LogOut, Eye, Trophy } from 'lucide-react'
 
 export default function Sidebar() {
   const location = useLocation()
@@ -10,6 +10,8 @@ export default function Sidebar() {
     { name: 'Home', path: '/', icon: House },
     { name: 'Portfolio', path: '/portfolio', icon: Wallet },
     { name: 'Trade', path: '/trade', icon: TrendingUp },
+    { name: 'Watchlist', path: '/watchlist', icon: Eye },
+    { name: 'Leaderboard', path: '/leaderboard', icon: Trophy },
     { name: 'Transactions', path: '/transactions', icon: FileText },
     { name: 'Profile', path: '/profile', icon: User },
   ]
