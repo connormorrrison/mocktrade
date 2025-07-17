@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { Tile } from "@/components/tile";
-import { TextField } from "@/components/text-field";
-import { Title2 } from "@/components/title-2";
-import { Text4 } from "@/components/text-4";
-import { Text2 } from "@/components/text-2";
-import { Button2 } from "@/components/button-2";
-import { Button1 } from "@/components/button-1";
-import { PageLayout } from "@/components/page-layout";
-import { MarketStatus } from "@/components/market-status";
 import { Search } from "lucide-react";
+import { Button1 } from "@/components/button-1";
+import { Button2 } from "@/components/button-2";
+import { MarketStatus } from "@/components/market-status";
+import { PageLayout } from "@/components/page-layout";
+import { Text2 } from "@/components/text-2";
+import { Text4 } from "@/components/text-4";
+import { TextField } from "@/components/text-field";
+import { Tile } from "@/components/tile";
+import { Title2 } from "@/components/title-2";
 
 export default function TradePage() {
   // State

@@ -1,13 +1,13 @@
-import { Tile } from "@/components/tile";
-import { Title2 } from "@/components/title-2";
-import { Text3 } from "@/components/text-3";
-import { Title3 } from "@/components/title-3";
-import { Text4 } from "@/components/text-4";
-import { Text2 } from "@/components/text-2";
-import { PageLayout } from "@/components/page-layout";
-import { MarketStatus } from "@/components/market-status";
 import { TrendingUp, Wallet, FileText } from "lucide-react";
 import { Button1 } from "@/components/button-1";
+import { MarketStatus } from "@/components/market-status";
+import { PageLayout } from "@/components/page-layout";
+import { Text2 } from "@/components/text-2";
+import { Text3 } from "@/components/text-3";
+import { Text4 } from "@/components/text-4";
+import { Tile } from "@/components/tile";
+import { Title2 } from "@/components/title-2";
+import { Title3 } from "@/components/title-3";
 
 export default function HomePage() {
   // Mock market data

@@ -1,15 +1,16 @@
 import { useState } from "react";
+import { ChevronDown, Download } from "lucide-react";
+import { Button2 } from "@/components/button-2";
 import { Calendar22 } from "@/components/date-picker";
+import { PageLayout } from "@/components/page-layout";
+import { Title3 } from "@/components/title-3";
+import { TransactionsTable } from "@/components/transactions-table";
 import { 
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
-import { Title3 } from "@/components/title-3";
-import { Button2 } from "@/components/button-2";
-import { PageLayout } from "@/components/page-layout";
 
 export default function TransactionsPage() {
   const [selectedFilter, setSelectedFilter] = useState("All");
@@ -53,12 +54,6 @@ export default function TransactionsPage() {
     }
   ];
 
-  function formatMoney(value: number) {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(value);
-  }
 
   return (
     <PageLayout title="Transactions">
@@ -76,12 +71,12 @@ export default function TransactionsPage() {
               </div>
 
               {/* Transaction Type Filter */}
-              <div className="flex flex-col gap-3 w-full sm:w-auto">
-                <label className="text-base text-zinc-400 px-1">Filter</label>
+              <div className="flex flex-col w-full sm:w-auto">
+                <Title3 className="px-1">Filter</Title3>
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] w-full sm:w-auto px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 h-10 focus:!outline-none focus:!ring-0">
                     {selectedFilter}
-                    <ChevronDown className="h-4 w-4 ml-2" />
+                    <ChevronDown className="h-5 w-5 ml-2" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
                     <DropdownMenuItem onClick={() => setSelectedFilter("All")} className="text-base">
@@ -98,55 +93,17 @@ export default function TransactionsPage() {
               </div>
 
               {/* Export Button */}
-              <div className="flex flex-col gap-3 w-full sm:w-auto sm:mt-2 md:mt-0">
+              <div className="flex flex-col">
                 <Title3 className="px-1">Export</Title3>
-                <Button2 className="w-full sm:w-auto">
+                <Button2>
+                  <Download />
                   Export
                 </Button2>
               </div>
             </div>
 
             {/* Transactions Table */}
-            <div className="w-full max-w-full overflow-x-auto overflow-y-hidden rounded-xl border !border-[oklch(1_0_0_/_10%)]">
-              <table className="w-full divide-y divide-zinc-800">
-                <thead className="bg-input/30">
-                  <tr>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-white whitespace-nowrap">ID</th>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-white whitespace-nowrap">Date</th>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-white whitespace-nowrap">Type</th>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-white whitespace-nowrap">Symbol</th>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-white whitespace-nowrap">Shares</th>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-white whitespace-nowrap">Price per Share</th>
-                    <th className="px-4 py-2 text-left text-base font-semibold text-white whitespace-nowrap">Total</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-800 bg-input/30">
-                  {transactions.map(tx => (
-                    <tr key={tx.id} className="hover:bg-zinc-700">
-                      <td className="px-4 py-2 text-base text-white whitespace-nowrap">{tx.id}</td>
-                      <td className="px-4 py-2 text-base text-white whitespace-nowrap">
-                        {new Date(tx.created_at).toLocaleString()}
-                      </td>
-                      <td className="px-4 py-2 text-base text-white whitespace-nowrap">
-                        <span className={`px-2 py-1 text-base rounded-full ${tx.transaction_type === 'BUY' ? 'bg-green-900/50 text-green-300' : 'bg-red-900/50 text-red-300'}`}>
-                          {tx.transaction_type}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2 text-base text-white whitespace-nowrap">{tx.symbol}</td>
-                      <td className="px-4 py-2 text-base text-white whitespace-nowrap">
-                        {tx.shares.toLocaleString()}
-                      </td>
-                      <td className="px-4 py-2 text-base text-white whitespace-nowrap">
-                        {formatMoney(tx.price)}
-                      </td>
-                      <td className="px-4 py-2 text-base text-white whitespace-nowrap">
-                        {formatMoney(tx.total_amount)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <TransactionsTable transactions={transactions} />
       </div>
     </PageLayout>
   );

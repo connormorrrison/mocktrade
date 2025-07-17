@@ -54,7 +54,7 @@ export default function Sidebar() {
         {/* Logout button at bottom */}
         <div className="mt-4 flex justify-start">
           <Button2>
-            <LogOut className="text-red-600" size={20} />
+            <LogOut className="!text-red-600" />
             Logout
           </Button2>
         </div>
