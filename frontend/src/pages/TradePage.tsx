@@ -36,7 +36,7 @@ export default function TradePage() {
             {/* Search Section */}
             <div>
               <SecondaryTitle>Search</SecondaryTitle>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <TextField
                   className="flex-1"
                   placeholder="Enter symbol (e.g., AAPL)"
@@ -51,7 +51,7 @@ export default function TradePage() {
 
             {/* Stock Price Display */}
             <Tile>
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
                   <TertiaryTitle>
                     Market Price for {symbol}
@@ -63,7 +63,7 @@ export default function TradePage() {
                     You own {sharesOwned.toLocaleString()} shares of {symbol}
                   </TertiaryTitle>
                 </div>
-                <div className="text-right">
+                <div className="text-left sm:text-right">
                   <TertiaryTitle>Status</TertiaryTitle>
                   <div className="flex items-center justify-end">
                     <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse mr-2" />
@@ -78,7 +78,7 @@ export default function TradePage() {
             {/* Action Section */}
             <div>
               <SecondaryTitle>Action</SecondaryTitle>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <PrimaryButton 
                   onClick={() => setAction('buy')}
                   className="flex-1"

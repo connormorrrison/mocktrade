@@ -69,7 +69,7 @@ export default function PortfolioPage() {
             {/* Account Summary */}
             <div className="space-y-2">
               <SecondaryTitle>Account Summary</SecondaryTitle>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
                   <TertiaryTitle>Total Portfolio Value</TertiaryTitle>
                   <p className="text-4xl font-semibold">
@@ -94,7 +94,7 @@ export default function PortfolioPage() {
             {/* Portfolio History Section */}
             <div>
               <SecondaryTitle>Performance</SecondaryTitle>
-              <div className="flex flex-col gap-3 mb-4 w-fit">
+              <div className="flex flex-col gap-3 mb-4 w-full sm:w-fit">
                 <label className="text-base text-zinc-400 px-1">Filter</label>
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 h-10 focus:!outline-none focus:!ring-0">
@@ -152,52 +152,55 @@ export default function PortfolioPage() {
 
                   return (
                     <Tile key={pos.symbol}>
-                      <div className="flex justify-between items-center">
+                      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
                         {/* Symbol & Shares */}
-                        <div>
-                          <p className="text-lg font-semibold ml-2">{pos.symbol}</p>
+                        <div className="lg:flex-1">
+                          <p className="text-lg font-medium ml-2">{pos.symbol}</p>
                           <TertiaryTitle className="ml-2">
                             {pos.shares} {pos.shares === 1 ? "share" : "shares"}
                           </TertiaryTitle>
                         </div>
 
-                        {/* Current Price */}
-                        <div className="text-right">
-                          <TertiaryTitle>Current Price</TertiaryTitle>
-                          <p className="font-medium">{formatMoney(pos.current_price)}</p>
-                        </div>
+                        {/* Mobile grid for data */}
+                        <div className="grid grid-cols-2 lg:contents gap-4">
+                          {/* Current Price */}
+                          <div className="text-left lg:text-right">
+                            <TertiaryTitle>Current Price</TertiaryTitle>
+                            <p className="font-medium">{formatMoney(pos.current_price)}</p>
+                          </div>
 
-                        {/* Current Value */}
-                        <div className="text-right">
-                          <TertiaryTitle>Current Value</TertiaryTitle>
-                          <p className="font-medium">{formatMoney(currentValue)}</p>
-                        </div>
+                          {/* Current Value */}
+                          <div className="text-left lg:text-right">
+                            <TertiaryTitle>Current Value</TertiaryTitle>
+                            <p className="font-medium">{formatMoney(currentValue)}</p>
+                          </div>
 
-                        {/* Gain */}
-                        <div className="text-right">
-                          <TertiaryTitle>Gain (1mo)</TertiaryTitle>
-                          <p className={`font-medium ${gainSinceRange >= 0 ? "text-green-600" : "text-red-600"}`}>
-                            {gainSinceRange >= 0 ? "+" : ""}{formatMoney(gainSinceRange)}{" "}
-                            <span className={`font-medium ${gainSinceRange >= 0 ? "text-green-600" : "text-red-600"}`}>
-                              ({gainPercentSinceRange >= 0 ? "+" : ""}{gainPercentSinceRange.toFixed(2)}%)
-                            </span>
-                          </p>
-                        </div>
+                          {/* Gain */}
+                          <div className="text-left lg:text-right">
+                            <TertiaryTitle>Gain (1mo)</TertiaryTitle>
+                            <p className={`font-medium ${gainSinceRange >= 0 ? "text-green-600" : "text-red-600"}`}>
+                              {gainSinceRange >= 0 ? "+" : ""}{formatMoney(gainSinceRange)}{" "}
+                              <span className={`font-medium ${gainSinceRange >= 0 ? "text-green-600" : "text-red-600"}`}>
+                                ({gainPercentSinceRange >= 0 ? "+" : ""}{gainPercentSinceRange.toFixed(2)}%)
+                              </span>
+                            </p>
+                          </div>
 
-                        {/* Daily P/L */}
-                        <div className="text-right">
-                          <TertiaryTitle className="mr-2">Daily P/L</TertiaryTitle>
-                          <p className={`font-medium mr-2 ${dailyPL >= 0 ? "text-green-600" : "text-red-600"}`}>
-                            {dailyPL >= 0 ? "+" : ""}{formatMoney(dailyPL)}{" "}
-                            <span className={`font-medium ${dailyPL >= 0 ? "text-green-600" : "text-red-600"}`}>
-                              ({dailyPercent >= 0 ? "+" : ""}{dailyPercent.toFixed(2)}%)
-                            </span>
-                          </p>
+                          {/* Daily P/L */}
+                          <div className="text-left lg:text-right">
+                            <TertiaryTitle>Daily P/L</TertiaryTitle>
+                            <p className={`font-medium ${dailyPL >= 0 ? "text-green-600" : "text-red-600"}`}>
+                              {dailyPL >= 0 ? "+" : ""}{formatMoney(dailyPL)}{" "}
+                              <span className={`font-medium ${dailyPL >= 0 ? "text-green-600" : "text-red-600"}`}>
+                                ({dailyPercent >= 0 ? "+" : ""}{dailyPercent.toFixed(2)}%)
+                              </span>
+                            </p>
+                          </div>
                         </div>
 
                         {/* Trade Button */}
-                        <div className="text-right">
-                          <PrimaryButton className="mr-2">
+                        <div className="text-left lg:text-right">
+                          <PrimaryButton>
                             Trade
                           </PrimaryButton>
                         </div>

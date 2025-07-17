@@ -1,15 +1,15 @@
 import { Link, useLocation } from 'react-router-dom'
 import { Card } from '@/components/ui/card'
 import { SecondaryButton } from '@/components/secondary-button'
-import { House, ChartCandlestick, ArrowLeftRight, FileText, User, LogOut } from 'lucide-react'
+import { House, Wallet, TrendingUp, FileText, User, LogOut } from 'lucide-react'
 
 export default function Sidebar() {
   const location = useLocation()
   
   const menuItems = [
     { name: 'Home', path: '/', icon: House },
-    { name: 'Portfolio', path: '/portfolio', icon: ChartCandlestick },
-    { name: 'Trade', path: '/trade', icon: ArrowLeftRight },
+    { name: 'Portfolio', path: '/portfolio', icon: Wallet },
+    { name: 'Trade', path: '/trade', icon: TrendingUp },
     { name: 'Transactions', path: '/transactions', icon: FileText },
     { name: 'Profile', path: '/profile', icon: User },
   ]
