@@ -10,7 +10,7 @@ export const SecondaryButton = ({ children, className, ...props }: SecondaryButt
   return (
     <button 
       className={cn(
-        "!px-4 !py-2 !text-white !text-lg !font-medium !flex !items-center !justify-center !gap-2 !h-10 !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 focus:!outline-none focus:!ring-0",
+        "!px-4 !py-2 !text-white !text-lg !font-medium !flex !items-center !justify-center !gap-2 !h-10 !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 focus:!outline-none focus:!ring-0 [&>svg]:w-5 [&>svg]:h-5 [&>svg]:flex-shrink-0",
         className
       )}
       {...props}

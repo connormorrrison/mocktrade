@@ -12,29 +12,23 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-interface Calendar22Props {
-  label?: string
-  placeholder?: string
-  className?: string
-}
-
-export function Calendar22({ label = "Date", placeholder = "Select date", className }: Calendar22Props) {
+export function Calendar22() {
   const [open, setOpen] = React.useState(false)
   const [date, setDate] = React.useState<Date | undefined>(undefined)
 
   return (
     <div className="flex flex-col gap-3">
-      <Label htmlFor="date" className="px-1 text-base font-normal text-zinc-400">
-        {label}
+      <Label htmlFor="date" className="px-1">
+        Date of birth
       </Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             id="date"
-            className={`w-full justify-between font-normal px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 h-10 ${className || ""}`}
+            className="w-48 justify-between font-normal"
           >
-            {date ? date.toLocaleDateString() : placeholder}
+            {date ? date.toLocaleDateString() : "Select date"}
             <ChevronDownIcon />
           </Button>
         </PopoverTrigger>

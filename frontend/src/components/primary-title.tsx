@@ -10,7 +10,7 @@ export const PrimaryTitle = ({ children, className, ...props }: PrimaryTitleProp
   return (
     <h2
       className={cn(
-        "text-4xl font-normal mb-6",
+        "block text-4xl font-normal mb-6",
         className
       )}
       {...props}

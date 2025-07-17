@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Tile } from "@/components/tile";
 import { TextField } from "@/components/text-field";
 import { SecondaryTitle } from "@/components/secondary-title";
-import { PrimaryTitle } from "@/components/primary-title";
 import { TertiaryTitle } from "@/components/tertiary-title";
 import { SecondaryButton } from "@/components/secondary-button";
 import { PrimaryButton } from "@/components/primary-button";
-import SlideUpAnimation from "@/components/slide-up-animation";
+import { PageLayout } from "@/components/page-layout";
+import { Search } from "lucide-react";
 
 export default function TradePage() {
   // State
@@ -27,16 +27,12 @@ export default function TradePage() {
   }
 
   return (
-    <div className="w-full" style={{ marginTop: '0px' }}>
-      <SlideUpAnimation>
-        <div className="p-6">
-          <PrimaryTitle>Trade</PrimaryTitle>
-          
-          <div className="space-y-6">
+    <PageLayout title="Trade">
+      <div className="space-y-6">
             {/* Search Section */}
             <div>
               <SecondaryTitle>Search</SecondaryTitle>
-              <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex sm:flex-row gap-2">
                 <TextField
                   className="flex-1"
                   placeholder="Enter symbol (e.g., AAPL)"
@@ -44,6 +40,7 @@ export default function TradePage() {
                   readOnly
                 />
                 <SecondaryButton>
+                  <Search />
                   Search
                 </SecondaryButton>
               </div>
@@ -51,7 +48,7 @@ export default function TradePage() {
 
             {/* Stock Price Display */}
             <Tile>
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+              <div className="flex sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
                   <TertiaryTitle>
                     Market Price for {symbol}
@@ -78,7 +75,7 @@ export default function TradePage() {
             {/* Action Section */}
             <div>
               <SecondaryTitle>Action</SecondaryTitle>
-              <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex sm:flex-row gap-2">
                 <PrimaryButton 
                   onClick={() => setAction('buy')}
                   className="flex-1"
@@ -137,9 +134,7 @@ export default function TradePage() {
             <PrimaryButton className="w-full" disabled>
               Submit Order
             </PrimaryButton>
-          </div>
-        </div>
-      </SlideUpAnimation>
-    </div>
+      </div>
+    </PageLayout>
   );
 }

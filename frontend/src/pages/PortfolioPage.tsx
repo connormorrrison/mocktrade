@@ -1,9 +1,8 @@
 import { Tile } from "@/components/tile";
-import { PrimaryTitle } from "@/components/primary-title";
 import { SecondaryTitle } from "@/components/secondary-title";
 import { TertiaryTitle } from "@/components/tertiary-title";
 import { PrimaryButton } from "@/components/primary-button";
-import SlideUpAnimation from "@/components/slide-up-animation";
+import { PageLayout } from "@/components/page-layout";
 import { PortfolioChart } from "@/components/portfolio-chart";
 import { useState } from "react";
 import { 
@@ -60,12 +59,8 @@ export default function PortfolioPage() {
   }
 
   return (
-    <div className="w-full" style={{ marginTop: '0px' }}>
-      <SlideUpAnimation>
-        <div className="p-6">
-          <PrimaryTitle>Portfolio</PrimaryTitle>
-          
-          <div className="space-y-6">
+    <PageLayout title="Portfolio">
+      <div className="space-y-6">
             {/* Account Summary */}
             <div className="space-y-2">
               <SecondaryTitle>Account Summary</SecondaryTitle>
@@ -210,9 +205,7 @@ export default function PortfolioPage() {
                 })}
               </div>
             </div>
-          </div>
-        </div>
-      </SlideUpAnimation>
-    </div>
+      </div>
+    </PageLayout>
   );
 }

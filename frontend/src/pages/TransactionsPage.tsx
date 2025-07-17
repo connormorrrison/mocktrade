@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar22 } from "@/components/ui/date-picker";
+import { Calendar22 } from "@/components/date-picker";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -7,10 +7,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
-import { PrimaryTitle } from "@/components/primary-title";
 import { TertiaryTitle } from "@/components/tertiary-title";
 import { SecondaryButton } from "@/components/secondary-button";
-import SlideUpAnimation from "@/components/slide-up-animation";
+import { PageLayout } from "@/components/page-layout";
 
 export default function TransactionsPage() {
   const [selectedFilter, setSelectedFilter] = useState("All");
@@ -62,12 +61,8 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div className="w-full max-w-full overflow-hidden" style={{ marginTop: '0px' }}>
-      <SlideUpAnimation>
-        <div className="p-4 sm:p-6">
-          <PrimaryTitle>Transactions</PrimaryTitle>
-          
-          <div className="space-y-6">
+    <PageLayout title="Transactions">
+      <div className="space-y-6">
             {/* Filters Section */}
             <div className="flex flex-col md:flex-row gap-4">
               {/* From Date */}
@@ -152,9 +147,7 @@ export default function TransactionsPage() {
                 </tbody>
               </table>
             </div>
-          </div>
-        </div>
-      </SlideUpAnimation>
-    </div>
+      </div>
+    </PageLayout>
   );
 }

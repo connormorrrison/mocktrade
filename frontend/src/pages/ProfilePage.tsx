@@ -1,9 +1,9 @@
 import { SecondaryButton } from "@/components/secondary-button";
+import { PrimaryButton } from "@/components/primary-button";
 import { TextField } from "@/components/text-field";
 import { SecondaryTitle } from "@/components/secondary-title";
-import { PrimaryTitle } from "@/components/primary-title";
 import { TertiaryTitle } from "@/components/tertiary-title";
-import SlideUpAnimation from "@/components/slide-up-animation";
+import { PageLayout } from "@/components/page-layout";
 import { Lock, Settings2, Trash2 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -23,47 +23,44 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="w-full" style={{ marginTop: '0px' }}>
-      <SlideUpAnimation>
-        <div className="p-6">
-          <PrimaryTitle>Profile</PrimaryTitle>
-          
-          <div className="space-y-6">
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-start sm:justify-between mb-6 gap-4">
-              <SecondaryButton>
-                <Settings2 size={20} className="flex-shrink-0" />
-                Edit Profile
-              </SecondaryButton>
-            </div>
-
+    <PageLayout title="Profile">
+      <div className="space-y-6">
             {/* Personal Information */}
             <div>
               <SecondaryTitle>Personal Information</SecondaryTitle>
+              
+              {/* Edit Profile Button */}
+              <div className="flex sm:flex-row items-start sm:items-center justify-start sm:justify-between mb-4">
+                <SecondaryButton>
+                  <Settings2 />
+                  Edit Profile
+                </SecondaryButton>
+              </div>
+              
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <TertiaryTitle className="mb-2">First Name</TertiaryTitle>
+                  <TertiaryTitle>First Name</TertiaryTitle>
                   <TextField
                     value={profile.first_name}
                     disabled
                   />
                 </div>
                 <div>
-                  <TertiaryTitle className="mb-2">Last Name</TertiaryTitle>
+                  <TertiaryTitle>Last Name</TertiaryTitle>
                   <TextField
                     value={profile.last_name}
                     disabled
                   />
                 </div>
                 <div>
-                  <TertiaryTitle className="mb-2">Email</TertiaryTitle>
+                  <TertiaryTitle>Email</TertiaryTitle>
                   <TextField
                     value={profile.email}
                     disabled
                   />
                 </div>
                 <div>
-                  <TertiaryTitle className="mb-2">Username</TertiaryTitle>
+                  <TertiaryTitle>Username</TertiaryTitle>
                   <TextField
                     value={profile.username}
                     disabled
@@ -72,11 +69,22 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            {/* Security */}
+            <div>
+              <SecondaryTitle>Security</SecondaryTitle>
+              <div className="space-y-4">
+                <SecondaryButton>
+                  <Lock />
+                  Change Password
+                </SecondaryButton>
+              </div>
+            </div>
+
             {/* Account Details */}
             <div>
               <SecondaryTitle>Account Details</SecondaryTitle>
               <div>
-                <TertiaryTitle className="mb-2">Joined</TertiaryTitle>
+                <TertiaryTitle>Joined</TertiaryTitle>
                 <p className="text-lg">
                   {new Date(profile.created_at).toLocaleDateString('en-US', {
                     month: 'long',
@@ -87,28 +95,15 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Security */}
-            <div>
-              <SecondaryTitle>Security</SecondaryTitle>
-              <div className="space-y-4">
-                <SecondaryButton>
-                  <Lock size={20} className="flex-shrink-0" />
-                  Change Password
-                </SecondaryButton>
-              </div>
-            </div>
-
             {/* Danger Zone */}
             <div>
-              <SecondaryTitle className="!text-red-600">Delete Account</SecondaryTitle>
-              <SecondaryButton onClick={handleDeleteAccount} className="!border-red-600 !text-red-600 hover:!bg-red-200">
-                <Trash2 size={20} className="flex-shrink-0" />
+              <SecondaryTitle>Delete Account</SecondaryTitle>
+              <PrimaryButton onClick={handleDeleteAccount} className="!bg-red-600 hover:!bg-red-700">
+                <Trash2 />
                 Delete Account
-              </SecondaryButton>
+              </PrimaryButton>
             </div>
-          </div>
-        </div>
-      </SlideUpAnimation>
-    </div>
+      </div>
+    </PageLayout>
   );
 }
