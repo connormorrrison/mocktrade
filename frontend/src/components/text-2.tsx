@@ -1,16 +1,16 @@
 import React from "react"
 import { cn } from "@/lib/utils"
 
-interface SecondaryTitleProps extends React.LabelHTMLAttributes<HTMLLabelElement> {
+interface Text2Props extends React.LabelHTMLAttributes<HTMLLabelElement> {
   children: React.ReactNode
   className?: string
 }
 
-export const SecondaryTitle = ({ children, className, ...props }: SecondaryTitleProps) => {
+export const Text2 = ({ children, className, ...props }: Text2Props) => {
   return (
     <label
       className={cn(
-        "block text-xl font-normal text-white mb-2",
+        "block text-2xl font-semibold text-white",
         className
       )}
       {...props}

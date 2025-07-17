@@ -1,12 +1,12 @@
 import React from "react"
 import { cn } from "@/lib/utils"
 
-interface PrimaryTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
+interface Title1Props extends React.HTMLAttributes<HTMLHeadingElement> {
   children: React.ReactNode
   className?: string
 }
 
-export const PrimaryTitle = ({ children, className, ...props }: PrimaryTitleProps) => {
+export const Title1 = ({ children, className, ...props }: Title1Props) => {
   return (
     <h2
       className={cn(

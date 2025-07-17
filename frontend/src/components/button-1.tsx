@@ -1,13 +1,13 @@
 import React from "react"
 import { cn } from "@/lib/utils"
 
-interface PrimaryButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface Button1Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode
   className?: string
   variant?: 'primary' | 'secondary'
 }
 
-export const PrimaryButton = ({ children, className, variant = 'primary', disabled, ...props }: PrimaryButtonProps) => {
+export const Button1 = ({ children, className, variant = 'primary', disabled, ...props }: Button1Props) => {
   return (
     <button 
       className={cn(

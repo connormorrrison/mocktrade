@@ -1,11 +1,13 @@
 import { Tile } from "@/components/tile";
-import { SecondaryTitle } from "@/components/secondary-title";
-import { SecondaryText } from "@/components/secondary-text";
-import { TertiaryTitle } from "@/components/tertiary-title";
-import { TertiaryText } from "@/components/tertiary-text";
+import { Title2 } from "@/components/title-2";
+import { Text3 } from "@/components/text-3";
+import { Title3 } from "@/components/title-3";
+import { Text4 } from "@/components/text-4";
+import { Text2 } from "@/components/text-2";
 import { PageLayout } from "@/components/page-layout";
+import { MarketStatus } from "@/components/market-status";
 import { TrendingUp, Wallet, FileText } from "lucide-react";
-import { PrimaryButton } from "@/components/primary-button";
+import { Button1 } from "@/components/button-1";
 
 export default function HomePage() {
   // Mock market data
@@ -44,54 +46,49 @@ export default function HomePage() {
       <div className="space-y-6">
             {/* Welcome Section */}
             <Tile>
-              <SecondaryText>Welcome back, Sam</SecondaryText>
-              <TertiaryText>
+              <Text3>Welcome back, Sam</Text3>
+              <Text4>
                 Today is {new Date().toLocaleDateString('en-US', {
                   weekday: 'long',
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
                 })}
-              </TertiaryText>
+              </Text4>
             </Tile>
 
             {/* Quick Actions */}
             <div>
-              <SecondaryTitle>Quick Actions</SecondaryTitle>
+              <Title2>Quick Actions</Title2>
               <div className="flex flex-wrap gap-4">
-                <PrimaryButton>
+                <Button1>
                   <TrendingUp />
                   Trade Now
-                </PrimaryButton>
-                <PrimaryButton>
+                </Button1>
+                <Button1>
                   <Wallet />
                   View Portfolio
-                </PrimaryButton>
-                <PrimaryButton>
+                </Button1>
+                <Button1>
                   <FileText />
                   View Transactions
-                </PrimaryButton>
+                </Button1>
               </div>
             </div>
 
             {/* Market Overview */}
             <div>
-              <SecondaryTitle>Market Overview</SecondaryTitle>
-              <div className="flex items-center gap-2 mb-4">
-                <div className={`h-3 w-3 rounded-full ${marketData.isOpen ? "bg-green-500" : "bg-red-500"}`} />
-                <TertiaryText className={`${marketData.isOpen ? "text-green-600" : "text-red-600"}`}>
-                  {marketData.isOpen ? "Market Open" : "Market Closed"}
-                </TertiaryText>
-              </div>
+              <Title2>Market Overview</Title2>
+              <MarketStatus className="mb-4" />
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {marketData.indices.map((index, i) => (
                   <Tile key={i}>
                     <div className="text-left">
-                      <SecondaryText>{index.symbol} ({index.ticker})</SecondaryText>
-                      <SecondaryText>{formatMoney(index.value)}</SecondaryText>
-                      <TertiaryText className={`${index.change >= 0 ? "text-green-600" : "text-red-600"}`}>
+                      <Text3>{index.symbol} ({index.ticker})</Text3>
+                      <Text2>{formatMoney(index.value)}</Text2>
+                      <Text4 className={`${index.change >= 0 ? "text-green-600" : "text-red-600"}`}>
                         {index.change >= 0 ? "+" : ""}{index.change.toFixed(2)} ({index.percent >= 0 ? "+" : ""}{index.percent.toFixed(2)}%)
-                      </TertiaryText>
+                      </Text4>
                     </div>
                   </Tile>
                 ))}
@@ -100,16 +97,16 @@ export default function HomePage() {
 
             {/* Market Movers */}
             <div>
-              <SecondaryTitle>Market Movers</SecondaryTitle>
+              <Title2>Market Movers</Title2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Top Gainers */}
                 <div>
-                  <TertiaryTitle>Top Gainers</TertiaryTitle>
+                  <Title3>Top Gainers</Title3>
                   <div className="space-y-2">
                     {marketMovers.gainers.map((stock, i) => (
                       <Tile key={i}>
                         <div className="flex justify-between items-center">
-                          <SecondaryText>{stock.symbol}</SecondaryText>
+                          <Text3>{stock.symbol}</Text3>
                           <span className="text-base text-green-600 font-medium">+{stock.change.toFixed(2)}%</span>
                         </div>
                       </Tile>
@@ -119,12 +116,12 @@ export default function HomePage() {
 
                 {/* Top Losers */}
                 <div>
-                  <TertiaryTitle>Top Losers</TertiaryTitle>
+                  <Title3>Top Losers</Title3>
                   <div className="space-y-2">
                     {marketMovers.losers.map((stock, i) => (
                       <Tile key={i}>
                         <div className="flex justify-between items-center">
-                          <SecondaryText>{stock.symbol}</SecondaryText>
+                          <Text3>{stock.symbol}</Text3>
                           <span className="text-base text-red-600 font-medium">{stock.change.toFixed(2)}%</span>
                         </div>
                       </Tile>

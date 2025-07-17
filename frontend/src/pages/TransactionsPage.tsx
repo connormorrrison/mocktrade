@@ -7,8 +7,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
-import { TertiaryTitle } from "@/components/tertiary-title";
-import { SecondaryButton } from "@/components/secondary-button";
+import { Title3 } from "@/components/title-3";
+import { Button2 } from "@/components/button-2";
 import { PageLayout } from "@/components/page-layout";
 
 export default function TransactionsPage() {
@@ -99,10 +99,10 @@ export default function TransactionsPage() {
 
               {/* Export Button */}
               <div className="flex flex-col gap-3 w-full sm:w-auto sm:mt-2 md:mt-0">
-                <TertiaryTitle className="px-1">Export</TertiaryTitle>
-                <SecondaryButton className="w-full sm:w-auto">
+                <Title3 className="px-1">Export</Title3>
+                <Button2 className="w-full sm:w-auto">
                   Export
-                </SecondaryButton>
+                </Button2>
               </div>
             </div>
 

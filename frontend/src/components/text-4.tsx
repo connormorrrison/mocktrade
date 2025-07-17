@@ -1,16 +1,16 @@
 import React from "react"
 import { cn } from "@/lib/utils"
 
-interface TertiaryTitleProps extends React.HTMLAttributes<HTMLParagraphElement> {
+interface Text4Props extends React.HTMLAttributes<HTMLParagraphElement> {
   children: React.ReactNode
   className?: string
 }
 
-export const TertiaryTitle = ({ children, className, ...props }: TertiaryTitleProps) => {
+export const Text4 = ({ children, className, ...props }: Text4Props) => {
   return (
     <p
       className={cn(
-        "block text-base font-normal text-zinc-400 mb-2",
+        "block text-base font-normal text-zinc-400",
         className
       )}
       {...props}

@@ -1,7 +1,7 @@
 import { Tile } from "@/components/tile";
-import { SecondaryTitle } from "@/components/secondary-title";
-import { TertiaryTitle } from "@/components/tertiary-title";
-import { PrimaryButton } from "@/components/primary-button";
+import { Title2 } from "@/components/title-2";
+import { Title3 } from "@/components/title-3";
+import { Button1 } from "@/components/button-1";
 import { PageLayout } from "@/components/page-layout";
 import { PortfolioChart } from "@/components/portfolio-chart";
 import { useState } from "react";
@@ -63,22 +63,22 @@ export default function PortfolioPage() {
       <div className="space-y-6">
             {/* Account Summary */}
             <div className="space-y-2">
-              <SecondaryTitle>Account Summary</SecondaryTitle>
+              <Title2>Account Summary</Title2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
-                  <TertiaryTitle>Total Portfolio Value</TertiaryTitle>
+                  <Title3>Total Portfolio Value</Title3>
                   <p className="text-4xl font-semibold">
                     {formatMoney(totalPortfolioValue)}
                   </p>
                 </div>
                 <div>
-                  <TertiaryTitle>Cash Balance</TertiaryTitle>
+                  <Title3>Cash Balance</Title3>
                   <p className="text-2xl font-semibold">
                     {formatMoney(cashBalance)}
                   </p>
                 </div>
                 <div>
-                  <TertiaryTitle>Cumulative Return (1mo)</TertiaryTitle>
+                  <Title3>Cumulative Return (1mo)</Title3>
                   <p className={`text-2xl font-semibold ${cumulativeReturn >= 0 ? "text-green-600" : "text-red-600"}`}>
                     {cumulativeReturn >= 0 ? `+${cumulativeReturn.toFixed(2)}%` : `${cumulativeReturn.toFixed(2)}%`}
                   </p>
@@ -88,7 +88,7 @@ export default function PortfolioPage() {
 
             {/* Portfolio History Section */}
             <div>
-              <SecondaryTitle>Performance</SecondaryTitle>
+              <Title2>Performance</Title2>
               <div className="flex flex-col gap-3 mb-4 w-full sm:w-fit">
                 <label className="text-base text-zinc-400 px-1">Filter</label>
                 <DropdownMenu>
@@ -122,14 +122,14 @@ export default function PortfolioPage() {
               <Tile>
                 <PortfolioChart />
               </Tile>
-              <TertiaryTitle className="mt-2">
+              <Title3 className="mt-2">
                 Note: Historical data includes only completed trading days.
-              </TertiaryTitle>
+              </Title3>
             </div>
 
             {/* Holdings */}
             <div>
-              <SecondaryTitle className="pb-2">Holdings</SecondaryTitle>
+              <Title2 className="pb-2">Holdings</Title2>
               <div className="space-y-6">
                 {positions.map((pos) => {
                   const effectivePurchasePrice = pos.price_at_selected_range || pos.average_price;
@@ -151,28 +151,28 @@ export default function PortfolioPage() {
                         {/* Symbol & Shares */}
                         <div className="lg:flex-1">
                           <p className="text-lg font-medium ml-2">{pos.symbol}</p>
-                          <TertiaryTitle className="ml-2">
+                          <Title3 className="ml-2">
                             {pos.shares} {pos.shares === 1 ? "share" : "shares"}
-                          </TertiaryTitle>
+                          </Title3>
                         </div>
 
                         {/* Mobile grid for data */}
                         <div className="grid grid-cols-2 lg:contents gap-4">
                           {/* Current Price */}
                           <div className="text-left lg:text-right">
-                            <TertiaryTitle>Current Price</TertiaryTitle>
+                            <Title3>Current Price</Title3>
                             <p className="font-medium">{formatMoney(pos.current_price)}</p>
                           </div>
 
                           {/* Current Value */}
                           <div className="text-left lg:text-right">
-                            <TertiaryTitle>Current Value</TertiaryTitle>
+                            <Title3>Current Value</Title3>
                             <p className="font-medium">{formatMoney(currentValue)}</p>
                           </div>
 
                           {/* Gain */}
                           <div className="text-left lg:text-right">
-                            <TertiaryTitle>Gain (1mo)</TertiaryTitle>
+                            <Title3>Gain (1mo)</Title3>
                             <p className={`font-medium ${gainSinceRange >= 0 ? "text-green-600" : "text-red-600"}`}>
                               {gainSinceRange >= 0 ? "+" : ""}{formatMoney(gainSinceRange)}{" "}
                               <span className={`font-medium ${gainSinceRange >= 0 ? "text-green-600" : "text-red-600"}`}>
@@ -183,7 +183,7 @@ export default function PortfolioPage() {
 
                           {/* Daily P/L */}
                           <div className="text-left lg:text-right">
-                            <TertiaryTitle>Daily P/L</TertiaryTitle>
+                            <Title3>Daily P/L</Title3>
                             <p className={`font-medium ${dailyPL >= 0 ? "text-green-600" : "text-red-600"}`}>
                               {dailyPL >= 0 ? "+" : ""}{formatMoney(dailyPL)}{" "}
                               <span className={`font-medium ${dailyPL >= 0 ? "text-green-600" : "text-red-600"}`}>
@@ -195,9 +195,9 @@ export default function PortfolioPage() {
 
                         {/* Trade Button */}
                         <div className="text-left lg:text-right">
-                          <PrimaryButton>
+                          <Button1>
                             Trade
-                          </PrimaryButton>
+                          </Button1>
                         </div>
                       </div>
                     </Tile>

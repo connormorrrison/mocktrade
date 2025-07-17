@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Tile } from "@/components/tile";
 import { TextField } from "@/components/text-field";
-import { SecondaryTitle } from "@/components/secondary-title";
-import { TertiaryTitle } from "@/components/tertiary-title";
-import { SecondaryButton } from "@/components/secondary-button";
-import { PrimaryButton } from "@/components/primary-button";
+import { Title2 } from "@/components/title-2";
+import { Text4 } from "@/components/text-4";
+import { Text2 } from "@/components/text-2";
+import { Button2 } from "@/components/button-2";
+import { Button1 } from "@/components/button-1";
 import { PageLayout } from "@/components/page-layout";
+import { MarketStatus } from "@/components/market-status";
 import { Search } from "lucide-react";
 
 export default function TradePage() {
@@ -31,18 +33,18 @@ export default function TradePage() {
       <div className="space-y-6">
             {/* Search Section */}
             <div>
-              <SecondaryTitle>Search</SecondaryTitle>
-              <div className="flex sm:flex-row gap-2">
+              <Title2>Search</Title2>
+              <div className="flex sm:flex-row gap-4">
                 <TextField
                   className="flex-1"
                   placeholder="Enter symbol (e.g., AAPL)"
                   value={symbol}
                   readOnly
                 />
-                <SecondaryButton>
+                <Button2>
                   <Search />
                   Search
-                </SecondaryButton>
+                </Button2>
               </div>
             </div>
 
@@ -50,23 +52,20 @@ export default function TradePage() {
             <Tile>
               <div className="flex sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
-                  <TertiaryTitle>
+                  <Text4>
                     Market Price for {symbol}
-                  </TertiaryTitle>
-                  <p className="text-2xl font-semibold">
+                  </Text4>
+                  <Text2>
                     {formatMoney(price)}
-                  </p>
-                  <TertiaryTitle>
+                  </Text2>
+                  <Text4>
                     You own {sharesOwned.toLocaleString()} shares of {symbol}
-                  </TertiaryTitle>
+                  </Text4>
                 </div>
                 <div className="text-left sm:text-right">
-                  <TertiaryTitle>Status</TertiaryTitle>
-                  <div className="flex items-center justify-end">
-                    <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse mr-2" />
-                    <p className="text-base text-green-600 font-medium animate-pulse">
-                      Live
-                    </p>
+                  <Text4>Status</Text4>
+                  <div className="flex justify-end">
+                    <MarketStatus />
                   </div>
                 </div>
               </div>
@@ -74,28 +73,28 @@ export default function TradePage() {
 
             {/* Action Section */}
             <div>
-              <SecondaryTitle>Action</SecondaryTitle>
-              <div className="flex sm:flex-row gap-2">
-                <PrimaryButton 
+              <Title2>Action</Title2>
+              <div className="flex sm:flex-row gap-4">
+                <Button1 
                   onClick={() => setAction('buy')}
                   className="flex-1"
                   variant={action === 'buy' ? 'primary' : 'secondary'}
                 >
                   Buy
-                </PrimaryButton>
-                <PrimaryButton 
+                </Button1>
+                <Button1 
                   onClick={() => setAction('sell')}
                   className="flex-1"
                   variant={action === 'sell' ? 'primary' : 'secondary'}
                 >
                   Sell
-                </PrimaryButton>
+                </Button1>
               </div>
             </div>
 
             {/* Quantity Input */}
             <div>
-              <SecondaryTitle>Quantity</SecondaryTitle>
+              <Title2>Quantity</Title2>
               <TextField
                 type="number"
                 value={quantity}
@@ -105,24 +104,24 @@ export default function TradePage() {
 
             {/* Order Summary */}
             <div>
-              <SecondaryTitle>Order Preview</SecondaryTitle>
+              <Title2>Order Preview</Title2>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <TertiaryTitle>Order</TertiaryTitle>
+                  <Text4>Order</Text4>
                   <span className="text-base font-medium">
                     {action === 'buy' ? 'Buy' : 'Sell'} {Number(quantity).toLocaleString()} shares at Market
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <TertiaryTitle>Price per Share</TertiaryTitle>
+                  <Text4>Price per Share</Text4>
                   <span className="text-base font-medium">{formatMoney(price)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <TertiaryTitle>Cash Available</TertiaryTitle>
+                  <Text4>Cash Available</Text4>
                   <span className="text-base font-medium">{formatMoney(availableCash)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <TertiaryTitle>Total Value</TertiaryTitle>
+                  <Text4>Total Value</Text4>
                   <span className="text-xl font-medium">
                     {formatMoney(price * Number(quantity))}
                   </span>
@@ -131,9 +130,9 @@ export default function TradePage() {
             </div>
 
             {/* Submit Order Button */}
-            <PrimaryButton className="w-full" disabled>
+            <Button1 className="w-full" disabled>
               Submit Order
-            </PrimaryButton>
+            </Button1>
       </div>
     </PageLayout>
   );

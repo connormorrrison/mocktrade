@@ -1,12 +1,12 @@
 import React from "react"
 import { cn } from "@/lib/utils"
 
-interface SecondaryButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface Button2Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode
   className?: string
 }
 
-export const SecondaryButton = ({ children, className, ...props }: SecondaryButtonProps) => {
+export const Button2 = ({ children, className, ...props }: Button2Props) => {
   return (
     <button 
       className={cn(

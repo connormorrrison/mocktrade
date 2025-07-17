@@ -1,5 +1,5 @@
-import { ReactNode } from "react";
-import { PrimaryTitle } from "@/components/primary-title";
+import { type ReactNode } from "react";
+import { Title1 } from "@/components/title-1";
 import SlideUpAnimation from "@/components/slide-up-animation";
 
 interface PageLayoutProps {
@@ -12,7 +12,7 @@ export function PageLayout({ title, children }: PageLayoutProps) {
     <div className="w-full">
       <SlideUpAnimation>
         <div className="p-6">
-          <PrimaryTitle>{title}</PrimaryTitle>
+          <Title1>{title}</Title1>
           {children}
         </div>
       </SlideUpAnimation>

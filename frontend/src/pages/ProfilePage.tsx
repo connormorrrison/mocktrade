@@ -1,8 +1,8 @@
-import { SecondaryButton } from "@/components/secondary-button";
-import { PrimaryButton } from "@/components/primary-button";
+import { Button2 } from "@/components/button-2";
+import { Button1 } from "@/components/button-1";
 import { TextField } from "@/components/text-field";
-import { SecondaryTitle } from "@/components/secondary-title";
-import { TertiaryTitle } from "@/components/tertiary-title";
+import { Title2 } from "@/components/title-2";
+import { Title3 } from "@/components/title-3";
 import { PageLayout } from "@/components/page-layout";
 import { Lock, Settings2, Trash2 } from "lucide-react";
 
@@ -27,40 +27,40 @@ export default function ProfilePage() {
       <div className="space-y-6">
             {/* Personal Information */}
             <div>
-              <SecondaryTitle>Personal Information</SecondaryTitle>
+              <Title2>Personal Information</Title2>
               
               {/* Edit Profile Button */}
               <div className="flex sm:flex-row items-start sm:items-center justify-start sm:justify-between mb-4">
-                <SecondaryButton>
+                <Button2>
                   <Settings2 />
                   Edit Profile
-                </SecondaryButton>
+                </Button2>
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <TertiaryTitle>First Name</TertiaryTitle>
+                  <Title3>First Name</Title3>
                   <TextField
                     value={profile.first_name}
                     disabled
                   />
                 </div>
                 <div>
-                  <TertiaryTitle>Last Name</TertiaryTitle>
+                  <Title3>Last Name</Title3>
                   <TextField
                     value={profile.last_name}
                     disabled
                   />
                 </div>
                 <div>
-                  <TertiaryTitle>Email</TertiaryTitle>
+                  <Title3>Email</Title3>
                   <TextField
                     value={profile.email}
                     disabled
                   />
                 </div>
                 <div>
-                  <TertiaryTitle>Username</TertiaryTitle>
+                  <Title3>Username</Title3>
                   <TextField
                     value={profile.username}
                     disabled
@@ -71,20 +71,20 @@ export default function ProfilePage() {
 
             {/* Security */}
             <div>
-              <SecondaryTitle>Security</SecondaryTitle>
+              <Title2>Security</Title2>
               <div className="space-y-4">
-                <SecondaryButton>
+                <Button2>
                   <Lock />
                   Change Password
-                </SecondaryButton>
+                </Button2>
               </div>
             </div>
 
             {/* Account Details */}
             <div>
-              <SecondaryTitle>Account Details</SecondaryTitle>
+              <Title2>Account Details</Title2>
               <div>
-                <TertiaryTitle>Joined</TertiaryTitle>
+                <Title3>Joined</Title3>
                 <p className="text-lg">
                   {new Date(profile.created_at).toLocaleDateString('en-US', {
                     month: 'long',
@@ -97,11 +97,11 @@ export default function ProfilePage() {
 
             {/* Danger Zone */}
             <div>
-              <SecondaryTitle>Delete Account</SecondaryTitle>
-              <PrimaryButton onClick={handleDeleteAccount} className="!bg-red-600 hover:!bg-red-700">
+              <Title2>Delete Account</Title2>
+              <Button1 onClick={handleDeleteAccount} className="!bg-red-600 hover:!bg-red-700">
                 <Trash2 />
                 Delete Account
-              </PrimaryButton>
+              </Button1>
             </div>
       </div>
     </PageLayout>

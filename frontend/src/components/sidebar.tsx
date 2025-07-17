@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { Card } from '@/components/ui/card'
-import { SecondaryButton } from '@/components/secondary-button'
+import { Button2 } from '@/components/button-2'
 import { House, Wallet, TrendingUp, FileText, User, LogOut } from 'lucide-react'
 
 export default function Sidebar() {
@@ -53,10 +53,10 @@ export default function Sidebar() {
         
         {/* Logout button at bottom */}
         <div className="mt-4 flex justify-start">
-          <SecondaryButton>
+          <Button2>
             <LogOut className="text-red-600" size={20} />
             Logout
-          </SecondaryButton>
+          </Button2>
         </div>
       </Card>
     </div>
