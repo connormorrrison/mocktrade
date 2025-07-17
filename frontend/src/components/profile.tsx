@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Tile } from "@/components/tile";
+import profileIcon from "@/assets/mocktrade-icon.png";
 
 export default function Profile() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -42,7 +43,7 @@ export default function Profile() {
   }, []);
 
   return (
-    <div className="fixed top-4 right-4 h-16 z-50">
+    <div className="fixed top-8 right-8 h-16 z-50">
       <div 
         className={`h-full transition-[width] duration-300 ${isScrolled ? 'group' : ''}`}
         style={{ 
@@ -62,8 +63,8 @@ export default function Profile() {
       >
         <Tile className="h-full w-full overflow-hidden flex items-center justify-center p-0 px-4 py-4 !bg-zinc-800/55 hover:!bg-zinc-700">
           <div ref={contentRef} className="flex items-center">
-            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-base font-semibold">SM</span>
+            <div className="w-10 h-10 bg-blue-600/8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+              <img src={profileIcon} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
             </div>
             <div 
               className={`text-content flex flex-col overflow-hidden transition-all duration-200 ease-out ${

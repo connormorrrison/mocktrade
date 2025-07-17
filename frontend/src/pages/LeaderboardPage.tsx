@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { ChevronDown, Trophy, Medal, Award } from "lucide-react";
+import { ChevronDown, Trophy } from "lucide-react";
 import { PageLayout } from "@/components/page-layout";
 import { Text2 } from "@/components/text-2";
+import { Text3 } from "@/components/text-3";
 import { Text4 } from "@/components/text-4";
 import { Tile } from "@/components/tile";
 import { Title2 } from "@/components/title-2";
@@ -20,70 +21,90 @@ export default function LeaderboardPage() {
   const leaderboard = [
     {
       rank: 1,
-      username: "TradeKing",
+      firstName: "Alex",
+      lastName: "Johnson",
+      username: "tradeking",
       return_percent: 23.45,
       portfolio_value: 145789.32,
       trades_count: 47,
     },
     {
       rank: 2,
-      username: "StockNinja",
+      firstName: "Sarah",
+      lastName: "Chen",
+      username: "stockninja",
       return_percent: 19.87,
       portfolio_value: 128456.78,
       trades_count: 52,
     },
     {
       rank: 3,
-      username: "BullMarket",
+      firstName: "Mike",
+      lastName: "Rodriguez",
+      username: "bullmarket",
       return_percent: 18.92,
       portfolio_value: 134567.89,
       trades_count: 38,
     },
     {
       rank: 4,
-      username: "OptionsMaster",
+      firstName: "Emma",
+      lastName: "Wilson",
+      username: "optionsmaster",
       return_percent: 16.34,
       portfolio_value: 112890.45,
       trades_count: 63,
     },
     {
       rank: 5,
-      username: "DividendKing",
+      firstName: "David",
+      lastName: "Brown",
+      username: "dividendking",
       return_percent: 15.78,
       portfolio_value: 156789.23,
       trades_count: 29,
     },
     {
       rank: 6,
-      username: "TechInvestor",
+      firstName: "Lisa",
+      lastName: "Martinez",
+      username: "techinvestor",
       return_percent: 14.92,
       portfolio_value: 98765.43,
       trades_count: 41,
     },
     {
       rank: 7,
-      username: "ValueHunter",
+      firstName: "Ryan",
+      lastName: "Taylor",
+      username: "valuehunter",
       return_percent: 13.56,
       portfolio_value: 87654.32,
       trades_count: 35,
     },
     {
       rank: 8,
-      username: "GrowthSeeker",
+      firstName: "Jennifer",
+      lastName: "Anderson",
+      username: "growthseeker",
       return_percent: 12.34,
       portfolio_value: 76543.21,
       trades_count: 28,
     },
     {
       rank: 9,
-      username: "SwingTrader",
+      firstName: "Kevin",
+      lastName: "Thomas",
+      username: "swingtrader",
       return_percent: 11.89,
       portfolio_value: 65432.10,
       trades_count: 67,
     },
     {
       rank: 10,
-      username: "LongTermWin",
+      firstName: "Amanda",
+      lastName: "Garcia",
+      username: "longtermwin",
       return_percent: 10.45,
       portfolio_value: 54321.09,
       trades_count: 19,
@@ -93,7 +114,9 @@ export default function LeaderboardPage() {
   // Current user's position (mock data)
   const currentUserRank = {
     rank: 15,
-    username: "You",
+    firstName: "Sam",
+    lastName: "Davis",
+    username: "you",
     return_percent: 8.76,
     portfolio_value: 42345.67,
     trades_count: 24,
@@ -109,13 +132,13 @@ export default function LeaderboardPage() {
   function getRankIcon(rank: number) {
     switch (rank) {
       case 1:
-        return <Trophy className="w-6 h-6 text-yellow-500" />;
+        return <Trophy className="w-6 h-6 text-yellow-400" />;
       case 2:
-        return <Medal className="w-6 h-6 text-gray-400" />;
+        return <Trophy className="w-6 h-6 text-gray-400" />;
       case 3:
-        return <Award className="w-6 h-6 text-amber-600" />;
+        return <Trophy className="w-6 h-6 text-amber-600" />;
       default:
-        return <span className="w-6 h-6 flex items-center justify-center text-zinc-400 font-semibold">#{rank}</span>;
+        return <Text3 className="w-6 h-6 flex items-center justify-center">#{rank}</Text3>;
     }
   }
 
@@ -180,24 +203,25 @@ export default function LeaderboardPage() {
               <div className="flex items-center gap-4 lg:ml-2">
                 {getRankIcon(currentUserRank.rank)}
                 <div>
-                  <p className="text-lg font-medium">{currentUserRank.username}</p>
+                  <p className="text-lg font-medium">{currentUserRank.firstName} {currentUserRank.lastName}</p>
+                  <Text4>@{currentUserRank.username}</Text4>
                   <Text4>Rank #{currentUserRank.rank}</Text4>
                 </div>
               </div>
 
               <div>
                 <Text4>Return</Text4>
-                <Text2 className="text-green-600">+{currentUserRank.return_percent.toFixed(2)}%</Text2>
+                <Text4 className="text-green-600">+{currentUserRank.return_percent.toFixed(2)}%</Text4>
               </div>
 
               <div>
                 <Text4>Portfolio Value</Text4>
-                <p className="font-medium">{formatMoney(currentUserRank.portfolio_value)}</p>
+                <Text4>{formatMoney(currentUserRank.portfolio_value)}</Text4>
               </div>
 
               <div className="lg:mr-2">
                 <Text4>Trades</Text4>
-                <p className="font-medium">{currentUserRank.trades_count}</p>
+                <Text4>{currentUserRank.trades_count}</Text4>
               </div>
             </div>
           </Tile>
@@ -213,26 +237,27 @@ export default function LeaderboardPage() {
                   <div className="flex items-center gap-4 lg:ml-2">
                     {getRankIcon(user.rank)}
                     <div>
-                      <p className="text-lg font-medium">{user.username}</p>
+                      <p className="text-lg font-medium">{user.firstName} {user.lastName}</p>
+                      <Text4>@{user.username}</Text4>
                       <Text4>Rank #{user.rank}</Text4>
                     </div>
                   </div>
 
                   <div>
                     <Text4>Return</Text4>
-                    <Text2 className={`${user.return_percent >= 0 ? "text-green-600" : "text-red-600"}`}>
+                    <Text4 className={`${user.return_percent >= 0 ? "text-green-600" : "text-red-600"}`}>
                       {user.return_percent >= 0 ? "+" : ""}{user.return_percent.toFixed(2)}%
-                    </Text2>
+                    </Text4>
                   </div>
 
                   <div>
                     <Text4>Portfolio Value</Text4>
-                    <p className="font-medium">{formatMoney(user.portfolio_value)}</p>
+                    <Text4>{formatMoney(user.portfolio_value)}</Text4>
                   </div>
 
                   <div className="lg:mr-2">
                     <Text4>Trades</Text4>
-                    <p className="font-medium">{user.trades_count}</p>
+                    <Text4>{user.trades_count}</Text4>
                   </div>
                 </div>
               </Tile>

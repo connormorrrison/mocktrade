@@ -24,7 +24,7 @@ export default function Sidebar() {
           w-52 p-4 rounded-xl !border-[oklch(1_0_0_/_10%)] dark:bg-input/30 shadow-none
         "
         style={{
-          height: 'calc(100vh - 64px)',
+          height: 'calc(100vh - 144px)',
           marginTop: '32px',
           marginLeft: '32px'
         }}

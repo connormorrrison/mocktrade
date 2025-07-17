@@ -45,7 +45,7 @@ export default function HomePage() {
     <PageLayout title="Home">
       <div className="space-y-6">
             {/* Welcome Section */}
-            <Tile>
+            <div>
               <Text3>Welcome back, Sam</Text3>
               <Text4>
                 Today is {new Date().toLocaleDateString('en-US', {
@@ -55,7 +55,7 @@ export default function HomePage() {
                   day: 'numeric'
                 })}
               </Text4>
-            </Tile>
+            </div>
 
             {/* Quick Actions */}
             <div>

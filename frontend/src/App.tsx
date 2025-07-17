@@ -10,6 +10,7 @@ import WatchlistPage from "@/pages/WatchlistPage"
 import LeaderboardPage from "@/pages/LeaderboardPage"
 import TransactionsPage from "@/pages/TransactionsPage"
 import ProfilePage from "@/pages/ProfilePage"
+import logo from "@/assets/mocktrade-logo.png"
 
 function App() {
   return (
@@ -17,7 +18,12 @@ function App() {
       <UserProvider>
         <BrowserRouter>
           <div className="grid grid-cols-[auto_1fr] h-screen">
-            <Sidebar />
+            <div className="flex flex-col">
+              <div className="flex justify-center" style={{ marginLeft: '32px', marginTop: '32px' }}>
+                <img src={logo} alt="MockTrade" className="h-12 w-auto" />
+              </div>
+              <Sidebar />
+            </div>
             <main className="flex justify-center items-start py-8 overflow-y-auto relative" style={{ width: 'calc(100vw - 256px)', paddingLeft: '32px', paddingRight: '16px' }}>
               <Profile />
               <div style={{ width: 'calc(100vw - 32px)' }}>
