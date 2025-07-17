@@ -6,6 +6,7 @@ import { PortfolioChart } from "@/components/portfolio-chart";
 import { Text1 } from "@/components/text-1";
 import { Text2 } from "@/components/text-2";
 import { Text4 } from "@/components/text-4";
+import { Text5 } from "@/components/text-5";
 import { Tile } from "@/components/tile";
 import { Title2 } from "@/components/title-2";
 import { Title3 } from "@/components/title-3";
@@ -90,11 +91,7 @@ export default function PortfolioPage() {
             </div>
             <div>
               <Text4>Cumulative Return (1mo)</Text4>
-              <Text2
-                className={`${
-                  cumulativeReturn >= 0 ? "text-green-600" : "text-red-600"
-                }`}
-              >
+              <Text2 variant={cumulativeReturn >= 0 ? "green" : "red"}>
                 {cumulativeReturn >= 0
                   ? `+${cumulativeReturn.toFixed(2)}%`
                   : `${cumulativeReturn.toFixed(2)}%`}
@@ -257,68 +254,42 @@ export default function PortfolioPage() {
                     {/* CHANGE: Removed `lg:text-center` to make text left-aligned. */}
                     <div>
                       <Text4>Current Price</Text4>
-                      <p className="font-medium">
+                      <Text5>
                         {formatMoney(pos.current_price)}
-                      </p>
+                      </Text5>
                     </div>
 
                     {/* CHANGE: Removed `lg:text-center` to make text left-aligned. */}
                     <div>
                       <Text4>Current Value</Text4>
-                      <p className="font-medium">
+                      <Text5>
                         {formatMoney(currentValue)}
-                      </p>
+                      </Text5>
                     </div>
 
                     {/* CHANGE: Removed `lg:text-center` to make text left-aligned. */}
                     <div>
                       <Text4>Gain ({filterLabels[selectedFilter]})</Text4>
-                      <p
-                        className={`font-medium ${
-                          gainSinceRange >= 0
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
+                      <Text5 variant={gainSinceRange >= 0 ? "green" : "red"}>
                         {gainSinceRange >= 0 ? "+" : ""}
                         {formatMoney(gainSinceRange)}{" "}
-                        <span
-                          className={`font-medium ${
-                            gainSinceRange >= 0
-                              ? "text-green-600"
-                              : "text-red-600"
-                          }`}
-                        >
-                          (
-                          {gainPercentSinceRange >= 0
-                            ? "+"
-                            : ""}
-                          {gainPercentSinceRange.toFixed(2)}
-                          %)
-                        </span>
-                      </p>
+                        (
+                        {gainPercentSinceRange >= 0 ? "+" : ""}
+                        {gainPercentSinceRange.toFixed(2)}
+                        %)
+                      </Text5>
                     </div>
 
                     {/* CHANGE: Removed `lg:text-center` to make text left-aligned. */}
                     <div>
                       <Text4>Daily P/L</Text4>
-                      <p
-                        className={`font-medium ${
-                          dailyPL >= 0 ? "text-green-600" : "text-red-600"
-                        }`}
-                      >
+                      <Text5 variant={dailyPL >= 0 ? "green" : "red"}>
                         {dailyPL >= 0 ? "+" : ""}
                         {formatMoney(dailyPL)}{" "}
-                        <span
-                          className={`font-medium ${
-                            dailyPL >= 0 ? "text-green-600" : "text-red-600"
-                          }`}
-                        >
-                          ({dailyPercent >= 0 ? "+" : ""}
-                          {dailyPercent.toFixed(2)}
-                          %)
-                        </span>
-                      </p>
+                        ({dailyPercent >= 0 ? "+" : ""}
+                        {dailyPercent.toFixed(2)}
+                        %)
+                      </Text5>
                     </div>
 
                     <div className="lg:mr-2">

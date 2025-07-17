@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Tile } from "@/components/tile";
+import { Text4 } from "@/components/text-4";
+import { Text5 } from "@/components/text-5";
 import profileIcon from "@/assets/mocktrade-icon.png";
 
 export default function Profile() {
@@ -71,8 +73,8 @@ export default function Profile() {
                 isScrolled ? 'w-0 opacity-0 ml-0 scale-95 group-hover:w-auto group-hover:opacity-100 group-hover:ml-3 group-hover:scale-100' : 'w-auto opacity-100 ml-3 scale-100'
               }`}
             >
-              <span className="text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">Sam Smith</span>
-              <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">@samsmith</span>
+              <Text5 className="whitespace-nowrap">Sam Smith</Text5>
+              <Text4 className="whitespace-nowrap text-sm">@samsmith</Text4>
             </div>
           </div>
         </Tile>

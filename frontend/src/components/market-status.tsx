@@ -1,4 +1,4 @@
-import { Text4 } from "@/components/text-4";
+import { Text5 } from "@/components/text-5";
 
 interface MarketStatusProps {
   className?: string;
@@ -19,9 +19,9 @@ export function MarketStatus({ className }: MarketStatusProps) {
   return (
     <div className={`flex items-center gap-2 ${className || ""}`}>
       <div className={`h-3 w-3 rounded-full ${isOpen ? "bg-green-600 animate-pulse" : "bg-red-600"}`} />
-      <Text4 className={`${isOpen ? "text-green-600 animate-pulse" : "text-red-600"}`}>
+      <Text5 variant={isOpen ? "green" : "red"} className={isOpen ? "animate-pulse" : ""}>
         {isOpen ? "Market Open" : "Market Closed"}
-      </Text4>
+      </Text5>
     </div>
   );
 }

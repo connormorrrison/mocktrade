@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { ChevronDown, Trophy } from "lucide-react";
 import { PageLayout } from "@/components/page-layout";
+import { Text1 } from "@/components/text-1";
 import { Text2 } from "@/components/text-2";
 import { Text3 } from "@/components/text-3";
 import { Text4 } from "@/components/text-4";
+import { Text5 } from "@/components/text-5";
 import { Tile } from "@/components/tile";
+import { Title1 } from "@/components/title-1";
 import { Title2 } from "@/components/title-2";
 import { Title3 } from "@/components/title-3";
 import {
@@ -138,7 +141,7 @@ export default function LeaderboardPage() {
       case 3:
         return <Trophy className="w-6 h-6 text-amber-600" />;
       default:
-        return <Text3 className="w-6 h-6 flex items-center justify-center">#{rank}</Text3>;
+        return <Text2 className="w-6 h-6 flex items-center justify-center">#{rank}</Text2>;
     }
   }
 
@@ -199,29 +202,30 @@ export default function LeaderboardPage() {
         <div>
           <Title2>Your Rank</Title2>
           <Tile className="bg-blue-900/20 border-blue-600/30">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div className="flex items-center gap-4 lg:ml-2">
-                {getRankIcon(currentUserRank.rank)}
-                <div>
-                  <p className="text-lg font-medium">{currentUserRank.firstName} {currentUserRank.lastName}</p>
-                  <Text4>@{currentUserRank.username}</Text4>
-                  <Text4>Rank #{currentUserRank.rank}</Text4>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:items-center">
+              <div className="lg:text-left">
+                <div className="flex items-center gap-4 ml-2">
+                  {getRankIcon(currentUserRank.rank)}
+                  <div>
+                    <p className="text-lg font-medium">{currentUserRank.firstName} {currentUserRank.lastName}</p>
+                    <Text4>@{currentUserRank.username}</Text4>
+                  </div>
                 </div>
               </div>
 
               <div>
                 <Text4>Return</Text4>
-                <Text4 className="text-green-600">+{currentUserRank.return_percent.toFixed(2)}%</Text4>
+                <Text5 variant="green">+{currentUserRank.return_percent.toFixed(2)}%</Text5>
               </div>
 
               <div>
                 <Text4>Portfolio Value</Text4>
-                <Text4>{formatMoney(currentUserRank.portfolio_value)}</Text4>
+                <Text5>{formatMoney(currentUserRank.portfolio_value)}</Text5>
               </div>
 
               <div className="lg:mr-2">
                 <Text4>Trades</Text4>
-                <Text4>{currentUserRank.trades_count}</Text4>
+                <Text5>{currentUserRank.trades_count}</Text5>
               </div>
             </div>
           </Tile>
@@ -233,31 +237,32 @@ export default function LeaderboardPage() {
           <div className="space-y-4">
             {leaderboard.map((user) => (
               <Tile key={user.rank}>
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                  <div className="flex items-center gap-4 lg:ml-2">
-                    {getRankIcon(user.rank)}
-                    <div>
-                      <p className="text-lg font-medium">{user.firstName} {user.lastName}</p>
-                      <Text4>@{user.username}</Text4>
-                      <Text4>Rank #{user.rank}</Text4>
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:items-center">
+                  <div className="lg:text-left">
+                    <div className="flex items-center gap-4 ml-2">
+                      {getRankIcon(user.rank)}
+                      <div>
+                        <p className="text-lg font-medium">{user.firstName} {user.lastName}</p>
+                        <Text4>@{user.username}</Text4>
+                      </div>
                     </div>
                   </div>
 
                   <div>
                     <Text4>Return</Text4>
-                    <Text4 className={`${user.return_percent >= 0 ? "text-green-600" : "text-red-600"}`}>
+                    <Text5 variant={user.return_percent >= 0 ? "green" : "red"}>
                       {user.return_percent >= 0 ? "+" : ""}{user.return_percent.toFixed(2)}%
-                    </Text4>
+                    </Text5>
                   </div>
 
                   <div>
                     <Text4>Portfolio Value</Text4>
-                    <Text4>{formatMoney(user.portfolio_value)}</Text4>
+                    <Text5>{formatMoney(user.portfolio_value)}</Text5>
                   </div>
 
                   <div className="lg:mr-2">
                     <Text4>Trades</Text4>
-                    <Text4>{user.trades_count}</Text4>
+                    <Text5>{user.trades_count}</Text5>
                   </div>
                 </div>
               </Tile>

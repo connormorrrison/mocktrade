@@ -5,6 +5,7 @@ import { Button2 } from "@/components/button-2";
 import { PageLayout } from "@/components/page-layout";
 import { Text2 } from "@/components/text-2";
 import { Text4 } from "@/components/text-4";
+import { Text5 } from "@/components/text-5";
 import { TextField } from "@/components/text-field";
 import { Tile } from "@/components/tile";
 import { Title2 } from "@/components/title-2";
@@ -160,29 +161,34 @@ export default function WatchlistPage() {
                 return (
                   <Tile key={stock.symbol}>
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                      <div className="lg:text-left lg:ml-2">
-                        <p className="text-lg font-medium">{stock.symbol}</p>
-                        <Text4>{stock.name}</Text4>
+                      <div className="lg:text-left">
+                        <p className="text-lg font-medium ml-2">{stock.symbol}</p>
+                        <Text4 className="ml-2">{stock.name}</Text4>
                       </div>
 
                       <div>
                         <Text4>Current Price</Text4>
-                        <Text2>{formatMoney(stock.current_price)}</Text2>
+                        <Text5>
+                          {formatMoney(stock.current_price)}
+                        </Text5>
                       </div>
 
                       <div>
                         <Text4>Daily Change</Text4>
-                        <p className={`text-xl font-semibold ${dailyChange >= 0 ? "text-green-600" : "text-red-600"}`}>
-                          {dailyChange >= 0 ? "+" : ""}{formatMoney(dailyChange)}{" "}
-                          <span className={`font-semibold ${dailyChange >= 0 ? "text-green-600" : "text-red-600"}`}>
-                            ({dailyPercent >= 0 ? "+" : ""}{dailyPercent.toFixed(2)}%)
-                          </span>
-                        </p>
+                        <Text5 variant={dailyChange >= 0 ? "green" : "red"}>
+                          {dailyChange >= 0 ? "+" : ""}
+                          {formatMoney(dailyChange)}{" "}
+                          ({dailyPercent >= 0 ? "+" : ""}
+                          {dailyPercent.toFixed(2)}
+                          %)
+                        </Text5>
                       </div>
 
                       <div>
                         <Text4>Market Cap</Text4>
-                        <p className="font-medium">{stock.market_cap}</p>
+                        <Text5>
+                          {stock.market_cap}
+                        </Text5>
                       </div>
 
                       <div className="flex gap-4 lg:mr-2">

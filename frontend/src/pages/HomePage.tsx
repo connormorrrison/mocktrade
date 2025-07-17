@@ -2,17 +2,20 @@ import { TrendingUp, Wallet, FileText } from "lucide-react";
 import { Button1 } from "@/components/button-1";
 import { MarketStatus } from "@/components/market-status";
 import { PageLayout } from "@/components/page-layout";
+import { StockCarousel } from "@/components/stock-carousel";
 import { Text2 } from "@/components/text-2";
 import { Text3 } from "@/components/text-3";
 import { Text4 } from "@/components/text-4";
+import { Text5 } from "@/components/text-5";
 import { Tile } from "@/components/tile";
 import { Title2 } from "@/components/title-2";
 import { Title3 } from "@/components/title-3";
 
 export default function HomePage() {
+
   // Mock market data
   const marketData = {
-    isOpen: false,
+    isOpen: true, // Changed to true to show the pulsating effect
     indices: [
       { symbol: "DOW", ticker: "^DJI", value: 34256.78, change: 89.12, percent: 0.26 },
       { symbol: "S&P 500", ticker: "^GSPC", value: 4456.24, change: 12.34, percent: 0.28 },
@@ -21,18 +24,30 @@ export default function HomePage() {
     ]
   };
 
-  const marketMovers = {
-    gainers: [
-      { symbol: "NVDA", change: 5.67 },
-      { symbol: "AMD", change: 3.45 },
-      { symbol: "TSLA", change: 2.89 }
-    ],
-    losers: [
-      { symbol: "META", change: -2.34 },
-      { symbol: "NFLX", change: -1.78 },
-      { symbol: "PYPL", change: -1.45 }
-    ]
-  };
+  const allGainers = [
+    { symbol: "NVDA", change: 5.67, price: 875.30 },
+    { symbol: "AMD", change: 3.45, price: 142.80 },
+    { symbol: "TSLA", change: 2.89, price: 245.60 },
+    { symbol: "AAPL", change: 2.45, price: 150.25 },
+    { symbol: "MSFT", change: 2.12, price: 378.90 },
+    { symbol: "GOOGL", change: 1.89, price: 2750.80 },
+    { symbol: "AMZN", change: 1.56, price: 3234.50 },
+    { symbol: "NFLX", change: 1.34, price: 456.78 },
+    { symbol: "CRM", change: 1.23, price: 234.56 }
+  ];
+
+
+  const allLosers = [
+    { symbol: "META", change: -2.34, price: 485.20 },
+    { symbol: "NFLX", change: -1.78, price: 567.45 },
+    { symbol: "PYPL", change: -1.45, price: 89.32 },
+    { symbol: "UBER", change: -1.23, price: 45.67 },
+    { symbol: "SNAP", change: -1.12, price: 23.45 },
+    { symbol: "ROKU", change: -0.98, price: 78.90 },
+    { symbol: "COIN", change: -0.87, price: 156.78 },
+    { symbol: "ZOOM", change: -0.76, price: 123.45 },
+    { symbol: "PELOTON", change: -0.65, price: 34.56 }
+  ];
 
   function formatMoney(value: number) {
     return new Intl.NumberFormat('en-US', {
@@ -85,10 +100,12 @@ export default function HomePage() {
                   <Tile key={i}>
                     <div className="text-left">
                       <Text3>{index.symbol} ({index.ticker})</Text3>
-                      <Text2>{formatMoney(index.value)}</Text2>
-                      <Text4 className={`${index.change >= 0 ? "text-green-600" : "text-red-600"}`}>
+                      <Text2 className={marketData.isOpen ? "animate-pulse" : ""}>
+                        {formatMoney(index.value)}
+                      </Text2>
+                      <Text5 variant={index.change >= 0 ? "green" : "red"}>
                         {index.change >= 0 ? "+" : ""}{index.change.toFixed(2)} ({index.percent >= 0 ? "+" : ""}{index.percent.toFixed(2)}%)
-                      </Text4>
+                      </Text5>
                     </div>
                   </Tile>
                 ))}
@@ -98,35 +115,17 @@ export default function HomePage() {
             {/* Market Movers */}
             <div>
               <Title2>Market Movers</Title2>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Top Gainers */}
                 <div>
                   <Title3>Top Gainers</Title3>
-                  <div className="space-y-2">
-                    {marketMovers.gainers.map((stock, i) => (
-                      <Tile key={i}>
-                        <div className="flex justify-between items-center">
-                          <Text3>{stock.symbol}</Text3>
-                          <span className="text-base text-green-600 font-medium">+{stock.change.toFixed(2)}%</span>
-                        </div>
-                      </Tile>
-                    ))}
-                  </div>
+                  <StockCarousel stocks={allGainers} variant="green" />
                 </div>
 
                 {/* Top Losers */}
                 <div>
                   <Title3>Top Losers</Title3>
-                  <div className="space-y-2">
-                    {marketMovers.losers.map((stock, i) => (
-                      <Tile key={i}>
-                        <div className="flex justify-between items-center">
-                          <Text3>{stock.symbol}</Text3>
-                          <span className="text-base text-red-600 font-medium">{stock.change.toFixed(2)}%</span>
-                        </div>
-                      </Tile>
-                    ))}
-                  </div>
+                  <StockCarousel stocks={allLosers} variant="red" />
                 </div>
               </div>
             </div>
