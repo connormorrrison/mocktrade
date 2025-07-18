@@ -1,15 +1,12 @@
 import { useState } from "react";
-import { ChevronDown, Trophy } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { PageLayout } from "@/components/page-layout";
-import { Text1 } from "@/components/text-1";
-import { Text2 } from "@/components/text-2";
-import { Text3 } from "@/components/text-3";
-import { Text4 } from "@/components/text-4";
-import { Text5 } from "@/components/text-5";
-import { Tile } from "@/components/tile";
-import { Title1 } from "@/components/title-1";
 import { Title2 } from "@/components/title-2";
 import { Title3 } from "@/components/title-3";
+import { Text5 } from "@/components/text-5";
+import { Tile } from "@/components/tile";
+import { ProfilePicture } from "@/components/profile-picture";
+import { Countdown } from "@/components/countdown";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,112 +15,37 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export default function LeaderboardPage() {
-  const [timeframe, setTimeframe] = useState("1mo");
+  const [timeframe, setTimeframe] = useState<"Day" | "Week" | "Month" | "All">("Day");
 
-  // Mock leaderboard data
-  const leaderboard = [
-    {
-      rank: 1,
-      firstName: "Alex",
-      lastName: "Johnson",
-      username: "tradeking",
-      return_percent: 23.45,
-      portfolio_value: 145789.32,
-      trades_count: 47,
-    },
-    {
-      rank: 2,
-      firstName: "Sarah",
-      lastName: "Chen",
-      username: "stockninja",
-      return_percent: 19.87,
-      portfolio_value: 128456.78,
-      trades_count: 52,
-    },
-    {
-      rank: 3,
-      firstName: "Mike",
-      lastName: "Rodriguez",
-      username: "bullmarket",
-      return_percent: 18.92,
-      portfolio_value: 134567.89,
-      trades_count: 38,
-    },
-    {
-      rank: 4,
-      firstName: "Emma",
-      lastName: "Wilson",
-      username: "optionsmaster",
-      return_percent: 16.34,
-      portfolio_value: 112890.45,
-      trades_count: 63,
-    },
-    {
-      rank: 5,
-      firstName: "David",
-      lastName: "Brown",
-      username: "dividendking",
-      return_percent: 15.78,
-      portfolio_value: 156789.23,
-      trades_count: 29,
-    },
-    {
-      rank: 6,
-      firstName: "Lisa",
-      lastName: "Martinez",
-      username: "techinvestor",
-      return_percent: 14.92,
-      portfolio_value: 98765.43,
-      trades_count: 41,
-    },
-    {
-      rank: 7,
-      firstName: "Ryan",
-      lastName: "Taylor",
-      username: "valuehunter",
-      return_percent: 13.56,
-      portfolio_value: 87654.32,
-      trades_count: 35,
-    },
-    {
-      rank: 8,
-      firstName: "Jennifer",
-      lastName: "Anderson",
-      username: "growthseeker",
-      return_percent: 12.34,
-      portfolio_value: 76543.21,
-      trades_count: 28,
-    },
-    {
-      rank: 9,
-      firstName: "Kevin",
-      lastName: "Thomas",
-      username: "swingtrader",
-      return_percent: 11.89,
-      portfolio_value: 65432.10,
-      trades_count: 67,
-    },
-    {
-      rank: 10,
-      firstName: "Amanda",
-      lastName: "Garcia",
-      username: "longtermwin",
-      return_percent: 10.45,
-      portfolio_value: 54321.09,
-      trades_count: 19,
-    },
+  // Mock data for top 20 users
+  const topUsers = [
+    { rank: 1, username: "moonwalker2024", return: 23.45, profit: 4230.50 },
+    { rank: 2, username: "cryptoninja47", return: 19.87, profit: 3890.25 },
+    { rank: 3, username: "bullmarket_boss", return: 18.92, profit: 3450.75 },
+    { rank: 4, username: "options_queen", return: 16.34, profit: 3200.40 },
+    { rank: 5, username: "dividend_hunter", return: 15.78, profit: 2980.60 },
+    { rank: 6, username: "tech_wizard92", return: 14.92, profit: 2750.30 },
+    { rank: 7, username: "value_seeker", return: 13.56, profit: 2530.80 },
+    { rank: 8, username: "growth_master", return: 12.34, profit: 2340.50 },
+    { rank: 9, username: "swing_king", return: 11.89, profit: 2180.75 },
+    { rank: 10, username: "hodl_forever", return: 10.45, profit: 1990.25 },
+    { rank: 11, username: "momentum_trader", return: 9.87, profit: 1850.40 },
+    { rank: 12, username: "smart_money23", return: 9.34, profit: 1720.60 },
+    { rank: 13, username: "risk_taker_99", return: 8.92, profit: 1650.30 },
+    { rank: 14, username: "tech_bull_run", return: 8.56, profit: 1580.80 },
+    { rank: 15, username: "steady_eddie", return: 8.23, profit: 1520.50 },
+    { rank: 16, username: "portfolio_pro", return: 7.89, profit: 1450.75 },
+    { rank: 17, username: "chart_analyst", return: 7.56, profit: 1390.25 },
+    { rank: 18, username: "day_trader_x", return: 7.23, profit: 1320.40 },
+    { rank: 19, username: "longterm_gains", return: 6.92, profit: 1250.60 },
+    { rank: 20, username: "trade_master", return: 6.67, profit: 1190.30 },
   ];
 
-  // Current user's position (mock data)
-  const currentUserRank = {
-    rank: 15,
-    firstName: "Sam",
-    lastName: "Davis",
-    username: "you",
-    return_percent: 8.76,
-    portfolio_value: 42345.67,
-    trades_count: 24,
-  };
+  // Sort users by return for Return leaderboard
+  const returnLeaderboard = [...topUsers].sort((a, b) => b.return - a.return);
+
+  // Sort users by profit for Profit leaderboard
+  const profitLeaderboard = [...topUsers].sort((a, b) => b.profit - a.profit);
 
   function formatMoney(value: number) {
     return new Intl.NumberFormat("en-US", {
@@ -132,142 +54,90 @@ export default function LeaderboardPage() {
     }).format(value);
   }
 
-  function getRankIcon(rank: number) {
-    switch (rank) {
-      case 1:
-        return <Trophy className="w-6 h-6 text-yellow-400" />;
-      case 2:
-        return <Trophy className="w-6 h-6 text-gray-400" />;
-      case 3:
-        return <Trophy className="w-6 h-6 text-amber-600" />;
-      default:
-        return <Text2 className="w-6 h-6 flex items-center justify-center">#{rank}</Text2>;
-    }
-  }
-
   return (
     <PageLayout title="Leaderboard">
       <div className="space-y-6">
-        {/* Timeframe Filter */}
-        <div>
-          <Title2>Top Performers</Title2>
-          <div className="flex flex-col mb-4 w-full sm:w-fit">
-            <Title3 className="px-1">Timeframe</Title3>
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center justify-between px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 h-10 focus:!outline-none focus:!ring-0">
-                {timeframe === "1w" && "1 Week"}
-                {timeframe === "1mo" && "1 Month"}
-                {timeframe === "3mo" && "3 Months"}
-                {timeframe === "6mo" && "6 Months"}
-                {timeframe === "1y" && "1 Year"}
-                <ChevronDown className="h-5 w-5 ml-2" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem
-                  onClick={() => setTimeframe("1w")}
-                  className="text-base"
-                >
-                  1 Week
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setTimeframe("1mo")}
-                  className="text-base"
-                >
-                  1 Month
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setTimeframe("3mo")}
-                  className="text-base"
-                >
-                  3 Months
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setTimeframe("6mo")}
-                  className="text-base"
-                >
-                  6 Months
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setTimeframe("1y")}
-                  className="text-base"
-                >
-                  1 Year
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+        <div className="flex flex-col mb-4 w-full sm:w-fit">
+          <Title3 className="px-1">Timeframe</Title3>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center justify-between px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 h-10 focus:!outline-none focus:!ring-0">
+              {timeframe}
+              <ChevronDown className="h-5 w-5 ml-2" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem
+                onClick={() => setTimeframe("Day")}
+                className="text-base"
+              >
+                Day
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setTimeframe("Week")}
+                className="text-base"
+              >
+                Week
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setTimeframe("Month")}
+                className="text-base"
+              >
+                Month
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setTimeframe("All")}
+                className="text-base"
+              >
+                All
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Countdown timeframe={timeframe} className="px-1 mt-2" />
         </div>
 
-        {/* Your Rank */}
-        <div>
-          <Title2>Your Rank</Title2>
-          <Tile className="bg-blue-900/20 border-blue-600/30">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:items-center">
-              <div className="lg:text-left">
-                <div className="flex items-center gap-4 ml-2">
-                  {getRankIcon(currentUserRank.rank)}
-                  <div>
-                    <p className="text-lg font-medium">{currentUserRank.firstName} {currentUserRank.lastName}</p>
-                    <Text4>@{currentUserRank.username}</Text4>
+        {/* Return and Profit Leaderboards */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <Tile>
+            <div className="py-2 px-2">
+              <Title2>Return</Title2>
+              <div className="space-y-2">
+                {returnLeaderboard.map((user, index) => (
+                  <div key={user.username} className="flex items-center justify-between hover:bg-zinc-700 p-2 rounded-xl cursor-pointer">
+                    <div className="flex items-center gap-4">
+                      <div className="w-6 h-6 bg-zinc-700 rounded-full flex items-center justify-center">
+                        <Text5 className="text-xs font-medium">{index + 1}</Text5>
+                      </div>
+                      <ProfilePicture size="sm" />
+                      <div>
+                        <Text5 className="font-medium">@{user.username}</Text5>
+                      </div>
+                    </div>
+                    <Text5 className="text-green-500 font-medium">+{user.return.toFixed(2)}%</Text5>
                   </div>
-                </div>
-              </div>
-
-              <div>
-                <Text4>Return</Text4>
-                <Text5 variant="green">+{currentUserRank.return_percent.toFixed(2)}%</Text5>
-              </div>
-
-              <div>
-                <Text4>Portfolio Value</Text4>
-                <Text5>{formatMoney(currentUserRank.portfolio_value)}</Text5>
-              </div>
-
-              <div className="lg:mr-2">
-                <Text4>Trades</Text4>
-                <Text5>{currentUserRank.trades_count}</Text5>
+                ))}
               </div>
             </div>
           </Tile>
-        </div>
-
-        {/* Leaderboard */}
-        <div>
-          <Title2>Rankings</Title2>
-          <div className="space-y-4">
-            {leaderboard.map((user) => (
-              <Tile key={user.rank}>
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:items-center">
-                  <div className="lg:text-left">
-                    <div className="flex items-center gap-4 ml-2">
-                      {getRankIcon(user.rank)}
+          <Tile>
+            <div className="py-2 px-2">
+              <Title2 className="mb-2">Profit</Title2>
+              <div className="space-y-2">
+                {profitLeaderboard.map((user, index) => (
+                  <div key={user.username} className="flex items-center justify-between hover:bg-zinc-700 p-2 rounded-xl cursor-pointer">
+                    <div className="flex items-center gap-4">
+                      <div className="w-6 h-6 bg-zinc-700 rounded-full flex items-center justify-center">
+                        <Text5 className="text-xs font-medium">{index + 1}</Text5>
+                      </div>
+                      <ProfilePicture size="sm" />
                       <div>
-                        <p className="text-lg font-medium">{user.firstName} {user.lastName}</p>
-                        <Text4>@{user.username}</Text4>
+                        <Text5 className="font-medium">@{user.username}</Text5>
                       </div>
                     </div>
+                    <Text5 className="text-green-500 font-medium">+{formatMoney(user.profit)}</Text5>
                   </div>
-
-                  <div>
-                    <Text4>Return</Text4>
-                    <Text5 variant={user.return_percent >= 0 ? "green" : "red"}>
-                      {user.return_percent >= 0 ? "+" : ""}{user.return_percent.toFixed(2)}%
-                    </Text5>
-                  </div>
-
-                  <div>
-                    <Text4>Portfolio Value</Text4>
-                    <Text5>{formatMoney(user.portfolio_value)}</Text5>
-                  </div>
-
-                  <div className="lg:mr-2">
-                    <Text4>Trades</Text4>
-                    <Text5>{user.trades_count}</Text5>
-                  </div>
-                </div>
-              </Tile>
-            ))}
-          </div>
+                ))}
+              </div>
+            </div>
+          </Tile>
         </div>
       </div>
     </PageLayout>
