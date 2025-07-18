@@ -24,6 +24,7 @@ function App() {
               </div>
               <Sidebar />
             </div>
+            {/* 32px paddingLeft + 16px paddingRight gives consistent 32px spacing from all window edges */}
             <main className="flex justify-center items-start py-8 overflow-y-auto relative" style={{ width: 'calc(100vw - 256px)', paddingLeft: '32px', paddingRight: '16px' }}>
               <Profile />
               <div style={{ width: 'calc(100vw - 32px)' }}>
