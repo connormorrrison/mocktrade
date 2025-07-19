@@ -1,19 +1,15 @@
 import { useState } from "react";
-import { ChevronDown, Download } from "lucide-react";
+import { Download } from "lucide-react";
 import { Button2 } from "@/components/button-2";
-import { Calendar22 } from "@/components/date-picker";
 import { PageLayout } from "@/components/page-layout";
-import { Title3 } from "@/components/title-3";
 import { TransactionsTable } from "@/components/transactions-table";
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { CustomDropdown } from "@/components/custom-dropdown";
+import { CustomDatePicker } from "@/components/custom-date-picker";
 
 export default function TransactionsPage() {
   const [selectedFilter, setSelectedFilter] = useState("All");
+  const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
+  const [toDate, setToDate] = useState<Date | undefined>(undefined);
   // Mock data
   const transactions = [
     {
@@ -61,45 +57,39 @@ export default function TransactionsPage() {
             {/* Filters Section */}
             <div className="flex flex-col md:flex-row gap-4">
               {/* From Date */}
-              <div>
-                <Calendar22 label="From" placeholder="Select from date" />
-              </div>
+              <CustomDatePicker 
+                label="From" 
+                placeholder="Select from date" 
+                value={fromDate}
+                onValueChange={setFromDate}
+              />
 
               {/* To Date */}
-              <div>
-                <Calendar22 label="To" placeholder="Select to date" />
-              </div>
+              <CustomDatePicker 
+                label="To" 
+                placeholder="Select to date" 
+                value={toDate}
+                onValueChange={setToDate}
+              />
 
               {/* Transaction Type Filter */}
-              <div className="flex flex-col w-full sm:w-auto">
-                <Title3 className="px-1">Filter</Title3>
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] w-full sm:w-auto px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 h-10 focus:!outline-none focus:!ring-0">
-                    {selectedFilter}
-                    <ChevronDown className="h-5 w-5 ml-2" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => setSelectedFilter("All")} className="text-base">
-                      All
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSelectedFilter("Buy")} className="text-base">
-                      Buy
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSelectedFilter("Sell")} className="text-base">
-                      Sell
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+              <CustomDropdown
+                label="Filter"
+                value={selectedFilter}
+                options={[
+                  { value: "All", label: "All" },
+                  { value: "Buy", label: "Buy" },
+                  { value: "Sell", label: "Sell" },
+                ]}
+                onValueChange={setSelectedFilter}
+                className="min-w-[120px] w-full sm:w-auto"
+              />
 
               {/* Export Button */}
-              <div className="flex flex-col">
-                <Title3 className="px-1">Export</Title3>
-                <Button2>
-                  <Download />
-                  Export
-                </Button2>
-              </div>
+              <Button2 label="Export">
+                <Download />
+                Export
+              </Button2>
             </div>
 
             {/* Transactions Table */}

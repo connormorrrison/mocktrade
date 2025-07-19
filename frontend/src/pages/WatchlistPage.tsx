@@ -1,21 +1,14 @@
 import { useState } from "react";
-import { ChevronDown, Plus, X, TrendingUp } from "lucide-react";
+import { Plus, X, TrendingUp } from "lucide-react";
 import { Button1 } from "@/components/button-1";
 import { Button2 } from "@/components/button-2";
 import { PageLayout } from "@/components/page-layout";
-import { Text2 } from "@/components/text-2";
 import { Text4 } from "@/components/text-4";
 import { Text5 } from "@/components/text-5";
 import { TextField } from "@/components/text-field";
 import { Tile } from "@/components/tile";
 import { Title2 } from "@/components/title-2";
-import { Title3 } from "@/components/title-3";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { CustomDropdown } from "@/components/custom-dropdown";
 
 export default function WatchlistPage() {
   const [sortBy, setSortBy] = useState("symbol");
@@ -78,7 +71,7 @@ export default function WatchlistPage() {
         {/* Add Stock Section */}
         <div>
           <Title2>Add Stock</Title2>
-          <div className="flex gap-4 mt-4">
+          <div className="flex gap-4">
             <TextField
               placeholder="Enter symbol (e.g., AAPL)"
               value={newSymbol}
@@ -95,44 +88,19 @@ export default function WatchlistPage() {
 
         {/* Watchlist */}
         <div>
-          <Title2 className="pb-2">Watchlist</Title2>
+          <Title2>Watchlist</Title2>
           <div className="flex flex-col mb-4 w-full sm:w-fit">
-            <Title3 className="px-1">Sort By</Title3>
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center justify-between px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 h-10 focus:!outline-none focus:!ring-0">
-                {sortBy === "symbol" && "Symbol"}
-                {sortBy === "price" && "Current Price"}
-                {sortBy === "change" && "Daily Change"}
-                {sortBy === "marketcap" && "Market Cap"}
-                <ChevronDown className="h-5 w-5 ml-2" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem
-                  onClick={() => setSortBy("symbol")}
-                  className="text-base"
-                >
-                  Symbol
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setSortBy("price")}
-                  className="text-base"
-                >
-                  Current Price
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setSortBy("change")}
-                  className="text-base"
-                >
-                  Daily Change
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setSortBy("marketcap")}
-                  className="text-base"
-                >
-                  Market Cap
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <CustomDropdown
+              label="Sort By"
+              value={sortBy === "symbol" ? "Symbol" : sortBy === "price" ? "Current Price" : sortBy === "change" ? "Daily Change" : "Market Cap"}
+              options={[
+                { value: "symbol", label: "Symbol" },
+                { value: "price", label: "Current Price" },
+                { value: "change", label: "Daily Change" },
+                { value: "marketcap", label: "Market Cap" },
+              ]}
+              onValueChange={setSortBy}
+            />
           </div>
           <div className="space-y-4">
             {watchlist

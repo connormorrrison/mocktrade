@@ -38,34 +38,26 @@ export default function ProfilePage() {
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Title3>First Name</Title3>
-                  <TextField
-                    value={profile.first_name}
-                    disabled
-                  />
-                </div>
-                <div>
-                  <Title3>Last Name</Title3>
-                  <TextField
-                    value={profile.last_name}
-                    disabled
-                  />
-                </div>
-                <div>
-                  <Title3>Email</Title3>
-                  <TextField
-                    value={profile.email}
-                    disabled
-                  />
-                </div>
-                <div>
-                  <Title3>Username</Title3>
-                  <TextField
-                    value={profile.username}
-                    disabled
-                  />
-                </div>
+                <TextField
+                  label="First Name"
+                  value={profile.first_name}
+                  disabled
+                />
+                <TextField
+                  label="Last Name"
+                  value={profile.last_name}
+                  disabled
+                />
+                <TextField
+                  label="Email"
+                  value={profile.email}
+                  disabled
+                />
+                <TextField
+                  label="Username"
+                  value={profile.username}
+                  disabled
+                />
               </div>
             </div>
 

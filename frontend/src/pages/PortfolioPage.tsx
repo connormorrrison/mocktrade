@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, TrendingUp } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { Button1 } from "@/components/button-1";
 import { PageLayout } from "@/components/page-layout";
 import { PortfolioChart } from "@/components/portfolio-chart";
@@ -10,12 +10,7 @@ import { Text5 } from "@/components/text-5";
 import { Tile } from "@/components/tile";
 import { Title2 } from "@/components/title-2";
 import { Title3 } from "@/components/title-3";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { CustomDropdown } from "@/components/custom-dropdown";
 
 export default function PortfolioPage() {
   // Mock data to match the original structure
@@ -104,49 +99,19 @@ export default function PortfolioPage() {
         <div>
           <Title2>Performance</Title2>
           <div className="flex flex-col mb-4 w-full sm:w-fit">
-            <Title3 className="px-1">Filter</Title3>
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center justify-between min-w-[120px] px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 h-10 focus:!outline-none focus:!ring-0">
-                {selectedFilter === "1mo" && "1 Month"}
-                {selectedFilter === "3mo" && "3 Months"}
-                {selectedFilter === "6mo" && "6 Months"}
-                {selectedFilter === "1y" && "1 Year"}
-                {selectedFilter === "max" && "Max"}
-                <ChevronDown className="h-5 w-5 ml-2" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem
-                  onClick={() => setSelectedFilter("1mo")}
-                  className="text-base"
-                >
-                  1 Month
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setSelectedFilter("3mo")}
-                  className="text-base"
-                >
-                  3 Months
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setSelectedFilter("6mo")}
-                  className="text-base"
-                >
-                  6 Months
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setSelectedFilter("1y")}
-                  className="text-base"
-                >
-                  1 Year
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setSelectedFilter("max")}
-                  className="text-base"
-                >
-                  Max
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <CustomDropdown
+              label="Filter"
+              value={selectedFilter === "1mo" ? "1 Month" : selectedFilter === "3mo" ? "3 Months" : selectedFilter === "6mo" ? "6 Months" : selectedFilter === "1y" ? "1 Year" : "Max"}
+              options={[
+                { value: "1mo", label: "1 Month" },
+                { value: "3mo", label: "3 Months" },
+                { value: "6mo", label: "6 Months" },
+                { value: "1y", label: "1 Year" },
+                { value: "max", label: "Max" },
+              ]}
+              onValueChange={setSelectedFilter}
+              className="min-w-[120px]"
+            />
           </div>
           <Tile>
             <PortfolioChart />
@@ -158,44 +123,19 @@ export default function PortfolioPage() {
 
         {/* Holdings */}
         <div>
-          <Title2 className="pb-2">Holdings</Title2>
+          <Title2>Holdings</Title2>
           <div className="flex flex-col mb-4 w-full sm:w-fit">
-            <Title3 className="px-1">Sort By</Title3>
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center justify-between px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 h-10 focus:!outline-none focus:!ring-0">
-                {sortBy === "symbol" && "Symbol"}
-                {sortBy === "value" && "Current Value"}
-                {sortBy === "gain" && "Gain"}
-                {sortBy === "daily" && "Daily P/L"}
-                <ChevronDown className="h-5 w-5 ml-2" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem
-                  onClick={() => setSortBy("symbol")}
-                  className="text-base"
-                >
-                  Symbol
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setSortBy("value")}
-                  className="text-base"
-                >
-                  Current Value
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setSortBy("gain")}
-                  className="text-base"
-                >
-                  Gain
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setSortBy("daily")}
-                  className="text-base"
-                >
-                  Daily P/L
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <CustomDropdown
+              label="Sort By"
+              value={sortBy === "symbol" ? "Symbol" : sortBy === "value" ? "Current Value" : sortBy === "gain" ? "Gain" : "Daily P/L"}
+              options={[
+                { value: "symbol", label: "Symbol" },
+                { value: "value", label: "Current Value" },
+                { value: "gain", label: "Gain" },
+                { value: "daily", label: "Daily P/L" },
+              ]}
+              onValueChange={setSortBy}
+            />
           </div>
           <div className="space-y-4">
             {positions

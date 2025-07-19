@@ -10,7 +10,7 @@ export const Text4 = ({ children, className, ...props }: Text4Props) => {
   return (
     <p
       className={cn(
-        "block text-base font-normal text-zinc-400",
+        "!block !text-base !font-normal !text-zinc-400",
         className
       )}
       {...props}

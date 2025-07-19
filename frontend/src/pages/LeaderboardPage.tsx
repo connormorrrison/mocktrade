@@ -1,18 +1,11 @@
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
 import { PageLayout } from "@/components/page-layout";
 import { Title2 } from "@/components/title-2";
-import { Title3 } from "@/components/title-3";
 import { Text5 } from "@/components/text-5";
 import { Tile } from "@/components/tile";
 import { ProfilePicture } from "@/components/profile-picture";
 import { Countdown } from "@/components/countdown";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { CustomDropdown } from "@/components/custom-dropdown";
 
 export default function LeaderboardPage() {
   const [timeframe, setTimeframe] = useState<"Day" | "Week" | "Month" | "All">("Day");
@@ -58,39 +51,17 @@ export default function LeaderboardPage() {
     <PageLayout title="Leaderboard">
       <div className="space-y-6">
         <div className="flex flex-col mb-4 w-full sm:w-fit">
-          <Title3 className="px-1">Timeframe</Title3>
-          <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center justify-between px-4 py-2 !text-lg !text-white !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 h-10 focus:!outline-none focus:!ring-0">
-              {timeframe}
-              <ChevronDown className="h-5 w-5 ml-2" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem
-                onClick={() => setTimeframe("Day")}
-                className="text-base"
-              >
-                Day
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setTimeframe("Week")}
-                className="text-base"
-              >
-                Week
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setTimeframe("Month")}
-                className="text-base"
-              >
-                Month
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setTimeframe("All")}
-                className="text-base"
-              >
-                All
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <CustomDropdown
+            label="Timeframe"
+            value={timeframe}
+            options={[
+              { value: "Day", label: "Day" },
+              { value: "Week", label: "Week" },
+              { value: "Month", label: "Month" },
+              { value: "All", label: "All" },
+            ]}
+            onValueChange={(value) => setTimeframe(value as "Day" | "Week" | "Month" | "All")}
+          />
           <Countdown timeframe={timeframe} className="px-1 mt-2" />
         </div>
 
@@ -101,17 +72,17 @@ export default function LeaderboardPage() {
               <Title2>Return</Title2>
               <div className="space-y-2">
                 {returnLeaderboard.map((user, index) => (
-                  <div key={user.username} className="flex items-center justify-between hover:bg-zinc-700 p-2 rounded-xl cursor-pointer">
-                    <div className="flex items-center gap-4">
-                      <div className="w-6 h-6 bg-zinc-700 rounded-full flex items-center justify-center">
+                  <div key={user.username} className="flex items-center justify-between hover:bg-zinc-700 p-2 rounded-xl cursor-pointer min-w-0">
+                    <div className="flex items-center gap-4 min-w-0 flex-1">
+                      <div className="w-6 h-6 bg-zinc-700 rounded-full flex items-center justify-center flex-shrink-0">
                         <Text5 className="text-xs font-medium">{index + 1}</Text5>
                       </div>
-                      <ProfilePicture size="sm" />
-                      <div>
-                        <Text5 className="font-medium">@{user.username}</Text5>
+                      <ProfilePicture size="sm" className="flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <Text5 className="font-medium truncate">@{user.username}</Text5>
                       </div>
                     </div>
-                    <Text5 className="text-green-500 font-medium">+{user.return.toFixed(2)}%</Text5>
+                    <Text5 className="text-green-500 font-medium flex-shrink-0 ml-2">+{user.return.toFixed(2)}%</Text5>
                   </div>
                 ))}
               </div>
@@ -119,20 +90,20 @@ export default function LeaderboardPage() {
           </Tile>
           <Tile>
             <div className="py-2 px-2">
-              <Title2 className="mb-2">Profit</Title2>
+              <Title2>Profit</Title2>
               <div className="space-y-2">
                 {profitLeaderboard.map((user, index) => (
-                  <div key={user.username} className="flex items-center justify-between hover:bg-zinc-700 p-2 rounded-xl cursor-pointer">
-                    <div className="flex items-center gap-4">
-                      <div className="w-6 h-6 bg-zinc-700 rounded-full flex items-center justify-center">
+                  <div key={user.username} className="flex items-center justify-between hover:bg-zinc-700 p-2 rounded-xl cursor-pointer min-w-0">
+                    <div className="flex items-center gap-4 min-w-0 flex-1">
+                      <div className="w-6 h-6 bg-zinc-700 rounded-full flex items-center justify-center flex-shrink-0">
                         <Text5 className="text-xs font-medium">{index + 1}</Text5>
                       </div>
-                      <ProfilePicture size="sm" />
-                      <div>
-                        <Text5 className="font-medium">@{user.username}</Text5>
+                      <ProfilePicture size="sm" className="flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <Text5 className="font-medium truncate">@{user.username}</Text5>
                       </div>
                     </div>
-                    <Text5 className="text-green-500 font-medium">+{formatMoney(user.profit)}</Text5>
+                    <Text5 className="text-green-500 font-medium flex-shrink-0 ml-2">+{formatMoney(user.profit)}</Text5>
                   </div>
                 ))}
               </div>

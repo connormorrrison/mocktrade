@@ -1,4 +1,4 @@
-import { TrendingUp, Wallet, FileText } from "lucide-react";
+import { TrendingUp, Wallet, FileText, Eye } from "lucide-react";
 import { Button1 } from "@/components/button-1";
 import { MarketStatus } from "@/components/market-status";
 import { PageLayout } from "@/components/page-layout";
@@ -78,11 +78,15 @@ export default function HomePage() {
               <div className="flex flex-wrap gap-4">
                 <Button1>
                   <TrendingUp />
-                  Trade Now
+                  New Trade
                 </Button1>
                 <Button1>
                   <Wallet />
                   View Portfolio
+                </Button1>
+                <Button1>
+                  <Eye />
+                  View Watchlist
                 </Button1>
                 <Button1>
                   <FileText />
