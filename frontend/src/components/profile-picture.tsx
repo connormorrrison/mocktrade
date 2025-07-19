@@ -15,7 +15,7 @@ export function ProfilePicture({ src, alt = "Profile", size = "md", className = 
   };
 
   return (
-    <div className={`${sizeClasses[size]} bg-blue-600/8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${className}`}>
+    <div className={`${sizeClasses[size]} bg-white rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${className}`}>
       <img 
         src={src || profileIcon} 
         alt={alt} 

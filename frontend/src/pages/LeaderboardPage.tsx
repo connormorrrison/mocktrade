@@ -1,11 +1,8 @@
 import { useState } from "react";
 import { PageLayout } from "@/components/page-layout";
-import { Title2 } from "@/components/title-2";
-import { Text5 } from "@/components/text-5";
-import { Tile } from "@/components/tile";
-import { ProfilePicture } from "@/components/profile-picture";
+import { Button1 } from "@/components/button-1";
 import { Countdown } from "@/components/countdown";
-import { CustomDropdown } from "@/components/custom-dropdown";
+import { Leaderboard } from "@/components/leaderboard";
 
 export default function LeaderboardPage() {
   const [timeframe, setTimeframe] = useState<"Day" | "Week" | "Month" | "All">("Day");
@@ -47,68 +44,58 @@ export default function LeaderboardPage() {
     }).format(value);
   }
 
+  const formatReturn = (value: number) => `+${value.toFixed(2)}%`;
+  const formatProfit = (value: number) => `+${formatMoney(value)}`;
+
   return (
     <PageLayout title="Leaderboard">
       <div className="space-y-6">
-        <div className="flex flex-col mb-4 w-full sm:w-fit">
-          <CustomDropdown
-            label="Timeframe"
-            value={timeframe}
-            options={[
-              { value: "Day", label: "Day" },
-              { value: "Week", label: "Week" },
-              { value: "Month", label: "Month" },
-              { value: "All", label: "All" },
-            ]}
-            onValueChange={(value) => setTimeframe(value as "Day" | "Week" | "Month" | "All")}
-          />
-          <Countdown timeframe={timeframe} className="px-1 mt-2" />
+        <div className="flex gap-4 justify-center">
+          <Button1 
+            variant={timeframe === "Day" ? "primary" : "secondary"}
+            onClick={() => setTimeframe("Day")}
+          >
+            Day
+          </Button1>
+          <Button1 
+            variant={timeframe === "Week" ? "primary" : "secondary"}
+            onClick={() => setTimeframe("Week")}
+          >
+            Week
+          </Button1>
+          <Button1 
+            variant={timeframe === "Month" ? "primary" : "secondary"}
+            onClick={() => setTimeframe("Month")}
+          >
+            Month
+          </Button1>
+          <Button1 
+            variant={timeframe === "All" ? "primary" : "secondary"}
+            onClick={() => setTimeframe("All")}
+          >
+            All
+          </Button1>
+        </div>
+        
+        {/* Countdown Timer */}
+        <div className="flex justify-center">
+          <Countdown timeframe={timeframe} />
         </div>
 
         {/* Return and Profit Leaderboards */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <Tile>
-            <div className="py-2 px-2">
-              <Title2>Return</Title2>
-              <div className="space-y-2">
-                {returnLeaderboard.map((user, index) => (
-                  <div key={user.username} className="flex items-center justify-between hover:bg-zinc-700 p-2 rounded-xl cursor-pointer min-w-0">
-                    <div className="flex items-center gap-4 min-w-0 flex-1">
-                      <div className="w-6 h-6 bg-zinc-700 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Text5 className="text-xs font-medium">{index + 1}</Text5>
-                      </div>
-                      <ProfilePicture size="sm" className="flex-shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <Text5 className="font-medium truncate">@{user.username}</Text5>
-                      </div>
-                    </div>
-                    <Text5 className="text-green-500 font-medium flex-shrink-0 ml-2">+{user.return.toFixed(2)}%</Text5>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Tile>
-          <Tile>
-            <div className="py-2 px-2">
-              <Title2>Profit</Title2>
-              <div className="space-y-2">
-                {profitLeaderboard.map((user, index) => (
-                  <div key={user.username} className="flex items-center justify-between hover:bg-zinc-700 p-2 rounded-xl cursor-pointer min-w-0">
-                    <div className="flex items-center gap-4 min-w-0 flex-1">
-                      <div className="w-6 h-6 bg-zinc-700 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Text5 className="text-xs font-medium">{index + 1}</Text5>
-                      </div>
-                      <ProfilePicture size="sm" className="flex-shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <Text5 className="font-medium truncate">@{user.username}</Text5>
-                      </div>
-                    </div>
-                    <Text5 className="text-green-500 font-medium flex-shrink-0 ml-2">+{formatMoney(user.profit)}</Text5>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Tile>
+        <div className="flex flex-col lg:flex-row gap-4 justify-center items-start">
+          <Leaderboard
+            title="Return"
+            users={returnLeaderboard}
+            type="return"
+            formatValue={formatReturn}
+          />
+          <Leaderboard
+            title="Profit"
+            users={profitLeaderboard}
+            type="profit"
+            formatValue={formatProfit}
+          />
         </div>
       </div>
     </PageLayout>

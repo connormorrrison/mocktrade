@@ -10,7 +10,7 @@ export const Text1 = ({ children, className, ...props }: Text1Props) => {
   return (
     <h2
       className={cn(
-        "block text-4xl font-semibold text-white",
+        "!block !text-4xl !ont-semibold !text-white",
         className
       )}
       {...props}

@@ -7,6 +7,7 @@ import { Text1 } from "@/components/text-1";
 import { Text2 } from "@/components/text-2";
 import { Text4 } from "@/components/text-4";
 import { Text5 } from "@/components/text-5";
+import { Text6 } from "@/components/text-6";
 import { Tile } from "@/components/tile";
 import { Title2 } from "@/components/title-2";
 import { Title3 } from "@/components/title-3";
@@ -110,7 +111,6 @@ export default function PortfolioPage() {
                 { value: "max", label: "Max" },
               ]}
               onValueChange={setSelectedFilter}
-              className="min-w-[120px]"
             />
           </div>
           <Tile>
@@ -185,7 +185,7 @@ export default function PortfolioPage() {
                   {/* CHANGE: Reduced vertical padding (py-4) and gap (gap-y-4) to decrease height. */}
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <div className="lg:text-left">
-                      <p className="text-lg font-medium ml-2">{pos.symbol}</p>
+                      <Text6 className="ml-2">{pos.symbol}</Text6>
                       <Text4 className="ml-2">
                         {pos.shares} {pos.shares === 1 ? "share" : "shares"}
                       </Text4>

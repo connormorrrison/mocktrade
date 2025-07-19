@@ -10,7 +10,7 @@ export const Text3 = ({ children, className, ...props }: Text3Props) => {
   return (
     <label
       className={cn(
-        "block text-xl font-normal text-white",
+        "!block !text-xl !font-normal !text-white",
         className
       )}
       {...props}

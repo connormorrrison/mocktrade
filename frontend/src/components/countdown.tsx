@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Clock } from "lucide-react";
 import { Text4 } from "@/components/text-4";
 
 interface CountdownProps {
@@ -83,8 +84,11 @@ export function Countdown({ timeframe, className = "", prefix = "Resets in" }: C
   }
 
   return (
-    <Text4 className={`opacity-70 ${className}`}>
-      {prefix} {timeRemaining.days}d {formatTime(timeRemaining.hours)}h {formatTime(timeRemaining.minutes)}m {formatTime(timeRemaining.seconds)}s
-    </Text4>
+    <div className={`flex items-center gap-2 ${className}`}>
+      <Clock className="w-5 h-5" />
+      <Text4>
+        {prefix} {timeRemaining.days}d {formatTime(timeRemaining.hours)}h {formatTime(timeRemaining.minutes)}m {formatTime(timeRemaining.seconds)}s
+      </Text4>
+    </div>
   );
 }

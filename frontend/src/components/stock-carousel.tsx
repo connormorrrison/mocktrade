@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Text3 } from "@/components/text-3";
 import { Text5 } from "@/components/text-5";
+import { Text6 } from "@/components/text-6";
 import { Tile } from "@/components/tile";
 
 interface Stock {
@@ -86,7 +86,7 @@ export function StockCarousel({ stocks, variant }: StockCarouselProps) {
           <div key={stock.symbol} className="absolute w-full" style={style}>
             <Tile>
               <div className="flex justify-between items-center">
-                <Text3>{stock.symbol}</Text3>
+                <Text6>{stock.symbol}</Text6>
                 <Text5>{formatPrice(stock.price)}</Text5>
                 <Text5 variant={variant}>{formatChange(stock.change)}</Text5>
               </div>

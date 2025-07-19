@@ -5,7 +5,9 @@ import { Button2 } from "@/components/button-2";
 import { MarketStatus } from "@/components/market-status";
 import { PageLayout } from "@/components/page-layout";
 import { Text2 } from "@/components/text-2";
+import { Text3 } from "@/components/text-3";
 import { Text4 } from "@/components/text-4";
+import { Text5 } from "@/components/text-5";
 import { TextField } from "@/components/text-field";
 import { Tile } from "@/components/tile";
 import { Title2 } from "@/components/title-2";
@@ -108,23 +110,23 @@ export default function TradePage() {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <Text4>Order</Text4>
-                  <span className="text-base font-medium">
+                  <Text5>
                     {action === 'buy' ? 'Buy' : 'Sell'} {Number(quantity).toLocaleString()} shares at Market
-                  </span>
+                  </Text5>
                 </div>
                 <div className="flex justify-between items-center">
                   <Text4>Price per Share</Text4>
-                  <span className="text-base font-medium">{formatMoney(price)}</span>
+                  <Text5>{formatMoney(price)}</Text5>
                 </div>
                 <div className="flex justify-between items-center">
                   <Text4>Cash Available</Text4>
-                  <span className="text-base font-medium">{formatMoney(availableCash)}</span>
+                  <Text5>{formatMoney(availableCash)}</Text5>
                 </div>
                 <div className="flex justify-between items-center">
                   <Text4>Total Value</Text4>
-                  <span className="text-xl font-medium">
+                  <Text3>
                     {formatMoney(price * Number(quantity))}
-                  </span>
+                  </Text3>
                 </div>
               </div>
             </div>

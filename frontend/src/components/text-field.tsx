@@ -17,7 +17,7 @@ export const TextField = ({ label, className, ...props }: TextFieldProps) => {
       )}
       <input
         className={cn(
-          "!w-full !px-4 !py-2 h-10 !text-lg !text-muted-foreground !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl !focus:outline-none focus:!ring-0"
+          "!w-full !px-4 !py-2 h-10 !text-lg !font-normal !text-muted-foreground !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl !focus:outline-none focus:!ring-0"
         )}
         {...props}
       />

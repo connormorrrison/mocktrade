@@ -1,4 +1,4 @@
-import React from "react"
+import { Text5 } from "@/components/text-5";
 
 interface Transaction {
   id: number
@@ -27,36 +27,36 @@ export const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
       <table className="w-full divide-y divide-zinc-800">
         <thead className="bg-input/30">
           <tr>
-            <th className="px-4 py-2 text-left text-base font-semibold text-white whitespace-nowrap">ID</th>
-            <th className="px-4 py-2 text-left text-base font-semibold text-white whitespace-nowrap">Date</th>
-            <th className="px-4 py-2 text-left text-base font-semibold text-white whitespace-nowrap">Type</th>
-            <th className="px-4 py-2 text-left text-base font-semibold text-white whitespace-nowrap">Symbol</th>
-            <th className="px-4 py-2 text-left text-base font-semibold text-white whitespace-nowrap">Shares</th>
-            <th className="px-4 py-2 text-left text-base font-semibold text-white whitespace-nowrap">Price per Share</th>
-            <th className="px-4 py-2 text-left text-base font-semibold text-white whitespace-nowrap">Total</th>
+            <th className="px-4 py-2 text-left whitespace-nowrap"><Text5>ID</Text5></th>
+            <th className="px-4 py-2 text-left whitespace-nowrap"><Text5>Date</Text5></th>
+            <th className="px-4 py-2 text-left whitespace-nowrap"><Text5>Type</Text5></th>
+            <th className="px-4 py-2 text-left whitespace-nowrap"><Text5>Symbol</Text5></th>
+            <th className="px-4 py-2 text-left whitespace-nowrap"><Text5>Shares</Text5></th>
+            <th className="px-4 py-2 text-left whitespace-nowrap"><Text5>Price per Share</Text5></th>
+            <th className="px-4 py-2 text-left whitespace-nowrap"><Text5>Total</Text5></th>
           </tr>
         </thead>
         <tbody className="divide-y divide-zinc-800 bg-input/30">
           {transactions.map(tx => (
             <tr key={tx.id} className="hover:bg-zinc-700">
-              <td className="px-4 py-2 text-base text-white whitespace-nowrap">{tx.id}</td>
-              <td className="px-4 py-2 text-base text-white whitespace-nowrap">
-                {new Date(tx.created_at).toLocaleString()}
+              <td className="px-4 py-2 whitespace-nowrap"><Text5>{tx.id}</Text5></td>
+              <td className="px-4 py-2 whitespace-nowrap">
+                <Text5>{new Date(tx.created_at).toLocaleString()}</Text5>
               </td>
-              <td className="px-4 py-2 text-base text-white whitespace-nowrap">
-                <span className={`px-2 py-1 text-base rounded-full ${tx.transaction_type === 'BUY' ? 'bg-green-900/50 text-green-300' : 'bg-red-900/50 text-red-300'}`}>
+              <td className="px-4 py-2 whitespace-nowrap">
+                <Text5 className={`px-2 py-1 rounded-full ${tx.transaction_type === 'BUY' ? 'bg-green-900/50 !text-green-300' : 'bg-red-900/50 !text-red-300'}`}>
                   {tx.transaction_type}
-                </span>
+                </Text5>
               </td>
-              <td className="px-4 py-2 text-base text-white whitespace-nowrap">{tx.symbol}</td>
-              <td className="px-4 py-2 text-base text-white whitespace-nowrap">
-                {tx.shares.toLocaleString()}
+              <td className="px-4 py-2 whitespace-nowrap"><Text5>{tx.symbol}</Text5></td>
+              <td className="px-4 py-2 whitespace-nowrap">
+                <Text5>{tx.shares.toLocaleString()}</Text5>
               </td>
-              <td className="px-4 py-2 text-base text-white whitespace-nowrap">
-                {formatMoney(tx.price)}
+              <td className="px-4 py-2 whitespace-nowrap">
+                <Text5>{formatMoney(tx.price)}</Text5>
               </td>
-              <td className="px-4 py-2 text-base text-white whitespace-nowrap">
-                {formatMoney(tx.total_amount)}
+              <td className="px-4 py-2 whitespace-nowrap">
+                <Text5>{formatMoney(tx.total_amount)}</Text5>
               </td>
             </tr>
           ))}

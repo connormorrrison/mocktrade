@@ -27,7 +27,7 @@ export function CustomDropdown({ value, options, onValueChange, label, className
         </Text4>
       )}
       <DropdownMenu>
-        <DropdownMenuTrigger className={`!flex !items-center !justify-between !px-4 !py-2 !text-white !text-lg !font-medium !h-10 !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl !hover:bg-zinc-700 !focus:outline-none !focus:ring-0 !gap-2 [&>svg]:w-5 [&>svg]:h-5 [&>svg]:flex-shrink-0 ${className}`}>
+        <DropdownMenuTrigger className={`!flex !items-center !justify-between !px-4 !py-2 !text-white !text-lg !font-medium !h-10 !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 !focus:outline-none !focus:ring-0 !gap-2 [&>svg]:w-5 [&>svg]:h-5 [&>svg]:flex-shrink-0 ${className}`}>
           {value}
           <ChevronDown />
         </DropdownMenuTrigger>

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Tile } from "@/components/tile";
 import { Text4 } from "@/components/text-4";
 import { Text5 } from "@/components/text-5";
-import profileIcon from "@/assets/mocktrade-icon.png";
+import { ProfilePicture } from "@/components/profile-picture";
 
 export default function Profile() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -65,16 +65,14 @@ export default function Profile() {
       >
         <Tile className="h-full w-full overflow-hidden flex items-center justify-center p-0 px-4 py-4 !bg-zinc-800/55 hover:!bg-zinc-700">
           <div ref={contentRef} className="flex items-center">
-            <div className="w-10 h-10 bg-blue-600/8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
-              <img src={profileIcon} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
-            </div>
+            <ProfilePicture size="md" className="flex-shrink-0" />
             <div 
               className={`text-content flex flex-col overflow-hidden transition-all duration-200 ease-out ${
                 isScrolled ? 'w-0 opacity-0 ml-0 scale-95 group-hover:w-auto group-hover:opacity-100 group-hover:ml-3 group-hover:scale-100' : 'w-auto opacity-100 ml-3 scale-100'
               }`}
             >
               <Text5 className="whitespace-nowrap">Sam Smith</Text5>
-              <Text4 className="whitespace-nowrap text-sm">@samsmith</Text4>
+              <Text4 className="whitespace-nowrap">@samsmith</Text4>
             </div>
           </div>
         </Tile>

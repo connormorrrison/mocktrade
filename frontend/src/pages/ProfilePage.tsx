@@ -3,6 +3,7 @@ import { Button1 } from "@/components/button-1";
 import { Button2 } from "@/components/button-2";
 import { PageLayout } from "@/components/page-layout";
 import { TextField } from "@/components/text-field";
+import { Text5 } from "@/components/text-5";
 import { Title2 } from "@/components/title-2";
 import { Title3 } from "@/components/title-3";
 
@@ -77,13 +78,13 @@ export default function ProfilePage() {
               <Title2>Account Details</Title2>
               <div>
                 <Title3>Joined</Title3>
-                <p className="text-lg">
+                <Text5>
                   {new Date(profile.created_at).toLocaleDateString('en-US', {
                     month: 'long',
                     day: 'numeric', 
                     year: 'numeric'
                   })}
-                </p>
+                </Text5>
               </div>
             </div>
 

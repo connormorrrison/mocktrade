@@ -5,6 +5,7 @@ import { Button2 } from "@/components/button-2";
 import { PageLayout } from "@/components/page-layout";
 import { Text4 } from "@/components/text-4";
 import { Text5 } from "@/components/text-5";
+import { Text6 } from "@/components/text-6";
 import { TextField } from "@/components/text-field";
 import { Tile } from "@/components/tile";
 import { Title2 } from "@/components/title-2";
@@ -130,7 +131,7 @@ export default function WatchlistPage() {
                   <Tile key={stock.symbol}>
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                       <div className="lg:text-left">
-                        <p className="text-lg font-medium ml-2">{stock.symbol}</p>
+                        <Text6 className="ml-2">{stock.symbol}</Text6>
                         <Text4 className="ml-2">{stock.name}</Text4>
                       </div>
 
