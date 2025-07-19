@@ -1,17 +1,14 @@
 import { useState } from "react";
-import { TrendingUp } from "lucide-react";
-import { Button1 } from "@/components/button-1";
 import { PageLayout } from "@/components/page-layout";
 import { PortfolioChart } from "@/components/portfolio-chart";
 import { Text1 } from "@/components/text-1";
 import { Text2 } from "@/components/text-2";
 import { Text4 } from "@/components/text-4";
-import { Text5 } from "@/components/text-5";
-import { Text6 } from "@/components/text-6";
 import { Tile } from "@/components/tile";
 import { Title2 } from "@/components/title-2";
 import { Title3 } from "@/components/title-3";
 import { CustomDropdown } from "@/components/custom-dropdown";
+import { PortfolioTile } from "@/components/portfolio-tile";
 
 export default function PortfolioPage() {
   // Mock data to match the original structure
@@ -157,91 +154,13 @@ export default function PortfolioPage() {
                     return 0;
                 }
               })
-              .map((pos) => {
-              const effectivePurchasePrice =
-                pos.price_at_selected_range || pos.average_price;
-              const gainSinceRange =
-                (pos.current_price - effectivePurchasePrice) * pos.shares;
-              const gainPercentSinceRange =
-                effectivePurchasePrice > 0
-                  ? ((pos.current_price - effectivePurchasePrice) /
-                      effectivePurchasePrice) *
-                    100
-                  : 0;
-
-              const dailyPL =
-                (pos.current_price - pos.previous_price) * pos.shares;
-              const dailyPercent =
-                pos.previous_price > 0
-                  ? ((pos.current_price - pos.previous_price) /
-                      pos.previous_price) *
-                    100
-                  : 0;
-
-              const currentValue = pos.shares * pos.current_price;
-
-              return (
-                <Tile key={pos.symbol}>
-                  {/* CHANGE: Reduced vertical padding (py-4) and gap (gap-y-4) to decrease height. */}
-                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                    <div className="lg:text-left">
-                      <Text6 className="ml-2">{pos.symbol}</Text6>
-                      <Text4 className="ml-2">
-                        {pos.shares} {pos.shares === 1 ? "share" : "shares"}
-                      </Text4>
-                    </div>
-
-                    {/* CHANGE: Removed `lg:text-center` to make text left-aligned. */}
-                    <div>
-                      <Text4>Current Price</Text4>
-                      <Text5>
-                        {formatMoney(pos.current_price)}
-                      </Text5>
-                    </div>
-
-                    {/* CHANGE: Removed `lg:text-center` to make text left-aligned. */}
-                    <div>
-                      <Text4>Current Value</Text4>
-                      <Text5>
-                        {formatMoney(currentValue)}
-                      </Text5>
-                    </div>
-
-                    {/* CHANGE: Removed `lg:text-center` to make text left-aligned. */}
-                    <div>
-                      <Text4>Gain ({filterLabels[selectedFilter]})</Text4>
-                      <Text5 variant={gainSinceRange >= 0 ? "green" : "red"}>
-                        {gainSinceRange >= 0 ? "+" : ""}
-                        {formatMoney(gainSinceRange)}{" "}
-                        (
-                        {gainPercentSinceRange >= 0 ? "+" : ""}
-                        {gainPercentSinceRange.toFixed(2)}
-                        %)
-                      </Text5>
-                    </div>
-
-                    {/* CHANGE: Removed `lg:text-center` to make text left-aligned. */}
-                    <div>
-                      <Text4>Daily P/L</Text4>
-                      <Text5 variant={dailyPL >= 0 ? "green" : "red"}>
-                        {dailyPL >= 0 ? "+" : ""}
-                        {formatMoney(dailyPL)}{" "}
-                        ({dailyPercent >= 0 ? "+" : ""}
-                        {dailyPercent.toFixed(2)}
-                        %)
-                      </Text5>
-                    </div>
-
-                    <div className="lg:mr-2">
-                      <Button1>
-                        <TrendingUp />
-                        Trade
-                      </Button1>
-                    </div>
-                  </div>
-                </Tile>
-              );
-            })}
+              .map((pos) => (
+                <PortfolioTile
+                  key={pos.symbol}
+                  position={pos}
+                  filterLabel={filterLabels[selectedFilter]}
+                />
+              ))}
           </div>
         </div>
       </div>
