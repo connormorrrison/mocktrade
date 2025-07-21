@@ -47,7 +47,7 @@ export const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
                 <td className="px-4 py-2 whitespace-nowrap">
                   <Text5>{new Date(tx.created_at).toLocaleString()}</Text5>
                 </td>
-                <td className="px-4 py-2 whitespace-nowrap">
+                <td className="px-4 whitespace-nowrap">
                   <Text5 className={`inline-block px-2 py-1 rounded-full ${
                     tx.transaction_type === 'BUY'
                       ? 'bg-green-900/50 !text-green-300'

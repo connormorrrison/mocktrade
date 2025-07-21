@@ -23,14 +23,14 @@ export function Leaderboard({ title, users, type, formatValue }: LeaderboardProp
         <Title2>{title}</Title2>
         <div className="space-y-2">
           {users.map((user) => (
-            <div key={user.username} className="flex flex-wrap items-center justify-between hover:bg-zinc-700 p-2 rounded-xl cursor-pointer min-w-0">
-              <div className="flex items-center gap-4">
+            <div key={user.username} className="flex items-center justify-between hover:bg-zinc-700 p-2 rounded-xl cursor-pointer min-w-0 gap-2">
+              <div className="flex items-center gap-4 min-w-0 flex-1 overflow-hidden">
                 <ProfilePicture size="sm" className="flex-shrink-0" />
-                <div>
-                  <Text5>@{user.username}</Text5>
+                <div className="min-w-0 overflow-hidden">
+                  <Text5 className="truncate">@{user.username}</Text5>
                 </div>
               </div>
-              <Text5 variant="green">
+              <Text5 variant="green" className="whitespace-nowrap flex-shrink-0">
                 {formatValue(type === "return" ? user.return : user.profit)}
               </Text5>
             </div>

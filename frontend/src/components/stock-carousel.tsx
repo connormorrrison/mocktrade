@@ -43,10 +43,10 @@ export function StockCarousel({ stocks, variant }: StockCarouselProps) {
     }).format(price);
   };
 
-  const tileHeight = 76; // The height of a single tile in pixels
+  const tileHeight = 80; // 64px tile + 16px gap = 80px spacing
 
   return (
-    <div className="relative h-[228px] overflow-hidden">
+    <div className="relative h-[240px] overflow-hidden">
       {stocks.map((stock, index) => {
         // This is the corrected position calculation. As `currentIndex` increases,
         // the position for a given stock also increases, causing it to move down.
@@ -84,11 +84,17 @@ export function StockCarousel({ stocks, variant }: StockCarouselProps) {
 
         return (
           <div key={stock.symbol} className="absolute w-full" style={style}>
-            <Tile>
-              <div className="flex justify-between items-center">
-                <Text6>{stock.symbol}</Text6>
-                <Text5>{formatPrice(stock.price)}</Text5>
-                <Text5 variant={variant}>{formatChange(stock.change)}</Text5>
+            <Tile className="h-[64px] flex items-center">
+              <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center sm:gap-4 w-full">
+                <div className="flex justify-between items-center sm:block">
+                  <Text6 className="whitespace-nowrap">{stock.symbol}</Text6>
+                  <Text5 className="sm:hidden whitespace-nowrap">{formatPrice(stock.price)}</Text5>
+                </div>
+                <div className="hidden sm:flex sm:gap-4 sm:items-center">
+                  <Text5 className="whitespace-nowrap">{formatPrice(stock.price)}</Text5>
+                  <Text5 variant={variant} className="whitespace-nowrap">{formatChange(stock.change)}</Text5>
+                </div>
+                <Text5 variant={variant} className="sm:hidden text-right whitespace-nowrap">{formatChange(stock.change)}</Text5>
               </div>
             </Tile>
           </div>

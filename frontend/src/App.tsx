@@ -46,7 +46,7 @@ function App() {
 
                 <main className="flex flex-col min-w-0 h-full overflow-hidden">
                   <div className="flex-1 overflow-y-auto min-w-0 pb-8">
-                    <div className="pt-8">
+                    <div className="pt-2">
                       <Profile />
                     </div>
                     <div className="mt-8">

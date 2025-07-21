@@ -1,6 +1,6 @@
 import { TrendingUp, Wallet, FileText, Eye } from "lucide-react";
 import { Button1 } from "@/components/button-1";
-import { MarketStatus } from "@/components/market-status";
+import { MarketStatus, useMarketStatus } from "@/components/market-status";
 import { PageLayout } from "@/components/page-layout";
 import { StockCarousel } from "@/components/stock-carousel";
 import { Text2 } from "@/components/text-2";
@@ -12,10 +12,11 @@ import { Title2 } from "@/components/title-2";
 import { Title3 } from "@/components/title-3";
 
 export default function HomePage() {
+  const isMarketOpen = useMarketStatus();
 
   // Mock market data
   const marketData = {
-    isOpen: true, // Changed to true to show the pulsating effect
+    isOpen: isMarketOpen,
     indices: [
       { symbol: "DOW", ticker: "^DJI", value: 34256.78, change: 89.12, percent: 0.26 },
       { symbol: "S&P 500", ticker: "^GSPC", value: 4456.24, change: 12.34, percent: 0.28 },

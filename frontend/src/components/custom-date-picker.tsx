@@ -42,7 +42,7 @@ export function CustomDatePicker({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
-            className={`!flex !items-center !justify-between !px-4 !py-2 !text-white !text-lg !font-medium !h-10 !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 !focus:outline-none !focus:ring-0 !gap-2 [&>svg]:w-5 [&>svg]:h-5 [&>svg]:flex-shrink-0 ${className}`}
+            className={`!flex !items-center !justify-between !px-4 !py-2 !text-white !text-lg !font-medium !h-10 !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 !focus:outline-none !focus:ring-0 !gap-2 [&>svg]:w-5 [&>svg]:h-5 [&>svg]:flex-shrink-0 whitespace-nowrap ${className}`}
           >
             {value ? value.toLocaleDateString() : placeholder}
             <ChevronDownIcon/>

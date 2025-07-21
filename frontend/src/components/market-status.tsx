@@ -4,8 +4,8 @@ interface MarketStatusProps {
   className?: string;
 }
 
-export function MarketStatus({ className }: MarketStatusProps) {
-  // Check if market is open (9:30 AM - 4:00 PM ET, Monday-Friday)
+// Export function to check if market is open
+export function useMarketStatus() {
   const now = new Date();
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
@@ -14,7 +14,11 @@ export function MarketStatus({ className }: MarketStatusProps) {
   const isWeekday = currentDay >= 1 && currentDay <= 5; // Monday to Friday
   const isMarketHours = (currentHour > 9 || (currentHour === 9 && currentMinute >= 30)) && currentHour < 16;
   
-  const isOpen = isWeekday && isMarketHours;
+  return isWeekday && isMarketHours;
+}
+
+export function MarketStatus({ className }: MarketStatusProps) {
+  const isOpen = useMarketStatus();
 
   return (
     <div className={`flex items-center gap-2 ${className || ""}`}>

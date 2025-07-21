@@ -56,7 +56,7 @@ export default function TransactionsPage() {
       {/* Add overflow-hidden wrapper to prevent page expansion */}
       <div className="overflow-hidden">
         {/* Filters Section */}
-        <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 mb-4">
           {/* From Date */}
           <CustomDatePicker
             label="From"
