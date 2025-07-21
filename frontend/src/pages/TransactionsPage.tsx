@@ -10,6 +10,7 @@ export default function TransactionsPage() {
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
   const [toDate, setToDate] = useState<Date | undefined>(undefined);
+
   // Mock data
   const transactions = [
     {
@@ -50,50 +51,50 @@ export default function TransactionsPage() {
     }
   ];
 
-
   return (
     <PageLayout title="Transactions">
-      <div className="space-y-6">
-            {/* Filters Section */}
-            <div className="flex flex-col md:flex-row gap-4">
-              {/* From Date */}
-              <CustomDatePicker 
-                label="From" 
-                placeholder="Select from date" 
-                value={fromDate}
-                onValueChange={setFromDate}
-              />
+      {/* Add overflow-hidden wrapper to prevent page expansion */}
+      <div className="overflow-hidden">
+        {/* Filters Section */}
+        <div className="flex flex-col md:flex-row gap-4 mb-4">
+          {/* From Date */}
+          <CustomDatePicker
+            label="From"
+            placeholder="Select from date"
+            value={fromDate}
+            onValueChange={setFromDate}
+          />
 
-              {/* To Date */}
-              <CustomDatePicker 
-                label="To" 
-                placeholder="Select to date" 
-                value={toDate}
-                onValueChange={setToDate}
-              />
+          {/* To Date */}
+          <CustomDatePicker
+            label="To"
+            placeholder="Select to date"
+            value={toDate}
+            onValueChange={setToDate}
+          />
 
-              {/* Transaction Type Filter */}
-              <CustomDropdown
-                label="Filter"
-                value={selectedFilter}
-                options={[
-                  { value: "All", label: "All" },
-                  { value: "Buy", label: "Buy" },
-                  { value: "Sell", label: "Sell" },
-                ]}
-                onValueChange={setSelectedFilter}
-                className="min-w-[120px] w-full sm:w-auto"
-              />
+          {/* Transaction Type Filter */}
+          <CustomDropdown
+            label="Filter"
+            value={selectedFilter}
+            options={[
+              { value: "All", label: "All" },
+              { value: "Buy", label: "Buy" },
+              { value: "Sell", label: "Sell" },
+            ]}
+            onValueChange={setSelectedFilter}
+            className="min-w-[120px] w-full sm:w-auto"
+          />
 
-              {/* Export Button */}
-              <Button2 label="Export">
-                <Download />
-                Export
-              </Button2>
-            </div>
+          {/* Export Button */}
+          <Button2 label="Export">
+            <Download />
+            Export
+          </Button2>
+        </div>
 
-            {/* Transactions Table */}
-            <TransactionsTable transactions={transactions} />
+        {/* Transactions Table - Now properly constrained */}
+        <TransactionsTable transactions={transactions} />
       </div>
     </PageLayout>
   );

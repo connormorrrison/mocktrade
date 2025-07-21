@@ -49,8 +49,7 @@ export default function LeaderboardPage() {
 
   return (
     <PageLayout title="Leaderboard">
-      <div className="space-y-6">
-        <div className="flex gap-4 justify-center">
+        <div className="flex flex-wrap gap-4 justify-center">
           <Button1 
             variant={timeframe === "Day" ? "primary" : "secondary"}
             onClick={() => setTimeframe("Day")}
@@ -97,7 +96,6 @@ export default function LeaderboardPage() {
             formatValue={formatProfit}
           />
         </div>
-      </div>
     </PageLayout>
   );
 }

@@ -10,36 +10,61 @@ import WatchlistPage from "@/pages/WatchlistPage"
 import LeaderboardPage from "@/pages/LeaderboardPage"
 import TransactionsPage from "@/pages/TransactionsPage"
 import ProfilePage from "@/pages/ProfilePage"
+import LoginPage from "@/pages/LoginPage"
+import SignupPage from "@/pages/SignupPage"
 import logo from "@/assets/mocktrade-logo.png"
+
+// Define the precise dimensions based on your sidebar
+const SIDEBAR_COLUMN_VISUAL_WIDTH = '240px'; // 208px (w-52) + 32px (margin-left)
+const CONTENT_GAP_WIDTH = '48px';
+const RIGHT_SCREEN_MARGIN_WIDTH = '48px';
 
 function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <UserProvider>
         <BrowserRouter>
-          <div className="grid grid-cols-[auto_1fr] h-screen">
-            <div className="flex flex-col">
-              <div className="flex justify-center" style={{ marginLeft: '32px', marginTop: '32px' }}>
-                <img src={logo} alt="MockTrade" className="h-12 w-auto" />
+          <Routes>
+            {/* Auth routes - no sidebar */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            
+            {/* Main app routes - with sidebar */}
+            <Route path="/*" element={
+              <div className={`grid h-screen overflow-hidden`}
+                   style={{ gridTemplateColumns: `${SIDEBAR_COLUMN_VISUAL_WIDTH} ${CONTENT_GAP_WIDTH} calc(100vw - ${SIDEBAR_COLUMN_VISUAL_WIDTH} - ${CONTENT_GAP_WIDTH} - ${RIGHT_SCREEN_MARGIN_WIDTH})` }}>
+
+                <div className="flex flex-col">
+                  <div className="flex justify-center" style={{ marginLeft: '32px', marginTop: '32px' }}>
+                    <img src={logo} alt="MockTrade" className="h-12 w-auto" />
+                  </div>
+                  <Sidebar />
+                </div>
+
+                {/* This empty div is the 32px gap */}
+                <div></div>
+
+                <main className="flex flex-col min-w-0 h-full overflow-hidden">
+                  <div className="flex-1 overflow-y-auto min-w-0 pb-8">
+                    <div className="pt-8">
+                      <Profile />
+                    </div>
+                    <div className="mt-8">
+                      <Routes>
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="/portfolio" element={<PortfolioPage />} />
+                      <Route path="/trade" element={<TradePage />} />
+                      <Route path="/watchlist" element={<WatchlistPage />} />
+                      <Route path="/leaderboard" element={<LeaderboardPage />} />
+                      <Route path="/transactions" element={<TransactionsPage />} />
+                      <Route path="/profile" element={<ProfilePage />} />
+                      </Routes>
+                    </div>
+                  </div>
+                </main>
               </div>
-              <Sidebar />
-            </div>
-            {/* 32px paddingLeft + 16px paddingRight gives consistent 32px spacing from all window edges */}
-            <main className="flex justify-center items-start py-8 overflow-y-auto relative" style={{ width: 'calc(100vw - 256px)', paddingLeft: '32px', paddingRight: '16px' }}>
-              <Profile />
-              <div style={{ width: 'calc(100vw - 32px)' }}>
-                <Routes>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/portfolio" element={<PortfolioPage />} />
-                  <Route path="/trade" element={<TradePage />} />
-                  <Route path="/watchlist" element={<WatchlistPage />} />
-                  <Route path="/leaderboard" element={<LeaderboardPage />} />
-                  <Route path="/transactions" element={<TransactionsPage />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                </Routes>
-              </div>
-            </main>
-          </div>
+            } />
+          </Routes>
         </BrowserRouter>
       </UserProvider>
     </ThemeProvider>

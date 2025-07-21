@@ -25,7 +25,6 @@ export default function ProfilePage() {
 
   return (
     <PageLayout title="Profile">
-      <div className="space-y-6">
             {/* Personal Information */}
             <div>
               <Title2>Personal Information</Title2>
@@ -96,7 +95,6 @@ export default function ProfilePage() {
                 Delete Account
               </Button1>
             </div>
-      </div>
     </PageLayout>
   );
 }

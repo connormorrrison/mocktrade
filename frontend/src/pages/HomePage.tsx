@@ -58,7 +58,6 @@ export default function HomePage() {
 
   return (
     <PageLayout title="Home">
-      <div className="space-y-6">
             {/* Welcome Section */}
             <div>
               <Text3>Welcome back, Sam</Text3>
@@ -133,7 +132,6 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-      </div>
     </PageLayout>
   );
 }

@@ -23,7 +23,7 @@ export function Leaderboard({ title, users, type, formatValue }: LeaderboardProp
         <Title2>{title}</Title2>
         <div className="space-y-2">
           {users.map((user) => (
-            <div key={user.username} className="flex items-center justify-between hover:bg-zinc-700 p-2 rounded-xl cursor-pointer min-w-0">
+            <div key={user.username} className="flex flex-wrap items-center justify-between hover:bg-zinc-700 p-2 rounded-xl cursor-pointer min-w-0">
               <div className="flex items-center gap-4">
                 <ProfilePicture size="sm" className="flex-shrink-0" />
                 <div>

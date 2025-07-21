@@ -32,7 +32,6 @@ export default function TradePage() {
 
   return (
     <PageLayout title="Trade">
-      <div className="space-y-6">
             {/* Search Section */}
             <div>
               <Title2>Search</Title2>
@@ -135,7 +134,6 @@ export default function TradePage() {
             <Button1 className="w-full" disabled>
               Submit Order
             </Button1>
-      </div>
     </PageLayout>
   );
 }

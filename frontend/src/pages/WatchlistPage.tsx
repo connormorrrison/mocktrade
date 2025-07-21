@@ -58,7 +58,6 @@ export default function WatchlistPage() {
 
     return (
         <PageLayout title="Watchlist">
-            <div className="space-y-6">
                 {/* Add Stock Section */}
                 <div>
                     <Title2>Add Stock</Title2>
@@ -120,7 +119,6 @@ export default function WatchlistPage() {
                             ))}
                     </div>
                 </div>
-            </div>
         </PageLayout>
     );
 }

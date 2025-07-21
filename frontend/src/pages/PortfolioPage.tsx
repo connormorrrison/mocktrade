@@ -69,7 +69,6 @@ export default function PortfolioPage() {
 
   return (
     <PageLayout title="Portfolio">
-      <div className="space-y-6">
         {/* Account Summary */}
         <div className="space-y-2">
           <Title2>Account Summary</Title2>
@@ -163,7 +162,6 @@ export default function PortfolioPage() {
               ))}
           </div>
         </div>
-      </div>
     </PageLayout>
   );
 }

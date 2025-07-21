@@ -11,16 +11,16 @@ export default function Profile() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const mainElement = document.querySelector('main');
-      if (mainElement) {
-        setIsScrolled(mainElement.scrollTop > 0);
+      const scrollElement = document.querySelector('main .overflow-y-auto');
+      if (scrollElement) {
+        setIsScrolled(scrollElement.scrollTop > 0);
       }
     };
     
-    const mainElement = document.querySelector('main');
-    if (mainElement) {
-      mainElement.addEventListener("scroll", handleScroll);
-      return () => mainElement.removeEventListener("scroll", handleScroll);
+    const scrollElement = document.querySelector('main .overflow-y-auto');
+    if (scrollElement) {
+      scrollElement.addEventListener("scroll", handleScroll);
+      return () => scrollElement.removeEventListener("scroll", handleScroll);
     }
   }, []);
 
