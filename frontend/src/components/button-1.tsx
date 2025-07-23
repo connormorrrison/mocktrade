@@ -11,7 +11,7 @@ export const Button1 = ({ children, className, variant = 'primary', disabled, ..
   return (
     <button 
       className={cn(
-        "!px-4 !py-2 !text-lg !font-medium !rounded-xl transition-colors focus:!outline-none !h-10 !flex !items-center !justify-center !gap-2 [&>svg]:w-5 [&>svg]:h-5 [&>svg]:flex-shrink-0 whitespace-nowrap",
+        "!px-4 !py-2 !text-lg !font-normal !rounded-xl transition-colors focus:!outline-none !h-10 !flex !items-center !justify-center !gap-2 [&>svg]:w-5 [&>svg]:h-5 [&>svg]:flex-shrink-0 whitespace-nowrap",
         disabled 
           ? '!bg-zinc-900 !text-zinc-300 !cursor-not-allowed focus:!outline-none focus:!ring-0' 
           : variant === 'primary' 

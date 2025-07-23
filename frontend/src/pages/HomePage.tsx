@@ -5,7 +5,6 @@ import { PageLayout } from "@/components/page-layout";
 import { StockCarousel } from "@/components/stock-carousel";
 import { Text2 } from "@/components/text-2";
 import { Text3 } from "@/components/text-3";
-import { Text4 } from "@/components/text-4";
 import { Text5 } from "@/components/text-5";
 import { Tile } from "@/components/tile";
 import { Title2 } from "@/components/title-2";
@@ -59,19 +58,6 @@ export default function HomePage() {
 
   return (
     <PageLayout title="Home">
-            {/* Welcome Section */}
-            <div>
-              <Text3>Welcome back, Sam</Text3>
-              <Text4>
-                Today is {new Date().toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </Text4>
-            </div>
-
             {/* Quick Actions */}
             <div>
               <Title2>Quick Actions</Title2>

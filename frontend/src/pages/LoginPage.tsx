@@ -1,5 +1,6 @@
-import { AuthPageLayout } from "@/components/auth-page-layout";
-import { Text1 } from "@/components/text-1";
+import { PublicLayout } from "@/components/public-layout";
+import { AuthTile } from "@/components/auth-tile";
+import { Text2 } from "@/components/text-2";
 import { Text4 } from "@/components/text-4";
 import { Text5 } from "@/components/text-5";
 import { TextField } from "@/components/text-field";
@@ -8,11 +9,12 @@ import { Link } from "react-router-dom";
 
 export default function LoginPage() {
   return (
-    <AuthPageLayout>
+    <PublicLayout showAuthButtons={false}>
+      <AuthTile>
       <div className="space-y-6">
         <div className="text-center space-y-2">
-          <Text1 className="!text-3xl">Login</Text1>
-          <Text5>Login to your MockTrade account</Text5>
+          <Text2>Login</Text2>
+          <Text5>Log in to your MockTrade account</Text5>
         </div>
         
         <div className="space-y-4">
@@ -20,17 +22,18 @@ export default function LoginPage() {
           <TextField label="Password" placeholder="Password" type="password" />
         </div>
         
-        <Button1 className="w-full">Sign In</Button1>
+        <Button1 className="w-full">Log In</Button1>
         
         <div className="text-center">
           <Text4>
             Don't have an account?{" "}
             <Link to="/signup" className="!text-blue-600 hover:!text-blue-700">
-              Sign up
+              Sign Up
             </Link>
           </Text4>
         </div>
       </div>
-    </AuthPageLayout>
+      </AuthTile>
+    </PublicLayout>
   );
 }

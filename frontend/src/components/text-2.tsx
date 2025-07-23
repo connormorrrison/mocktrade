@@ -17,7 +17,7 @@ export const Text2 = ({ children, className, variant = "white", ...props }: Text
   return (
     <label
       className={cn(
-        "!block !text-2xl !font-semibold",
+        "!block !text-2xl !font-normal",
         variantStyles[variant],
         className
       )}

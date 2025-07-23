@@ -17,7 +17,7 @@ export const Text6 = ({ children, className, variant = "white", ...props }: Text
   return (
     <span
       className={cn(
-        "!block !text-lg !font-medium",
+        "!block !text-lg !font-normal",
         variantStyles[variant],
         className
       )}

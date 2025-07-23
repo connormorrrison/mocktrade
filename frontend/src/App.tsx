@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import { ThemeProvider } from "@/components/theme-provider"
 import { UserProvider } from "@/contexts/UserContext"
 import Sidebar from "@/components/sidebar"
@@ -12,6 +12,7 @@ import TransactionsPage from "@/pages/TransactionsPage"
 import ProfilePage from "@/pages/ProfilePage"
 import LoginPage from "@/pages/LoginPage"
 import SignupPage from "@/pages/SignupPage"
+import LandingPage from "@/pages/LandingPage"
 import logo from "@/assets/mocktrade-logo.png"
 
 // Define the precise dimensions based on your sidebar
@@ -25,18 +26,163 @@ function App() {
       <UserProvider>
         <BrowserRouter>
           <Routes>
-            {/* Auth routes - no sidebar */}
+            {/* Landing and auth routes - no sidebar */}
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             
             {/* Main app routes - with sidebar */}
-            <Route path="/*" element={
+            <Route path="/home" element={
+              <div className={`grid h-screen overflow-hidden`}
+                   style={{ gridTemplateColumns: `${SIDEBAR_COLUMN_VISUAL_WIDTH} ${CONTENT_GAP_WIDTH} calc(100vw - ${SIDEBAR_COLUMN_VISUAL_WIDTH} - ${CONTENT_GAP_WIDTH} - ${RIGHT_SCREEN_MARGIN_WIDTH})` }}>
+                <div className="flex flex-col">
+                  <div className="flex justify-center" style={{ marginLeft: '32px', marginTop: '32px' }}>
+                    <Link to="/home">
+                      <img src={logo} alt="MockTrade" className="h-12 w-auto cursor-pointer" />
+                    </Link>
+                  </div>
+                  <Sidebar />
+                </div>
+                <div></div>
+                <main className="flex flex-col min-w-0 h-full overflow-hidden">
+                  <div className="flex-1 overflow-y-auto min-w-0 pb-8">
+                    <div className="pt-2"><Profile /></div>
+                    <div className="mt-8"><HomePage /></div>
+                  </div>
+                </main>
+              </div>
+            } />
+            <Route path="/portfolio" element={
+              <div className={`grid h-screen overflow-hidden`}
+                   style={{ gridTemplateColumns: `${SIDEBAR_COLUMN_VISUAL_WIDTH} ${CONTENT_GAP_WIDTH} calc(100vw - ${SIDEBAR_COLUMN_VISUAL_WIDTH} - ${CONTENT_GAP_WIDTH} - ${RIGHT_SCREEN_MARGIN_WIDTH})` }}>
+                <div className="flex flex-col">
+                  <div className="flex justify-center" style={{ marginLeft: '32px', marginTop: '32px' }}>
+                    <Link to="/home">
+                      <img src={logo} alt="MockTrade" className="h-12 w-auto cursor-pointer" />
+                    </Link>
+                  </div>
+                  <Sidebar />
+                </div>
+                <div></div>
+                <main className="flex flex-col min-w-0 h-full overflow-hidden">
+                  <div className="flex-1 overflow-y-auto min-w-0 pb-8">
+                    <div className="pt-2"><Profile /></div>
+                    <div className="mt-8"><PortfolioPage /></div>
+                  </div>
+                </main>
+              </div>
+            } />
+            <Route path="/trade" element={
+              <div className={`grid h-screen overflow-hidden`}
+                   style={{ gridTemplateColumns: `${SIDEBAR_COLUMN_VISUAL_WIDTH} ${CONTENT_GAP_WIDTH} calc(100vw - ${SIDEBAR_COLUMN_VISUAL_WIDTH} - ${CONTENT_GAP_WIDTH} - ${RIGHT_SCREEN_MARGIN_WIDTH})` }}>
+                <div className="flex flex-col">
+                  <div className="flex justify-center" style={{ marginLeft: '32px', marginTop: '32px' }}>
+                    <Link to="/home">
+                      <img src={logo} alt="MockTrade" className="h-12 w-auto cursor-pointer" />
+                    </Link>
+                  </div>
+                  <Sidebar />
+                </div>
+                <div></div>
+                <main className="flex flex-col min-w-0 h-full overflow-hidden">
+                  <div className="flex-1 overflow-y-auto min-w-0 pb-8">
+                    <div className="pt-2"><Profile /></div>
+                    <div className="mt-8"><TradePage /></div>
+                  </div>
+                </main>
+              </div>
+            } />
+            <Route path="/watchlist" element={
+              <div className={`grid h-screen overflow-hidden`}
+                   style={{ gridTemplateColumns: `${SIDEBAR_COLUMN_VISUAL_WIDTH} ${CONTENT_GAP_WIDTH} calc(100vw - ${SIDEBAR_COLUMN_VISUAL_WIDTH} - ${CONTENT_GAP_WIDTH} - ${RIGHT_SCREEN_MARGIN_WIDTH})` }}>
+                <div className="flex flex-col">
+                  <div className="flex justify-center" style={{ marginLeft: '32px', marginTop: '32px' }}>
+                    <Link to="/home">
+                      <img src={logo} alt="MockTrade" className="h-12 w-auto cursor-pointer" />
+                    </Link>
+                  </div>
+                  <Sidebar />
+                </div>
+                <div></div>
+                <main className="flex flex-col min-w-0 h-full overflow-hidden">
+                  <div className="flex-1 overflow-y-auto min-w-0 pb-8">
+                    <div className="pt-2"><Profile /></div>
+                    <div className="mt-8"><WatchlistPage /></div>
+                  </div>
+                </main>
+              </div>
+            } />
+            <Route path="/leaderboard" element={
+              <div className={`grid h-screen overflow-hidden`}
+                   style={{ gridTemplateColumns: `${SIDEBAR_COLUMN_VISUAL_WIDTH} ${CONTENT_GAP_WIDTH} calc(100vw - ${SIDEBAR_COLUMN_VISUAL_WIDTH} - ${CONTENT_GAP_WIDTH} - ${RIGHT_SCREEN_MARGIN_WIDTH})` }}>
+                <div className="flex flex-col">
+                  <div className="flex justify-center" style={{ marginLeft: '32px', marginTop: '32px' }}>
+                    <Link to="/home">
+                      <img src={logo} alt="MockTrade" className="h-12 w-auto cursor-pointer" />
+                    </Link>
+                  </div>
+                  <Sidebar />
+                </div>
+                <div></div>
+                <main className="flex flex-col min-w-0 h-full overflow-hidden">
+                  <div className="flex-1 overflow-y-auto min-w-0 pb-8">
+                    <div className="pt-2"><Profile /></div>
+                    <div className="mt-8"><LeaderboardPage /></div>
+                  </div>
+                </main>
+              </div>
+            } />
+            <Route path="/transactions" element={
+              <div className={`grid h-screen overflow-hidden`}
+                   style={{ gridTemplateColumns: `${SIDEBAR_COLUMN_VISUAL_WIDTH} ${CONTENT_GAP_WIDTH} calc(100vw - ${SIDEBAR_COLUMN_VISUAL_WIDTH} - ${CONTENT_GAP_WIDTH} - ${RIGHT_SCREEN_MARGIN_WIDTH})` }}>
+                <div className="flex flex-col">
+                  <div className="flex justify-center" style={{ marginLeft: '32px', marginTop: '32px' }}>
+                    <Link to="/home">
+                      <img src={logo} alt="MockTrade" className="h-12 w-auto cursor-pointer" />
+                    </Link>
+                  </div>
+                  <Sidebar />
+                </div>
+                <div></div>
+                <main className="flex flex-col min-w-0 h-full overflow-hidden">
+                  <div className="flex-1 overflow-y-auto min-w-0 pb-8">
+                    <div className="pt-2"><Profile /></div>
+                    <div className="mt-8"><TransactionsPage /></div>
+                  </div>
+                </main>
+              </div>
+            } />
+            <Route path="/profile" element={
+              <div className={`grid h-screen overflow-hidden`}
+                   style={{ gridTemplateColumns: `${SIDEBAR_COLUMN_VISUAL_WIDTH} ${CONTENT_GAP_WIDTH} calc(100vw - ${SIDEBAR_COLUMN_VISUAL_WIDTH} - ${CONTENT_GAP_WIDTH} - ${RIGHT_SCREEN_MARGIN_WIDTH})` }}>
+                <div className="flex flex-col">
+                  <div className="flex justify-center" style={{ marginLeft: '32px', marginTop: '32px' }}>
+                    <Link to="/home">
+                      <img src={logo} alt="MockTrade" className="h-12 w-auto cursor-pointer" />
+                    </Link>
+                  </div>
+                  <Sidebar />
+                </div>
+                <div></div>
+                <main className="flex flex-col min-w-0 h-full overflow-hidden">
+                  <div className="flex-1 overflow-y-auto min-w-0 pb-8">
+                    <div className="pt-2"><Profile /></div>
+                    <div className="mt-8"><ProfilePage /></div>
+                  </div>
+                </main>
+              </div>
+            } />
+            
+            {/* Main app routes - with sidebar */}
+            <Route path="/app/*" element={
               <div className={`grid h-screen overflow-hidden`}
                    style={{ gridTemplateColumns: `${SIDEBAR_COLUMN_VISUAL_WIDTH} ${CONTENT_GAP_WIDTH} calc(100vw - ${SIDEBAR_COLUMN_VISUAL_WIDTH} - ${CONTENT_GAP_WIDTH} - ${RIGHT_SCREEN_MARGIN_WIDTH})` }}>
 
                 <div className="flex flex-col">
                   <div className="flex justify-center" style={{ marginLeft: '32px', marginTop: '32px' }}>
-                    <img src={logo} alt="MockTrade" className="h-12 w-auto" />
+                    <Link to="/home">
+                      <img src={logo} alt="MockTrade" className="h-12 w-auto cursor-pointer" />
+                    </Link>
                   </div>
                   <Sidebar />
                 </div>

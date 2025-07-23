@@ -1,13 +1,13 @@
 import { Link, useLocation } from 'react-router-dom'
 import { Card } from '@/components/ui/card'
 import { Button2 } from '@/components/button-2'
-import { House, Wallet, TrendingUp, FileText, User, LogOut, Eye, Trophy } from 'lucide-react'
+import { House, Wallet, TrendingUp, FileText, User, LogOut, Eye, Trophy, Bug } from 'lucide-react'
 
 export default function Sidebar() {
   const location = useLocation()
   
   const menuItems = [
-    { name: 'Home', path: '/', icon: House },
+    { name: 'Home', path: '/home', icon: House },
     { name: 'Portfolio', path: '/portfolio', icon: Wallet },
     { name: 'Trade', path: '/trade', icon: TrendingUp },
     { name: 'Watchlist', path: '/watchlist', icon: Eye },
@@ -38,7 +38,7 @@ export default function Sidebar() {
                 <li key={item.name}>
                   <Link
                     to={item.path}
-                    className={`flex items-center gap-4 px-4 py-2 rounded-xl text-lg !font-medium transition-colors ${
+                    className={`flex items-center gap-4 px-4 py-2 rounded-xl text-lg !font-normal transition-colors ${
                       isActive
                         ? '!bg-blue-600/8 !text-blue-600'
                         : '!text-white hover:bg-blue-600/5'
@@ -52,9 +52,13 @@ export default function Sidebar() {
             })}
           </ul>
         </nav>
-        
-        {/* Logout button at bottom */}
-        <div className="mt-4 flex justify-start">
+
+        {/* Bottom buttons stacked vertically */}
+        <div className="mt-4 flex flex-col gap-2 items-start">
+          <Button2>
+            <Bug className="!text-orange-600" />
+            Report
+          </Button2>
           <Button2>
             <LogOut className="!text-red-600" />
             Logout
