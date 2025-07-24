@@ -124,3 +124,27 @@ async def change_password(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
+
+@router.delete("/me")
+async def delete_user(
+    current_user: User = Depends(AuthService.get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Delete current user account (soft delete)"""
+    try:
+        logger.info(f"Account deletion requested for user: {current_user.email}")
+        
+        await AuthService.delete_user(db=db, user=current_user)
+        
+        logger.info(f"Account successfully deleted for user: {current_user.email}")
+        return {"message": "Account deleted successfully"}
+        
+    except HTTPException as http_exc:
+        logger.error(f"HTTP error deleting account: {http_exc.status_code}: {http_exc.detail}")
+        raise http_exc
+    except Exception as e:
+        logger.error(f"Unexpected error deleting account: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )

@@ -4,12 +4,14 @@ import { Tile } from "@/components/tile";
 import { Text4 } from "@/components/text-4";
 import { Text5 } from "@/components/text-5";
 import { ProfilePicture } from "@/components/profile-picture";
+import { useUser } from "@/contexts/UserContext";
 
 export default function Profile() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [expandedWidth, setExpandedWidth] = useState(192); // fallback width
   const contentRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { userData, isLoading } = useUser();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,6 +48,11 @@ export default function Profile() {
     setTimeout(measureWidth, 10);
   }, []);
 
+  // Only render if we have user data or are loading
+  if (!isLoading && !userData) {
+    return null;
+  }
+
   return (
     <div className="fixed top-8 right-8 h-16 z-50">
       <div 
@@ -77,8 +84,12 @@ export default function Profile() {
                 isScrolled ? 'w-0 opacity-0 ml-0 scale-95 group-hover:w-auto group-hover:opacity-100 group-hover:ml-3 group-hover:scale-100' : 'w-auto opacity-100 ml-3 scale-100'
               }`}
             >
-              <Text5 className="whitespace-nowrap">Sam Smith</Text5>
-              <Text4 className="whitespace-nowrap">@samsmith</Text4>
+              <Text5 className="whitespace-nowrap">
+                {isLoading ? 'Loading...' : `${userData!.first_name} ${userData!.last_name}`}
+              </Text5>
+              <Text4 className="whitespace-nowrap">
+                {isLoading ? '' : `@${userData!.username}`}
+              </Text4>
             </div>
           </div>
           </Tile>

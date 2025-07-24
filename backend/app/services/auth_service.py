@@ -208,3 +208,23 @@ class AuthService:
         if user is None:
             raise credentials_exception
         return user
+
+    @staticmethod
+    async def delete_user(db: Session, user: User) -> None:
+        """Soft deletes a user account"""
+        try:
+            logger.info(f"Attempting to delete user account: {user.email}")
+            
+            # Soft delete by setting is_active to False
+            user.is_active = False
+            db.commit()
+            
+            logger.info(f"Successfully deleted user account: {user.email}")
+        
+        except Exception as e:
+            db.rollback()
+            logger.error(f"Error deleting user account: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail="An error occurred while deleting the account"
+            )
