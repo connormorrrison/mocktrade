@@ -13,9 +13,10 @@ interface Transaction {
 
 interface TransactionsTableProps {
   transactions: Transaction[]
+  isLoading?: boolean
 }
 
-export const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
+export const TransactionsTable = ({ transactions, isLoading = false }: TransactionsTableProps) => {
 
   return (
     // CRITICAL: Use relative positioning to establish a containing block
@@ -36,33 +37,47 @@ export const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800 bg-input/30">
-            {transactions.map(tx => (
-              <tr key={tx.id} className="hover:bg-zinc-700">
-                <td className="px-4 py-2 whitespace-nowrap"><Text5>{tx.id}</Text5></td>
-                <td className="px-4 py-2 whitespace-nowrap">
-                  <Text5>{new Date(tx.created_at).toLocaleString()}</Text5>
-                </td>
-                <td className="px-4 whitespace-nowrap">
-                  <Text5 className={`inline-block px-2 py-1 rounded-full ${
-                    tx.transaction_type === 'BUY'
-                      ? 'bg-green-900/50 !text-green-300'
-                      : 'bg-red-900/50 !text-red-300'
-                  }`}>
-                    {tx.transaction_type}
-                  </Text5>
-                </td>
-                <td className="px-4 py-2 whitespace-nowrap"><Text5>{tx.symbol}</Text5></td>
-                <td className="px-4 py-2 whitespace-nowrap">
-                  <Text5>{tx.shares.toLocaleString()}</Text5>
-                </td>
-                <td className="px-4 py-2 whitespace-nowrap">
-                  <Text5>{formatMoney(tx.price)}</Text5>
-                </td>
-                <td className="px-4 py-2 whitespace-nowrap">
-                  <Text5>{formatMoney(tx.total_amount)}</Text5>
+            {isLoading ? (
+              <tr>
+                <td colSpan={7} className="text-center py-8">
+                  <Text5>Loading...</Text5>
                 </td>
               </tr>
-            ))}
+            ) : transactions.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="text-center py-8">
+                  <Text5 className="!text-zinc-500">No transactions found</Text5>
+                </td>
+              </tr>
+            ) : (
+              transactions.map(tx => (
+                <tr key={tx.id} className="hover:bg-zinc-700">
+                  <td className="px-4 py-2 whitespace-nowrap"><Text5>{tx.id}</Text5></td>
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <Text5>{new Date(tx.created_at).toLocaleString()}</Text5>
+                  </td>
+                  <td className="px-4 whitespace-nowrap">
+                    <Text5 className={`inline-block px-2 py-1 rounded-full ${
+                      tx.transaction_type === 'BUY'
+                        ? 'bg-green-900/50 !text-green-300'
+                        : 'bg-red-900/50 !text-red-300'
+                    }`}>
+                      {tx.transaction_type}
+                    </Text5>
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap"><Text5>{tx.symbol}</Text5></td>
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <Text5>{tx.shares.toLocaleString()}</Text5>
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <Text5>{formatMoney(tx.price)}</Text5>
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <Text5>{formatMoney(tx.total_amount)}</Text5>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

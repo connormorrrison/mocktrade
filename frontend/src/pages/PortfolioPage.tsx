@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PageLayout } from "@/components/page-layout";
 import { PortfolioChart } from "@/components/portfolio-chart";
 import { Tile } from "@/components/tile";
@@ -9,51 +9,105 @@ import { UserProfileTiles } from "@/components/user-profile-tiles";
 import { formatMoney } from "@/lib/format-money";
 
 export default function PortfolioPage() {
-  // Mock data to match the original structure
-  const cashBalance = 12450.32;
-  const totalPortfolioValue = 127450.32;
-  const startingPortfolioValue = 100000;
-  const cumulativeReturn =
-    ((totalPortfolioValue - startingPortfolioValue) / startingPortfolioValue) *
-    100;
-  
-  // Mock transaction count for the overview component
-  const mockTransactionCount = 15;
   const [selectedFilter, setSelectedFilter] = useState("1mo");
   const [sortBy, setSortBy] = useState("symbol");
+  const [portfolioData, setPortfolioData] = useState(null);
+  const [transactionCount, setTransactionCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const positions = [
-    {
-      symbol: "AAPL",
-      company_name: "Apple Inc.",
-      shares: 50,
-      current_price: 150.25,
-      average_price: 145.0,
-      previous_price: 148.5,
-      created_at: "2024-12-15T00:00:00Z",
-      price_at_selected_range: 142.8,
-    },
-    {
-      symbol: "GOOGL",
-      company_name: "Alphabet Inc.",
-      shares: 25,
-      current_price: 2750.8,
-      average_price: 2650.0,
-      previous_price: 2735.2,
-      created_at: "2024-12-10T00:00:00Z",
-      price_at_selected_range: 2680.5,
-    },
-    {
-      symbol: "TSLA",
-      company_name: "Tesla, Inc.",
-      shares: 100,
-      current_price: 245.6,
-      average_price: 270.0,
-      previous_price: 250.3,
-      created_at: "2024-12-05T00:00:00Z",
-      price_at_selected_range: 272.4,
-    },
-  ];
+  const fetchPortfolioData = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('No authentication token found');
+        return;
+      }
+
+      const response = await fetch('http://localhost:8000/api/v1/portfolio/summary', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setPortfolioData(data);
+        setError("");
+      } else {
+        throw new Error('Failed to fetch portfolio data');
+      }
+    } catch (error) {
+      console.error('Error fetching portfolio data:', error);
+      setError('Failed to load portfolio data');
+      // Fallback to mock data for development
+      setPortfolioData({
+        cash_balance: 12450.32,
+        total_value: 127450.32,
+        starting_value: 100000,
+        return_percentage: 27.45,
+        positions: [
+          {
+            symbol: "AAPL",
+            shares: 50,
+            current_price: 150.25,
+            average_price: 145.0,
+            current_value: 7512.5,
+            unrealized_gain_loss: 262.5,
+            unrealized_gain_loss_percent: 3.62
+          }
+        ]
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTransactionCount = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        return;
+      }
+
+      const response = await fetch('http://localhost:8000/api/v1/trading/transactions', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setTransactionCount(data.length);
+      }
+    } catch (error) {
+      console.error('Error fetching transaction count:', error);
+      // Keep default value of 0
+    }
+  };
+
+  useEffect(() => {
+    fetchPortfolioData();
+    fetchTransactionCount();
+  }, []);
+
+  if (loading) {
+    return (
+      <PageLayout title="Portfolio">
+        <div>Loading portfolio data...</div>
+      </PageLayout>
+    );
+  }
+
+  if (error && !portfolioData) {
+    return (
+      <PageLayout title="Portfolio">
+        <div>Error: {error}</div>
+      </PageLayout>
+    );
+  }
+
 
 
 
@@ -62,9 +116,9 @@ export default function PortfolioPage() {
         <div className="space-y-2">
           <Title2>Overview</Title2>
           <UserProfileTiles
-            totalValue={totalPortfolioValue}
-            cashBalance={cashBalance}
-            transactionCount={mockTransactionCount}
+            totalValue={portfolioData?.total_value || 0}
+            cashBalance={portfolioData?.cash_balance || 0}
+            transactionCount={transactionCount}
           />
         </div>
 
@@ -109,8 +163,8 @@ export default function PortfolioPage() {
             />
           </div>
           <div className="space-y-4">
-            {positions
-              .sort((a, b) => {
+            {portfolioData?.positions
+              ?.sort((a, b) => {
                 switch (sortBy) {
                   case "symbol":
                     return a.symbol.localeCompare(b.symbol);
@@ -121,12 +175,10 @@ export default function PortfolioPage() {
                   case "currentPrice":
                     return b.current_price - a.current_price;
                   case "marketValue":
-                    return (b.shares * b.current_price) - (a.shares * a.current_price);
+                    return b.current_value - a.current_value;
                   case "portfolio":
-                    const aMarketValue = a.shares * a.current_price;
-                    const bMarketValue = b.shares * b.current_price;
-                    const aPercent = totalPortfolioValue > 0 ? (aMarketValue / totalPortfolioValue) * 100 : 0;
-                    const bPercent = totalPortfolioValue > 0 ? (bMarketValue / totalPortfolioValue) * 100 : 0;
+                    const aPercent = portfolioData.total_value > 0 ? (a.current_value / portfolioData.total_value) * 100 : 0;
+                    const bPercent = portfolioData.total_value > 0 ? (b.current_value / portfolioData.total_value) * 100 : 0;
                     return bPercent - aPercent;
                   default:
                     return 0;
@@ -135,10 +187,17 @@ export default function PortfolioPage() {
               .map((pos) => (
                 <PortfolioTile
                   key={pos.symbol}
-                  position={pos}
-                  totalPortfolioValue={totalPortfolioValue}
+                  position={{
+                    symbol: pos.symbol,
+                    shares: pos.shares,
+                    current_price: pos.current_price,
+                    average_price: pos.average_price,
+                    previous_price: pos.current_price, // TODO: Get previous price from API
+                    company_name: pos.symbol // TODO: Get company name from API
+                  }}
+                  totalPortfolioValue={portfolioData.total_value}
                 />
-              ))}
+              )) || []}
           </div>
         </div>
     </PageLayout>
