@@ -1,9 +1,11 @@
-import { TrendingUp } from "lucide-react";
+import { TrendingUp, Plus, X } from "lucide-react";
 import { Button1 } from "@/components/button-1";
+import { Button2 } from "@/components/button-2";
 import { Text4 } from "@/components/text-4";
 import { Text5 } from "@/components/text-5";
 import { Text6 } from "@/components/text-6";
 import { Tile } from "@/components/tile";
+import { formatMoney } from "@/lib/format-money";
 
 interface PortfolioPosition {
   symbol: string;
@@ -18,19 +20,21 @@ interface PortfolioTileProps {
   position: PortfolioPosition;
   filterLabel: string;
   onTrade?: (symbol: string) => void;
+  onAddToWatchlist?: (symbol: string) => void;
+  onRemoveFromWatchlist?: (symbol: string) => void;
+  isInWatchlist?: boolean;
+  showWatchlistButton?: boolean;
 }
 
 export function PortfolioTile({
   position,
   filterLabel,
-  onTrade
+  onTrade,
+  onAddToWatchlist,
+  onRemoveFromWatchlist,
+  isInWatchlist = false,
+  showWatchlistButton = false
 }: PortfolioTileProps) {
-  function formatMoney(value: number) {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(value);
-  }
 
   const effectivePurchasePrice = position.price_at_selected_range || position.average_price;
   const gainSinceRange = (position.current_price - effectivePurchasePrice) * position.shares;
@@ -98,6 +102,19 @@ export function PortfolioTile({
             <TrendingUp />
             Trade
           </Button1>
+          {showWatchlistButton && (
+            isInWatchlist ? (
+              <Button2 onClick={() => onRemoveFromWatchlist?.(position.symbol)} className="!w-32">
+                <X />
+                Remove
+              </Button2>
+            ) : (
+              <Button2 onClick={() => onAddToWatchlist?.(position.symbol)} className="!w-32">
+                <Plus />
+                Add
+              </Button2>
+            )
+          )}
         </div>
       </div>
     </Tile>

@@ -3,6 +3,7 @@ import { PageLayout } from "@/components/page-layout";
 import { Button1 } from "@/components/button-1";
 import { Countdown } from "@/components/countdown";
 import { Leaderboard } from "@/components/leaderboard";
+import { formatMoney } from "@/lib/format-money";
 
 export default function LeaderboardPage() {
   const [timeframe, setTimeframe] = useState<"Day" | "Week" | "Month" | "All">("Day");
@@ -37,12 +38,6 @@ export default function LeaderboardPage() {
   // Sort users by profit for Profit leaderboard
   const profitLeaderboard = [...topUsers].sort((a, b) => b.profit - a.profit);
 
-  function formatMoney(value: number) {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(value);
-  }
 
   const formatReturn = (value: number) => `+${value.toFixed(2)}%`;
   const formatProfit = (value: number) => `+${formatMoney(value)}`;
@@ -84,16 +79,16 @@ export default function LeaderboardPage() {
         {/* Return and Profit Leaderboards */}
         <div className="flex flex-col lg:flex-row gap-4 justify-center items-start">
           <Leaderboard
+            title="Profit/Loss"
+            users={profitLeaderboard}
+            type="profit"
+            formatValue={formatProfit}
+          />
+          <Leaderboard
             title="Return"
             users={returnLeaderboard}
             type="return"
             formatValue={formatReturn}
-          />
-          <Leaderboard
-            title="Profit"
-            users={profitLeaderboard}
-            type="profit"
-            formatValue={formatProfit}
           />
         </div>
     </PageLayout>

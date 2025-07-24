@@ -3,7 +3,7 @@ import { Title1 } from "@/components/title-1";
 import SlideUpAnimation from "@/components/slide-up-animation";
 
 interface PageLayoutProps {
-  title: string;
+  title: string | ReactNode;
   children: ReactNode;
 }
 

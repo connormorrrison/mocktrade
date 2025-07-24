@@ -5,6 +5,7 @@ import { Text4 } from "@/components/text-4";
 import { Text5 } from "@/components/text-5";
 import { Text6 } from "@/components/text-6";
 import { Tile } from "@/components/tile";
+import { formatMoney } from "@/lib/format-money";
 
 interface WatchlistStock {
   symbol: string;
@@ -21,12 +22,6 @@ interface WatchlistTileProps {
 }
 
 export function WatchlistTile({ stock, onTrade, onRemove }: WatchlistTileProps) {
-  function formatMoney(value: number) {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(value);
-  }
 
   const dailyChange = stock.current_price - stock.previous_price;
   const dailyPercent = stock.previous_price > 0 

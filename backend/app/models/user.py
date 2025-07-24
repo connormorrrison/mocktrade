@@ -21,3 +21,5 @@ class User(Base):
     # Relationships
     positions = relationship("Position", back_populates="user")
     transactions = relationship("Transaction", back_populates="user")
+    watchlist = relationship("Watchlist", back_populates="user")
+    portfolio_snapshots = relationship("PortfolioSnapshot", back_populates="user")

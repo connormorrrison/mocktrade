@@ -1,4 +1,5 @@
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import { formatMoney } from "@/lib/format-money";
 
 const chartData = [
   { date: "2024-04-01", desktop: 222, mobile: 150 },
@@ -97,12 +98,7 @@ const chartData = [
 export function PortfolioChart() {
   // Calculate dynamic width based on max value
   const maxValue = Math.max(...chartData.map(item => item.desktop));
-  const maxValueLength = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(maxValue).length;
+  const maxValueLength = formatMoney(Math.round(maxValue)).length;
   
   // Calculate width: roughly 8px per character + some padding
   const yAxisWidth = Math.max(40, maxValueLength * 8 + 10);
@@ -133,14 +129,7 @@ export function PortfolioChart() {
             tick={{ fill: '#9CA3AF', fontSize: 12 }}
             tickMargin={8}
             width={yAxisWidth}
-            tickFormatter={(value) => {
-              return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-              }).format(value)
-            }}
+            tickFormatter={(value) => formatMoney(Math.round(value))}
           />
           <Tooltip
             labelFormatter={(value) => {
@@ -151,7 +140,7 @@ export function PortfolioChart() {
                 year: "numeric",
               })
             }}
-            formatter={(value) => [value, "Portfolio Value"]}
+            formatter={(value) => [formatMoney(Number(value)), "Portfolio Value"]}
             contentStyle={{
               backgroundColor: '#1f2937',
               border: '1px solid #374151',
@@ -159,6 +148,7 @@ export function PortfolioChart() {
               color: '#f9fafb'
             }}
             labelStyle={{ color: '#f9fafb' }}
+            itemStyle={{ color: '#f9fafb' }}
           />
           <Area
             type="monotone"

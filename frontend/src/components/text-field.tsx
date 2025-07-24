@@ -1,13 +1,18 @@
-import React from "react"
+import React, { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Text4 } from "@/components/text-4"
+import { Eye, EyeOff } from "lucide-react"
 
 interface TextFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string
   className?: string
 }
 
-export const TextField = ({ label, className, ...props }: TextFieldProps) => {
+export const TextField = ({ label, className, type, ...props }: TextFieldProps) => {
+  const [showPassword, setShowPassword] = useState(false)
+  const isPassword = type === "password"
+  const inputType = isPassword ? (showPassword ? "text" : "password") : type
+
   return (
     <div className={cn("flex flex-col gap-2", className)}>
       {label && (
@@ -15,12 +20,24 @@ export const TextField = ({ label, className, ...props }: TextFieldProps) => {
           {label}
         </Text4>
       )}
-      <input
-        className={cn(
-          "!w-full !px-4 !py-2 h-10 !text-lg !font-normal !text-muted-foreground !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl !focus:outline-none focus:!ring-0"
+      <div className="relative">
+        <input
+          type={inputType}
+          className={cn(
+            "!w-full !px-4 !py-2 h-10 !text-lg !font-normal !text-muted-foreground !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl !focus:outline-none focus:!ring-0",
+            isPassword && "pr-12"
+          )}
+          {...props}
+        />
+        {isPassword && (
+          <div 
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </div>
         )}
-        {...props}
-      />
+      </div>
     </div>
   )
 }

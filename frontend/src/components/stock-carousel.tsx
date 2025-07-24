@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Text5 } from "@/components/text-5";
 import { Text6 } from "@/components/text-6";
 import { Tile } from "@/components/tile";
+import { formatMoney } from "@/lib/format-money";
 
 interface Stock {
   symbol: string;
@@ -36,12 +37,6 @@ export function StockCarousel({ stocks, variant }: StockCarouselProps) {
       : `${change.toFixed(2)}%`;
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(price);
-  };
 
   const tileHeight = 80; // 64px tile + 16px gap = 80px spacing
 
@@ -88,10 +83,10 @@ export function StockCarousel({ stocks, variant }: StockCarouselProps) {
               <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center sm:gap-4 w-full">
                 <div className="flex justify-between items-center sm:block">
                   <Text6 className="whitespace-nowrap">{stock.symbol}</Text6>
-                  <Text5 className="sm:hidden whitespace-nowrap">{formatPrice(stock.price)}</Text5>
+                  <Text5 className="sm:hidden whitespace-nowrap">{formatMoney(stock.price)}</Text5>
                 </div>
                 <div className="hidden sm:flex sm:gap-4 sm:items-center">
-                  <Text5 className="whitespace-nowrap">{formatPrice(stock.price)}</Text5>
+                  <Text5 className="whitespace-nowrap">{formatMoney(stock.price)}</Text5>
                   <Text5 variant={variant} className="whitespace-nowrap">{formatChange(stock.change)}</Text5>
                 </div>
                 <Text5 variant={variant} className="sm:hidden text-right whitespace-nowrap">{formatChange(stock.change)}</Text5>

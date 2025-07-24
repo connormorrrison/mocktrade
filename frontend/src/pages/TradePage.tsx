@@ -11,6 +11,7 @@ import { Text5 } from "@/components/text-5";
 import { TextField } from "@/components/text-field";
 import { Tile } from "@/components/tile";
 import { Title2 } from "@/components/title-2";
+import { formatMoney } from "@/lib/format-money";
 
 export default function TradePage() {
   // State
@@ -23,12 +24,6 @@ export default function TradePage() {
   const availableCash = 12450.32;
   const quantity = "10";
 
-  function formatMoney(value: number) {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(value);
-  }
 
   return (
     <PageLayout title="Trade">

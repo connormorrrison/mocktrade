@@ -1,4 +1,5 @@
 import { Text5 } from "@/components/text-5";
+import { formatMoney } from "@/lib/format-money";
 
 interface Transaction {
   id: number
@@ -15,12 +16,6 @@ interface TransactionsTableProps {
 }
 
 export const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
-  function formatMoney(value: number) {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(value);
-  }
 
   return (
     // CRITICAL: Use relative positioning to establish a containing block

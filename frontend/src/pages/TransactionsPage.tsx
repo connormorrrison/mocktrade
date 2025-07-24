@@ -52,7 +52,7 @@ export default function TransactionsPage() {
   ];
 
   return (
-    <PageLayout title="Transactions">
+    <PageLayout title="Activity">
       {/* Add overflow-hidden wrapper to prevent page expansion */}
       <div className="overflow-hidden">
         {/* Filters Section */}
@@ -73,7 +73,7 @@ export default function TransactionsPage() {
             onValueChange={setToDate}
           />
 
-          {/* Transaction Type Filter */}
+          {/* Activity Type Filter */}
           <CustomDropdown
             label="Filter"
             value={selectedFilter}
@@ -93,7 +93,7 @@ export default function TransactionsPage() {
           </Button2>
         </div>
 
-        {/* Transactions Table - Now properly constrained */}
+        {/* Activity Table - Now properly constrained */}
         <TransactionsTable transactions={transactions} />
       </div>
     </PageLayout>

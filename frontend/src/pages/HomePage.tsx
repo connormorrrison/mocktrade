@@ -9,6 +9,7 @@ import { Text5 } from "@/components/text-5";
 import { Tile } from "@/components/tile";
 import { Title2 } from "@/components/title-2";
 import { Title3 } from "@/components/title-3";
+import { formatMoney } from "@/lib/format-money";
 
 export default function HomePage() {
   const isMarketOpen = useMarketStatus();
@@ -49,12 +50,6 @@ export default function HomePage() {
     { symbol: "PELOTON", change: -0.65, price: 34.56 }
   ];
 
-  function formatMoney(value: number) {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(value);
-  }
 
   return (
     <PageLayout title="Home">
@@ -76,7 +71,7 @@ export default function HomePage() {
                 </Button1>
                 <Button1>
                   <FileText />
-                  View Transactions
+                  View Activity
                 </Button1>
               </div>
             </div>
