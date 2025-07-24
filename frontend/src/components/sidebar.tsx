@@ -12,7 +12,7 @@ export default function Sidebar() {
     { name: 'Trade', path: '/trade', icon: TrendingUp },
     { name: 'Watchlist', path: '/watchlist', icon: Eye },
     { name: 'Leaderboard', path: '/leaderboard', icon: Trophy },
-    { name: 'Transactions', path: '/transactions', icon: FileText },
+    { name: 'Activity', path: '/activity', icon: FileText },
     { name: 'Profile', path: '/profile', icon: User },
   ]
 
@@ -33,7 +33,9 @@ export default function Sidebar() {
           <ul className="space-y-1">
             {menuItems.map(item => {
               const IconComponent = item.icon
-              const isActive = location.pathname === item.path
+              const isActive = item.path === '/leaderboard' 
+                ? location.pathname.startsWith('/leaderboard')
+                : location.pathname === item.path
               return (
                 <li key={item.name}>
                   <Link

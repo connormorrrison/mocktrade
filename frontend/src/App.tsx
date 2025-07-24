@@ -3,6 +3,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { UserProvider } from "@/contexts/UserContext"
 import Sidebar from "@/components/sidebar"
 import Profile from "@/components/profile"
+import { ScrollToTop } from "@/components/scroll-to-top"
 import HomePage from "@/pages/HomePage"
 import PortfolioPage from "@/pages/PortfolioPage"
 import TradePage from "@/pages/TradePage"
@@ -10,6 +11,7 @@ import WatchlistPage from "@/pages/WatchlistPage"
 import LeaderboardPage from "@/pages/LeaderboardPage"
 import TransactionsPage from "@/pages/TransactionsPage"
 import ProfilePage from "@/pages/ProfilePage"
+import UserProfilePage from "@/pages/UserProfilePage"
 import LoginPage from "@/pages/LoginPage"
 import SignupPage from "@/pages/SignupPage"
 import LandingPage from "@/pages/LandingPage"
@@ -25,6 +27,7 @@ function App() {
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <UserProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             {/* Landing and auth routes - no sidebar */}
             <Route path="/" element={<LandingPage />} />
@@ -132,7 +135,7 @@ function App() {
                 </main>
               </div>
             } />
-            <Route path="/transactions" element={
+            <Route path="/activity" element={
               <div className={`grid h-screen overflow-hidden`}
                    style={{ gridTemplateColumns: `${SIDEBAR_COLUMN_VISUAL_WIDTH} ${CONTENT_GAP_WIDTH} calc(100vw - ${SIDEBAR_COLUMN_VISUAL_WIDTH} - ${CONTENT_GAP_WIDTH} - ${RIGHT_SCREEN_MARGIN_WIDTH})` }}>
                 <div className="flex flex-col">
@@ -173,6 +176,28 @@ function App() {
               </div>
             } />
             
+            {/* User profile routes - with sidebar */}
+            <Route path="/leaderboard/:username" element={
+              <div className={`grid h-screen overflow-hidden`}
+                   style={{ gridTemplateColumns: `${SIDEBAR_COLUMN_VISUAL_WIDTH} ${CONTENT_GAP_WIDTH} calc(100vw - ${SIDEBAR_COLUMN_VISUAL_WIDTH} - ${CONTENT_GAP_WIDTH} - ${RIGHT_SCREEN_MARGIN_WIDTH})` }}>
+                <div className="flex flex-col">
+                  <div className="flex justify-center" style={{ marginLeft: '32px', marginTop: '32px' }}>
+                    <Link to="/home">
+                      <img src={logo} alt="MockTrade" className="h-12 w-auto cursor-pointer" />
+                    </Link>
+                  </div>
+                  <Sidebar />
+                </div>
+                <div></div>
+                <main className="flex flex-col min-w-0 h-full overflow-hidden">
+                  <div className="flex-1 overflow-y-auto min-w-0 pb-8">
+                    <div className="pt-2"><Profile /></div>
+                    <div className="mt-8"><UserProfilePage /></div>
+                  </div>
+                </main>
+              </div>
+            } />
+            
             {/* Main app routes - with sidebar */}
             <Route path="/app/*" element={
               <div className={`grid h-screen overflow-hidden`}
@@ -202,7 +227,7 @@ function App() {
                       <Route path="/trade" element={<TradePage />} />
                       <Route path="/watchlist" element={<WatchlistPage />} />
                       <Route path="/leaderboard" element={<LeaderboardPage />} />
-                      <Route path="/transactions" element={<TransactionsPage />} />
+                      <Route path="/activity" element={<TransactionsPage />} />
                       <Route path="/profile" element={<ProfilePage />} />
                       </Routes>
                     </div>

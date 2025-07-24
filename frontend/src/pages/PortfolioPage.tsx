@@ -1,14 +1,12 @@
 import { useState } from "react";
 import { PageLayout } from "@/components/page-layout";
 import { PortfolioChart } from "@/components/portfolio-chart";
-import { Text1 } from "@/components/text-1";
-import { Text2 } from "@/components/text-2";
-import { Text4 } from "@/components/text-4";
 import { Tile } from "@/components/tile";
 import { Title2 } from "@/components/title-2";
-import { Title3 } from "@/components/title-3";
 import { CustomDropdown } from "@/components/custom-dropdown";
 import { PortfolioTile } from "@/components/portfolio-tile";
+import { UserProfileTiles } from "@/components/user-profile-tiles";
+import { formatMoney } from "@/lib/format-money";
 
 export default function PortfolioPage() {
   // Mock data to match the original structure
@@ -18,6 +16,9 @@ export default function PortfolioPage() {
   const cumulativeReturn =
     ((totalPortfolioValue - startingPortfolioValue) / startingPortfolioValue) *
     100;
+  
+  // Mock transaction count for the overview component
+  const mockTransactionCount = 15;
   const [selectedFilter, setSelectedFilter] = useState("1mo");
   const [sortBy, setSortBy] = useState("symbol");
 
@@ -60,36 +61,16 @@ export default function PortfolioPage() {
     "max": "Max",
   };
 
-  function formatMoney(value: number) {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(value);
-  }
 
   return (
     <PageLayout title="Portfolio">
-        {/* Account Summary */}
         <div className="space-y-2">
-          <Title2>Account Summary</Title2>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            <div>
-              <Text4>Total Portfolio Value</Text4>
-              <Text1>{formatMoney(totalPortfolioValue)}</Text1>
-            </div>
-            <div>
-              <Text4>Cash Balance</Text4>
-              <Text2>{formatMoney(cashBalance)}</Text2>
-            </div>
-            <div>
-              <Text4>Cumulative Return (1mo)</Text4>
-              <Text2 variant={cumulativeReturn >= 0 ? "green" : "red"}>
-                {cumulativeReturn >= 0
-                  ? `+${cumulativeReturn.toFixed(2)}%`
-                  : `${cumulativeReturn.toFixed(2)}%`}
-              </Text2>
-            </div>
-          </div>
+          <Title2>Overview</Title2>
+          <UserProfileTiles
+            totalValue={totalPortfolioValue}
+            cashBalance={cashBalance}
+            transactionCount={mockTransactionCount}
+          />
         </div>
 
         {/* Portfolio History Section */}
@@ -112,14 +93,11 @@ export default function PortfolioPage() {
           <Tile>
             <PortfolioChart />
           </Tile>
-          <Title3 className="mt-2">
-            Note: Historical data includes only completed trading days.
-          </Title3>
         </div>
 
-        {/* Holdings */}
+        {/* Positions */}
         <div>
-          <Title2>Holdings</Title2>
+          <Title2>Positions</Title2>
           <div className="flex flex-col mb-4 w-full sm:w-fit">
             <CustomDropdown
               label="Sort By"

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Title2 } from "@/components/title-2";
 import { Text5 } from "@/components/text-5";
 import { Tile } from "@/components/tile";
@@ -23,7 +24,7 @@ export function Leaderboard({ title, users, type, formatValue }: LeaderboardProp
         <Title2>{title}</Title2>
         <div className="space-y-2">
           {users.map((user) => (
-            <div key={user.username} className="flex items-center justify-between hover:bg-zinc-700 p-2 rounded-xl cursor-pointer min-w-0 gap-2">
+            <Link key={user.username} to={`/leaderboard/${user.username}`} className="flex items-center justify-between hover:bg-zinc-700 p-2 rounded-xl cursor-pointer min-w-0 gap-2">
               <div className="flex items-center gap-4 min-w-0 flex-1 overflow-hidden">
                 <ProfilePicture size="sm" className="flex-shrink-0" />
                 <div className="min-w-0 overflow-hidden">
@@ -33,7 +34,7 @@ export function Leaderboard({ title, users, type, formatValue }: LeaderboardProp
               <Text5 variant="green" className="whitespace-nowrap flex-shrink-0">
                 {formatValue(type === "return" ? user.return : user.profit)}
               </Text5>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
