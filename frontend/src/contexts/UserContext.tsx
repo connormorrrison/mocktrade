@@ -9,6 +9,7 @@ interface UserData {
 interface UserContextType {
   userData: UserData | null;
   refreshUserData: () => void;
+  logout: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -25,12 +26,21 @@ export function UserProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const logout = () => {
+    setUserData(null);
+    // Clear any stored tokens/session data
+    localStorage.removeItem('auth_token');
+    sessionStorage.removeItem('auth_token');
+    // Navigate to landing page
+    window.location.href = '/';
+  };
+
   useEffect(() => {
     refreshUserData();
   }, []);
 
   return (
-    <UserContext.Provider value={{ userData, refreshUserData }}>
+    <UserContext.Provider value={{ userData, refreshUserData, logout }}>
       {children}
     </UserContext.Provider>
   );

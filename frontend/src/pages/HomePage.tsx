@@ -1,4 +1,5 @@
 import { TrendingUp, Wallet, FileText, Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button1 } from "@/components/button-1";
 import { MarketStatus, useMarketStatus } from "@/components/market-status";
 import { PageLayout } from "@/components/page-layout";
@@ -13,6 +14,7 @@ import { formatMoney } from "@/lib/format-money";
 
 export default function HomePage() {
   const isMarketOpen = useMarketStatus();
+  const navigate = useNavigate();
 
   // Mock market data
   const marketData = {
@@ -57,19 +59,19 @@ export default function HomePage() {
             <div>
               <Title2>Quick Actions</Title2>
               <div className="flex flex-wrap gap-4">
-                <Button1>
+                <Button1 onClick={() => navigate('/trade')}>
                   <TrendingUp />
                   New Trade
                 </Button1>
-                <Button1>
+                <Button1 onClick={() => navigate('/portfolio')}>
                   <Wallet />
                   View Portfolio
                 </Button1>
-                <Button1>
+                <Button1 onClick={() => navigate('/watchlist')}>
                   <Eye />
                   View Watchlist
                 </Button1>
-                <Button1>
+                <Button1 onClick={() => navigate('/activity')}>
                   <FileText />
                   View Activity
                 </Button1>

@@ -53,8 +53,8 @@ export default function UserProfilePage() {
         return: 23.45,
         joinedDate: "2024-03-15T00:00:00Z",
         positions: [
-          { symbol: "TSLA", shares: 150, current_price: 245.6, average_price: 200.0, previous_price: 250.3, created_at: "2024-12-01T00:00:00Z", price_at_selected_range: 210.8 },
-          { symbol: "NVDA", shares: 75, current_price: 520.8, average_price: 450.0, previous_price: 515.2, created_at: "2024-11-15T00:00:00Z", price_at_selected_range: 480.5 },
+          { symbol: "TSLA", company_name: "Tesla, Inc.", shares: 150, current_price: 245.6, average_price: 200.0, previous_price: 250.3, created_at: "2024-12-01T00:00:00Z", price_at_selected_range: 210.8 },
+          { symbol: "NVDA", company_name: "NVIDIA Corporation", shares: 75, current_price: 520.8, average_price: 450.0, previous_price: 515.2, created_at: "2024-11-15T00:00:00Z", price_at_selected_range: 480.5 },
         ],
         transactions: [
           { id: 1, symbol: "TSLA", transaction_type: "BUY", shares: 150, price: 200.00, total_amount: 30000.00, created_at: "2024-12-01T10:30:00Z" },
@@ -67,8 +67,8 @@ export default function UserProfilePage() {
         return: 19.87,
         joinedDate: "2024-02-20T00:00:00Z",
         positions: [
-          { symbol: "BTC", shares: 2, current_price: 45000.0, average_price: 38000.0, previous_price: 44500.0, created_at: "2024-10-01T00:00:00Z", price_at_selected_range: 40000.0 },
-          { symbol: "ETH", shares: 15, current_price: 2800.0, average_price: 2200.0, previous_price: 2750.0, created_at: "2024-10-15T00:00:00Z", price_at_selected_range: 2400.0 },
+          { symbol: "BTC", company_name: "Bitcoin", shares: 2, current_price: 45000.0, average_price: 38000.0, previous_price: 44500.0, created_at: "2024-10-01T00:00:00Z", price_at_selected_range: 40000.0 },
+          { symbol: "ETH", company_name: "Ethereum", shares: 15, current_price: 2800.0, average_price: 2200.0, previous_price: 2750.0, created_at: "2024-10-15T00:00:00Z", price_at_selected_range: 2400.0 },
         ],
         transactions: [
           { id: 1, symbol: "BTC", transaction_type: "BUY", shares: 2, price: 38000.00, total_amount: 76000.00, created_at: "2024-10-01T09:00:00Z" },
@@ -83,7 +83,7 @@ export default function UserProfilePage() {
       return: 10.0,
       joinedDate: "2024-01-01T00:00:00Z",
       positions: [
-        { symbol: "SPY", shares: 100, current_price: 450.0, average_price: 400.0, previous_price: 448.0, created_at: "2024-01-01T00:00:00Z", price_at_selected_range: 420.0 },
+        { symbol: "SPY", company_name: "SPDR S&P 500 ETF Trust", shares: 100, current_price: 450.0, average_price: 400.0, previous_price: 448.0, created_at: "2024-01-01T00:00:00Z", price_at_selected_range: 420.0 },
       ],
       transactions: [
         { id: 1, symbol: "SPY", transaction_type: "BUY", shares: 100, price: 400.00, total_amount: 40000.00, created_at: "2024-01-01T10:00:00Z" },
@@ -93,14 +93,6 @@ export default function UserProfilePage() {
 
   const userData = getUserData(username);
 
-  // Map for dynamic labels
-  const filterLabels: { [key: string]: string } = {
-    "1mo": "1mo",
-    "3mo": "3mo", 
-    "6mo": "6mo",
-    "1y": "1y",
-    "max": "Max",
-  };
 
   // Watchlist functions
   const addToWatchlist = (symbol: string) => {
@@ -173,12 +165,14 @@ export default function UserProfilePage() {
         <div className="flex flex-col mb-4 w-full sm:w-fit">
           <CustomDropdown
             label="Sort By"
-            value={sortBy === "symbol" ? "Symbol" : sortBy === "value" ? "Current Value" : sortBy === "gain" ? "Gain" : "Daily P/L"}
+            value={sortBy === "symbol" ? "Symbol" : sortBy === "quantity" ? "Quantity" : sortBy === "avgPrice" ? "Average Price" : sortBy === "currentPrice" ? "Current Price" : sortBy === "marketValue" ? "Market Value" : "% of Portfolio"}
             options={[
               { value: "symbol", label: "Symbol" },
-              { value: "value", label: "Current Value" },
-              { value: "gain", label: "Gain" },
-              { value: "daily", label: "Daily P/L" },
+              { value: "quantity", label: "Quantity" },
+              { value: "avgPrice", label: "Average Price" },
+              { value: "currentPrice", label: "Current Price" },
+              { value: "marketValue", label: "Market Value" },
+              { value: "portfolio", label: "% of Portfolio" },
             ]}
             onValueChange={setSortBy}
           />
@@ -189,16 +183,20 @@ export default function UserProfilePage() {
               switch (sortBy) {
                 case "symbol":
                   return a.symbol.localeCompare(b.symbol);
-                case "value":
+                case "quantity":
+                  return b.shares - a.shares;
+                case "avgPrice":
+                  return b.average_price - a.average_price;
+                case "currentPrice":
+                  return b.current_price - a.current_price;
+                case "marketValue":
                   return (b.shares * b.current_price) - (a.shares * a.current_price);
-                case "gain":
-                  const aGain = (a.current_price - (a.price_at_selected_range || a.average_price)) * a.shares;
-                  const bGain = (b.current_price - (b.price_at_selected_range || b.average_price)) * b.shares;
-                  return bGain - aGain;
-                case "daily":
-                  const aDailyPL = (a.current_price - a.previous_price) * a.shares;
-                  const bDailyPL = (b.current_price - b.previous_price) * b.shares;
-                  return bDailyPL - aDailyPL;
+                case "portfolio":
+                  const aMarketValue = a.shares * a.current_price;
+                  const bMarketValue = b.shares * b.current_price;
+                  const aPercent = userData.totalValue > 0 ? (aMarketValue / userData.totalValue) * 100 : 0;
+                  const bPercent = userData.totalValue > 0 ? (bMarketValue / userData.totalValue) * 100 : 0;
+                  return bPercent - aPercent;
                 default:
                   return 0;
               }
@@ -207,7 +205,7 @@ export default function UserProfilePage() {
               <PortfolioTile
                 key={pos.symbol}
                 position={pos}
-                filterLabel={filterLabels[selectedFilter]}
+                totalPortfolioValue={userData.totalValue}
                 onTrade={handleTrade}
                 onAddToWatchlist={addToWatchlist}
                 onRemoveFromWatchlist={removeFromWatchlist}

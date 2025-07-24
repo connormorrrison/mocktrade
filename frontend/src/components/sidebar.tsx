@@ -2,9 +2,11 @@ import { Link, useLocation } from 'react-router-dom'
 import { Card } from '@/components/ui/card'
 import { Button2 } from '@/components/button-2'
 import { House, Wallet, TrendingUp, FileText, User, LogOut, Eye, Trophy, Bug } from 'lucide-react'
+import { useUser } from '@/contexts/UserContext'
 
 export default function Sidebar() {
   const location = useLocation()
+  const { logout } = useUser()
   
   const menuItems = [
     { name: 'Home', path: '/home', icon: House },
@@ -61,7 +63,7 @@ export default function Sidebar() {
             <Bug className="!text-orange-600" />
             Report
           </Button2>
-          <Button2>
+          <Button2 onClick={logout}>
             <LogOut className="!text-red-600" />
             Logout
           </Button2>

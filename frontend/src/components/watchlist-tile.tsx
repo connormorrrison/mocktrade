@@ -30,7 +30,7 @@ export function WatchlistTile({ stock, onTrade, onRemove }: WatchlistTileProps) 
 
   return (
     <Tile>
-      <div className="grid grid-cols-1 lg:grid-cols-[2fr_2fr_2fr_2fr_auto] lg:items-center gap-4 w-full text-left">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_1fr_1fr_auto] lg:items-center gap-4 w-full text-left">
         {/* Symbol & Name */}
         <div className="ml-2">
           <Text6>{stock.symbol}</Text6>
@@ -45,9 +45,9 @@ export function WatchlistTile({ stock, onTrade, onRemove }: WatchlistTileProps) 
           </Text5>
         </div>
 
-        {/* Daily Change */}
+        {/* Change (Daily) */}
         <div className="text-left">
-          <Text4>Daily Change</Text4>
+          <Text4>Change (Daily)</Text4>
           <Text5 variant={dailyChange >= 0 ? "green" : "red"} className="break-words">
             {dailyChange >= 0 ? "+" : ""}
             {formatMoney(dailyChange)}{" "}

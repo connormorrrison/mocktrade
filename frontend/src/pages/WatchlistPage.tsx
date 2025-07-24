@@ -82,11 +82,11 @@ export default function WatchlistPage() {
                     <div className="flex flex-col mb-4 w-full sm:w-fit">
                         <CustomDropdown
                             label="Sort By"
-                            value={sortBy === "symbol" ? "Symbol" : sortBy === "price" ? "Current Price" : sortBy === "change" ? "Daily Change" : "Market Capitalization"}
+                            value={sortBy === "symbol" ? "Symbol" : sortBy === "price" ? "Current Price" : sortBy === "change" ? "Change (Daily)" : "Market Capitalization"}
                             options={[
                                 { value: "symbol", label: "Symbol" },
                                 { value: "price", label: "Current Price" },
-                                { value: "change", label: "Daily Change" },
+                                { value: "change", label: "Change (Daily)" },
                                 { value: "marketcapitalization", label: "Market Capitalization" },
                             ]}
                             onValueChange={setSortBy}

@@ -25,6 +25,7 @@ export default function PortfolioPage() {
   const positions = [
     {
       symbol: "AAPL",
+      company_name: "Apple Inc.",
       shares: 50,
       current_price: 150.25,
       average_price: 145.0,
@@ -34,6 +35,7 @@ export default function PortfolioPage() {
     },
     {
       symbol: "GOOGL",
+      company_name: "Alphabet Inc.",
       shares: 25,
       current_price: 2750.8,
       average_price: 2650.0,
@@ -43,6 +45,7 @@ export default function PortfolioPage() {
     },
     {
       symbol: "TSLA",
+      company_name: "Tesla, Inc.",
       shares: 100,
       current_price: 245.6,
       average_price: 270.0,
@@ -52,14 +55,6 @@ export default function PortfolioPage() {
     },
   ];
 
-  // Map for dynamic labels
-  const filterLabels: { [key: string]: string } = {
-    "1mo": "1mo",
-    "3mo": "3mo",
-    "6mo": "6mo",
-    "1y": "1y",
-    "max": "Max",
-  };
 
 
   return (
@@ -101,12 +96,14 @@ export default function PortfolioPage() {
           <div className="flex flex-col mb-4 w-full sm:w-fit">
             <CustomDropdown
               label="Sort By"
-              value={sortBy === "symbol" ? "Symbol" : sortBy === "value" ? "Current Value" : sortBy === "gain" ? "Gain" : "Daily P/L"}
+              value={sortBy === "symbol" ? "Symbol" : sortBy === "quantity" ? "Quantity" : sortBy === "avgPrice" ? "Average Price" : sortBy === "currentPrice" ? "Current Price" : sortBy === "marketValue" ? "Market Value" : "% of Portfolio"}
               options={[
                 { value: "symbol", label: "Symbol" },
-                { value: "value", label: "Current Value" },
-                { value: "gain", label: "Gain" },
-                { value: "daily", label: "Daily P/L" },
+                { value: "quantity", label: "Quantity" },
+                { value: "avgPrice", label: "Average Price" },
+                { value: "currentPrice", label: "Current Price" },
+                { value: "marketValue", label: "Market Value" },
+                { value: "portfolio", label: "% of Portfolio" },
               ]}
               onValueChange={setSortBy}
             />
@@ -117,16 +114,20 @@ export default function PortfolioPage() {
                 switch (sortBy) {
                   case "symbol":
                     return a.symbol.localeCompare(b.symbol);
-                  case "value":
+                  case "quantity":
+                    return b.shares - a.shares;
+                  case "avgPrice":
+                    return b.average_price - a.average_price;
+                  case "currentPrice":
+                    return b.current_price - a.current_price;
+                  case "marketValue":
                     return (b.shares * b.current_price) - (a.shares * a.current_price);
-                  case "gain":
-                    const aGain = (a.current_price - (a.price_at_selected_range || a.average_price)) * a.shares;
-                    const bGain = (b.current_price - (b.price_at_selected_range || b.average_price)) * b.shares;
-                    return bGain - aGain;
-                  case "daily":
-                    const aDailyPL = (a.current_price - a.previous_price) * a.shares;
-                    const bDailyPL = (b.current_price - b.previous_price) * b.shares;
-                    return bDailyPL - aDailyPL;
+                  case "portfolio":
+                    const aMarketValue = a.shares * a.current_price;
+                    const bMarketValue = b.shares * b.current_price;
+                    const aPercent = totalPortfolioValue > 0 ? (aMarketValue / totalPortfolioValue) * 100 : 0;
+                    const bPercent = totalPortfolioValue > 0 ? (bMarketValue / totalPortfolioValue) * 100 : 0;
+                    return bPercent - aPercent;
                   default:
                     return 0;
                 }
@@ -135,7 +136,7 @@ export default function PortfolioPage() {
                 <PortfolioTile
                   key={pos.symbol}
                   position={pos}
-                  filterLabel={filterLabels[selectedFilter]}
+                  totalPortfolioValue={totalPortfolioValue}
                 />
               ))}
           </div>

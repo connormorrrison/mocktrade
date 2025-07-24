@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Tile } from "@/components/tile";
 import { Text4 } from "@/components/text-4";
 import { Text5 } from "@/components/text-5";
@@ -8,6 +9,7 @@ export default function Profile() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [expandedWidth, setExpandedWidth] = useState(192); // fallback width
   const contentRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -63,7 +65,11 @@ export default function Profile() {
           }
         }}
       >
-        <Tile className="h-full w-full overflow-hidden flex items-center justify-center p-0 px-4 py-4 !bg-zinc-800/55 hover:!bg-zinc-700">
+        <div 
+          className="h-full w-full cursor-pointer" 
+          onClick={() => navigate('/profile')}
+        >
+          <Tile className="h-full w-full overflow-hidden flex items-center justify-center p-0 px-4 py-4 !bg-zinc-800/55 hover:!bg-zinc-700">
           <div ref={contentRef} className="flex items-center">
             <ProfilePicture size="md" className="flex-shrink-0" />
             <div 
@@ -75,7 +81,8 @@ export default function Profile() {
               <Text4 className="whitespace-nowrap">@samsmith</Text4>
             </div>
           </div>
-        </Tile>
+          </Tile>
+        </div>
       </div>
     </div>
   );

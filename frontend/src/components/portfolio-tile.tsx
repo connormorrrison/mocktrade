@@ -14,48 +14,57 @@ interface PortfolioPosition {
   previous_price: number;
   average_price: number;
   price_at_selected_range?: number;
+  company_name?: string;
 }
 
 interface PortfolioTileProps {
   position: PortfolioPosition;
-  filterLabel: string;
   onTrade?: (symbol: string) => void;
   onAddToWatchlist?: (symbol: string) => void;
   onRemoveFromWatchlist?: (symbol: string) => void;
   isInWatchlist?: boolean;
   showWatchlistButton?: boolean;
+  totalPortfolioValue?: number;
 }
 
 export function PortfolioTile({
   position,
-  filterLabel,
   onTrade,
   onAddToWatchlist,
   onRemoveFromWatchlist,
   isInWatchlist = false,
-  showWatchlistButton = false
+  showWatchlistButton = false,
+  totalPortfolioValue
 }: PortfolioTileProps) {
 
-  const effectivePurchasePrice = position.price_at_selected_range || position.average_price;
-  const gainSinceRange = (position.current_price - effectivePurchasePrice) * position.shares;
-  const gainPercentSinceRange = effectivePurchasePrice > 0
-    ? ((position.current_price - effectivePurchasePrice) / effectivePurchasePrice) * 100
+  const marketValue = position.shares * position.current_price;
+  const portfolioPercentage = totalPortfolioValue && totalPortfolioValue > 0 
+    ? (marketValue / totalPortfolioValue) * 100 
     : 0;
-
-  const dailyPL = (position.current_price - position.previous_price) * position.shares;
-  const dailyPercent = position.previous_price > 0
-    ? ((position.current_price - position.previous_price) / position.previous_price) * 100
-    : 0;
-
-  const currentValue = position.shares * position.current_price;
 
   return (
     <Tile>
-      <div className="grid grid-cols-1 lg:grid-cols-[2fr_2fr_2fr_2fr_2fr_auto] lg:items-center gap-4 w-full text-left">
-        {/* Symbol & Shares */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_auto] lg:items-center gap-4 w-full text-left">
+        {/* Symbol & Company Name */}
         <div className="ml-2">
           <Text6>{position.symbol}</Text6>
-          <Text4 className="break-words">{position.shares} {position.shares === 1 ? 'share' : 'shares'}</Text4>
+          {position.company_name && (
+            <Text4 className="text-muted-foreground break-words">{position.company_name}</Text4>
+          )}
+        </div>
+
+        {/* Quantity */}
+        <div className="text-left">
+          <Text4>Quantity</Text4>
+          <Text5 className="break-words">{position.shares}</Text5>
+        </div>
+
+        {/* Average Price */}
+        <div className="text-left">
+          <Text4>Average Price</Text4>
+          <Text5 className="break-words">
+            {formatMoney(position.average_price)}
+          </Text5>
         </div>
 
         {/* Current Price */}
@@ -66,33 +75,19 @@ export function PortfolioTile({
           </Text5>
         </div>
 
-        {/* Current Value */}
+        {/* Market Value */}
         <div className="text-left">
-          <Text4>Current Value</Text4>
+          <Text4>Market Value</Text4>
           <Text5 className="break-words">
-            {formatMoney(currentValue)}
+            {formatMoney(marketValue)}
           </Text5>
         </div>
 
-        {/* Gain */}
+        {/* % of Portfolio */}
         <div className="text-left">
-          <Text4>Gain ({filterLabel})</Text4>
-          <Text5 variant={gainSinceRange >= 0 ? "green" : "red"} className="break-words">
-            {gainSinceRange >= 0 ? "+" : ""}
-            {formatMoney(gainSinceRange)}{" "}
-            ({gainPercentSinceRange >= 0 ? "+" : ""}
-            {gainPercentSinceRange.toFixed(2)}%)
-          </Text5>
-        </div>
-
-        {/* Daily P/L */}
-        <div className="text-left">
-          <Text4>Daily P/L</Text4>
-          <Text5 variant={dailyPL >= 0 ? "green" : "red"} className="break-words">
-            {dailyPL >= 0 ? "+" : ""}
-            {formatMoney(dailyPL)}{" "}
-            ({dailyPercent >= 0 ? "+" : ""}
-            {dailyPercent.toFixed(2)}%)
+          <Text4>% of Portfolio</Text4>
+          <Text5 className="break-words">
+            {portfolioPercentage.toFixed(2)}%
           </Text5>
         </div>
 
