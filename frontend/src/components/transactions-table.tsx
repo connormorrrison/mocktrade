@@ -43,12 +43,6 @@ export const TransactionsTable = ({ transactions, isLoading = false }: Transacti
                   <Text5>Loading...</Text5>
                 </td>
               </tr>
-            ) : transactions.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="text-center py-8">
-                  <Text5 className="!text-zinc-500">No transactions found</Text5>
-                </td>
-              </tr>
             ) : (
               transactions.map(tx => (
                 <tr key={tx.id} className="hover:bg-zinc-700">

@@ -100,3 +100,58 @@ async def get_portfolio_history(
         if isinstance(e, HTTPException):
             raise e
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/market/indices")
+async def get_market_indices(
+    current_user=Depends(AuthService.get_current_user),
+) -> Dict[str, Any]:
+    """Get current market indices data (DOW, S&P 500, NASDAQ, VIX)"""
+    logger.info("Received market indices request")
+    try:
+        result = await stock_service.get_market_indices()
+        logger.info("Successfully fetched market indices")
+        return result
+    except Exception as e:
+        logger.error(f"Error fetching market indices: {str(e)}")
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/market/movers")
+async def get_market_movers(
+    current_user=Depends(AuthService.get_current_user),
+) -> Dict[str, Any]:
+    """Get top gainers and losers from the market"""
+    logger.info("Received market movers request")
+    try:
+        result = await stock_service.get_top_gainers_losers()
+        logger.info("Successfully fetched market movers")
+        return result
+    except Exception as e:
+        logger.error(f"Error fetching market movers: {str(e)}")
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/company-name/{symbol}")
+async def get_company_name(
+    symbol: str,
+    current_user=Depends(AuthService.get_current_user),
+) -> Dict[str, Any]:
+    """Get company name for a given stock symbol"""
+    logger.info(f"Received company name request for symbol: {symbol}")
+    try:
+        company_name = await stock_service.get_company_name(symbol.upper())
+        logger.info(f"Successfully fetched company name for {symbol}")
+        return {
+            "symbol": symbol.upper(),
+            "name": company_name
+        }
+    except Exception as e:
+        logger.error(f"Error fetching company name for {symbol}: {str(e)}")
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=500, detail=str(e))

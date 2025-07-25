@@ -3,13 +3,27 @@
 import yfinance as yf
 from fastapi import HTTPException
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 import pytz
-from datetime import datetime
+from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
 class StockService:
+    def __init__(self):
+        # Simple in-memory cache for market data
+        self._market_indices_cache: Optional[Dict[str, Any]] = None
+        self._market_indices_cache_time: Optional[datetime] = None
+        self._market_movers_cache: Optional[Dict[str, Any]] = None
+        self._market_movers_cache_time: Optional[datetime] = None
+        self._cache_duration = timedelta(minutes=5)  # Cache for 5 minutes
+
+    def _is_cache_valid(self, cache_time: Optional[datetime]) -> bool:
+        """Check if cache is still valid"""
+        if cache_time is None:
+            return False
+        return datetime.now() - cache_time < self._cache_duration
+
     async def get_stock_price(self, symbol: str) -> Dict[str, Any]:
         """Get current stock price, historical data and basic info"""
         try:
@@ -164,3 +178,257 @@ class StockService:
                 status_code=400,
                 detail=f"Failed to fetch portfolio historical data: {str(e)}"
             )
+
+    async def get_market_indices(self) -> Dict[str, Any]:
+        """Get current market indices data (DOW, S&P 500, NASDAQ, VIX)"""
+        try:
+            # Check cache first
+            if self._is_cache_valid(self._market_indices_cache_time) and self._market_indices_cache:
+                logger.info("Returning cached market indices data")
+                return self._market_indices_cache
+                
+            logger.info("Fetching fresh market indices data")
+            
+            indices = {
+                "^DJI": "^DJI",
+                "^GSPC": "^GSPC", 
+                "^IXIC": "^IXIC",
+                "^VIX": "^VIX"
+            }
+            
+            indices_data = []
+            
+            for symbol in indices.keys():
+                try:
+                    ticker = yf.Ticker(symbol)
+                    hist_data = ticker.history(period='2d')  # Get 2 days to calculate change
+                    
+                    if hist_data.empty:
+                        logger.warning(f"No data available for {symbol}")
+                        continue
+                        
+                    current_price = float(hist_data['Close'].iloc[-1])
+                    previous_close = float(hist_data['Close'].iloc[-2]) if len(hist_data) > 1 else current_price
+                    
+                    change = current_price - previous_close
+                    change_percent = (change / previous_close) * 100 if previous_close != 0 else 0
+                    
+                    # Get the actual index name from yfinance
+                    try:
+                        info = ticker.info
+                        index_name = info.get('longName', info.get('shortName', symbol))
+                        
+                        # If yfinance returns the symbol itself as the name, use fallback
+                        if index_name == symbol:
+                            fallback_names = {
+                                "^DJI": "Dow Jones Industrial Average",
+                                "^GSPC": "S&P 500",
+                                "^IXIC": "NASDAQ Composite",
+                                "^VIX": "^VIX"
+                            }
+                            index_name = fallback_names.get(symbol, symbol)
+                            
+                    except Exception as e:
+                        logger.warning(f"Could not fetch name for {symbol}: {e}")
+                        # Fallback names
+                        fallback_names = {
+                            "^DJI": "Dow Jones Industrial Average",
+                            "^GSPC": "S&P 500",
+                            "^IXIC": "NASDAQ Composite",  
+                            "^VIX": "^VIX"
+                        }
+                        index_name = fallback_names.get(symbol, symbol)
+                    
+                    indices_data.append({
+                        "symbol": index_name,
+                        "ticker": symbol,
+                        "value": current_price,
+                        "change": change,
+                        "percent": change_percent
+                    })
+                    
+                except Exception as e:
+                    logger.error(f"Error fetching data for {symbol}: {str(e)}")
+                    continue
+            
+            result = {
+                "indices": indices_data,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            # Cache the result
+            self._market_indices_cache = result
+            self._market_indices_cache_time = datetime.now()
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error fetching market indices: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to fetch market indices: {str(e)}"
+            )
+
+    async def get_top_gainers_losers(self) -> Dict[str, Any]:
+        """Get top gainers and losers using yfinance screener"""
+        try:
+            # Check cache first
+            if self._is_cache_valid(self._market_movers_cache_time) and self._market_movers_cache:
+                logger.info("Returning cached market movers data")
+                return self._market_movers_cache
+                
+            logger.info("Fetching fresh top gainers and losers using yfinance screener")
+            
+            gainers_data = []
+            losers_data = []
+            
+            try:
+                # Get top gainers using yfinance screen function
+                gainers_results = yf.screen('day_gainers')
+                
+                # Parse gainers data
+                if gainers_results and 'quotes' in gainers_results:
+                    quotes = gainers_results['quotes'][:10]  # Get top 10
+                    for stock in quotes:
+                        symbol = stock.get('symbol', '')
+                        # Try to get company name from the API response first, fallback to our method
+                        company_name = stock.get('longName', stock.get('shortName', symbol))
+                        if company_name == symbol:
+                            # If no name in API response, use our dedicated method
+                            try:
+                                company_name = await self.get_company_name(symbol)
+                            except:
+                                company_name = symbol
+                        
+                        gainers_data.append({
+                            "symbol": symbol,
+                            "name": company_name,
+                            "price": float(stock.get('regularMarketPrice', 0)),
+                            "change": float(stock.get('regularMarketChange', 0)),
+                            "change_percent": float(stock.get('regularMarketChangePercent', 0))
+                        })
+                        
+            except Exception as e:
+                logger.warning(f"Error with yfinance screen for gainers: {str(e)}")
+                # Fallback to manual approach if screener fails
+                gainers_data = await self._get_manual_movers(is_gainers=True)
+            
+            try:
+                # Get top losers using yfinance screen function
+                losers_results = yf.screen('day_losers')
+                
+                # Parse losers data  
+                if losers_results and 'quotes' in losers_results:
+                    quotes = losers_results['quotes'][:10]  # Get top 10
+                    for stock in quotes:
+                        symbol = stock.get('symbol', '')
+                        # Try to get company name from the API response first, fallback to our method
+                        company_name = stock.get('longName', stock.get('shortName', symbol))
+                        if company_name == symbol:
+                            # If no name in API response, use our dedicated method
+                            try:
+                                company_name = await self.get_company_name(symbol)
+                            except:
+                                company_name = symbol
+                        
+                        losers_data.append({
+                            "symbol": symbol,
+                            "name": company_name,
+                            "price": float(stock.get('regularMarketPrice', 0)),
+                            "change": float(stock.get('regularMarketChange', 0)),
+                            "change_percent": float(stock.get('regularMarketChangePercent', 0))
+                        })
+                        
+            except Exception as e:
+                logger.warning(f"Error with yfinance screen for losers: {str(e)}")
+                # Fallback to manual approach if screener fails
+                losers_data = await self._get_manual_movers(is_gainers=False)
+            
+            result = {
+                "gainers": gainers_data,
+                "losers": losers_data,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            # Cache the result
+            self._market_movers_cache = result
+            self._market_movers_cache_time = datetime.now()
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error fetching top gainers/losers: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to fetch top gainers/losers: {str(e)}"
+            )
+    
+    async def _get_manual_movers(self, is_gainers: bool = True) -> List[Dict[str, Any]]:
+        """Fallback method to get market movers manually"""
+        try:
+            # Popular stocks to check as fallback
+            popular_symbols = [
+                "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "TSLA", "META", 
+                "NFLX", "AMD", "CRM", "UBER", "PYPL", "SNAP", "ROKU", "COIN"
+            ]
+            
+            movers = []
+            
+            for symbol in popular_symbols:
+                try:
+                    ticker = yf.Ticker(symbol)
+                    hist_data = ticker.history(period='2d')
+                    
+                    if hist_data.empty or len(hist_data) < 2:
+                        continue
+                        
+                    current_price = float(hist_data['Close'].iloc[-1])
+                    previous_close = float(hist_data['Close'].iloc[-2])
+                    
+                    change = current_price - previous_close
+                    change_percent = (change / previous_close) * 100 if previous_close != 0 else 0
+                    
+                    # Filter based on whether we want gainers or losers
+                    if (is_gainers and change > 0) or (not is_gainers and change < 0):
+                        # Get company name
+                        try:
+                            company_name = await self.get_company_name(symbol)
+                        except:
+                            company_name = symbol
+                            
+                        movers.append({
+                            "symbol": symbol,
+                            "name": company_name,
+                            "price": current_price,
+                            "change": change,
+                            "change_percent": change_percent
+                        })
+                        
+                except Exception as e:
+                    logger.warning(f"Error fetching data for {symbol}: {str(e)}")
+                    continue
+            
+            # Sort appropriately and return top 9
+            if is_gainers:
+                movers = sorted(movers, key=lambda x: x['change_percent'], reverse=True)[:9]
+            else:
+                movers = sorted(movers, key=lambda x: x['change_percent'])[:9]
+            
+            return movers
+            
+        except Exception as e:
+            logger.error(f"Error in manual movers fallback: {str(e)}")
+            return []
+
+    async def get_company_name(self, symbol: str) -> str:
+        """Get company name for a given stock symbol"""
+        try:
+            logger.info(f"Fetching company name for {symbol}")
+            ticker = yf.Ticker(symbol)
+            info = ticker.info
+            company_name = info.get('longName', info.get('shortName', symbol))
+            logger.info(f"Found company name for {symbol}: {company_name}")
+            return company_name
+        except Exception as e:
+            logger.warning(f"Could not fetch company name for {symbol}: {e}")
+            return symbol  # Return symbol as fallback

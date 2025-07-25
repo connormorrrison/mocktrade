@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { PageLayout } from "@/components/page-layout";
 import { PortfolioChart } from "@/components/portfolio-chart";
 import { Tile } from "@/components/tile";
@@ -9,6 +10,7 @@ import { UserProfileTiles } from "@/components/user-profile-tiles";
 import { formatMoney } from "@/lib/format-money";
 
 export default function PortfolioPage() {
+  const navigate = useNavigate();
   const [selectedFilter, setSelectedFilter] = useState("1mo");
   const [sortBy, setSortBy] = useState("symbol");
   const [portfolioData, setPortfolioData] = useState(null);
@@ -41,24 +43,6 @@ export default function PortfolioPage() {
     } catch (error) {
       console.error('Error fetching portfolio data:', error);
       setError('Failed to load portfolio data');
-      // Fallback to mock data for development
-      setPortfolioData({
-        cash_balance: 12450.32,
-        total_value: 127450.32,
-        starting_value: 100000,
-        return_percentage: 27.45,
-        positions: [
-          {
-            symbol: "AAPL",
-            shares: 50,
-            current_price: 150.25,
-            average_price: 145.0,
-            current_value: 7512.5,
-            unrealized_gain_loss: 262.5,
-            unrealized_gain_loss_percent: 3.62
-          }
-        ]
-      });
     } finally {
       setLoading(false);
     }
@@ -196,6 +180,7 @@ export default function PortfolioPage() {
                     company_name: pos.symbol // TODO: Get company name from API
                   }}
                   totalPortfolioValue={portfolioData.total_value}
+                  onTrade={(symbol) => navigate(`/trade/${symbol}`)}
                 />
               )) || []}
           </div>

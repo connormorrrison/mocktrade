@@ -1,5 +1,6 @@
-import { TrendingUp, Wallet, FileText, Eye } from "lucide-react";
+import { TrendingUp, Wallet, FileText, Eye, ArrowUp, ArrowDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Button1 } from "@/components/button-1";
 import { MarketStatus, useMarketStatus } from "@/components/market-status";
 import { PageLayout } from "@/components/page-layout";
@@ -12,46 +13,140 @@ import { Title2 } from "@/components/title-2";
 import { Title3 } from "@/components/title-3";
 import { formatMoney } from "@/lib/format-money";
 
+interface MarketIndex {
+  symbol: string;
+  ticker: string;
+  value: number;
+  change: number;
+  percent: number;
+}
+
+interface MarketMover {
+  symbol: string;
+  name: string;
+  price: number;
+  change: number;
+  change_percent: number;
+}
+
+interface MarketData {
+  isOpen: boolean;
+  indices: MarketIndex[];
+}
+
+interface MarketMoversData {
+  gainers: MarketMover[];
+  losers: MarketMover[];
+}
+
 export default function HomePage() {
   const isMarketOpen = useMarketStatus();
   const navigate = useNavigate();
-
-  // Mock market data
-  const marketData = {
+  
+  const [marketData, setMarketData] = useState<MarketData>({
     isOpen: isMarketOpen,
-    indices: [
-      { symbol: "DOW", ticker: "^DJI", value: 34256.78, change: 89.12, percent: 0.26 },
-      { symbol: "S&P 500", ticker: "^GSPC", value: 4456.24, change: 12.34, percent: 0.28 },
-      { symbol: "NASDAQ", ticker: "^IXIC", value: 13567.89, change: -45.67, percent: -0.34 },
-      { symbol: "VIX", ticker: "^VIX", value: 18.45, change: -0.67, percent: -3.5 }
-    ]
+    indices: []
+  });
+  const [marketMovers, setMarketMovers] = useState<MarketMoversData>({
+    gainers: [],
+    losers: []
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchMarketData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      };
+
+      // Fetch market indices and movers in parallel
+      const [indicesResponse, moversResponse] = await Promise.all([
+        fetch('http://localhost:8000/api/v1/stocks/market/indices', { headers }),
+        fetch('http://localhost:8000/api/v1/stocks/market/movers', { headers })
+      ]);
+
+      if (!indicesResponse.ok || !moversResponse.ok) {
+        throw new Error('Failed to fetch market data');
+      }
+
+      const indicesData = await indicesResponse.json();
+      const moversData = await moversResponse.json();
+
+      setMarketData({
+        isOpen: isMarketOpen,
+        indices: indicesData.indices || []
+      });
+
+      setMarketMovers({
+        gainers: moversData.gainers || [],
+        losers: moversData.losers || []
+      });
+
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching market data:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load market data');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const allGainers = [
-    { symbol: "NVDA", change: 5.67, price: 875.30 },
-    { symbol: "AMD", change: 3.45, price: 142.80 },
-    { symbol: "TSLA", change: 2.89, price: 245.60 },
-    { symbol: "AAPL", change: 2.45, price: 150.25 },
-    { symbol: "MSFT", change: 2.12, price: 378.90 },
-    { symbol: "GOOGL", change: 1.89, price: 2750.80 },
-    { symbol: "AMZN", change: 1.56, price: 3234.50 },
-    { symbol: "NFLX", change: 1.34, price: 456.78 },
-    { symbol: "CRM", change: 1.23, price: 234.56 }
-  ];
+  useEffect(() => {
+    fetchMarketData();
+    // Refresh data every 5 minutes
+    const interval = setInterval(fetchMarketData, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [isMarketOpen]);
 
+  // Transform market movers data to match the expected format for StockCarousel
+  const transformedGainers = marketMovers.gainers.map(stock => ({
+    symbol: stock.symbol,
+    name: stock.name,
+    change: stock.change,
+    change_percent: stock.change_percent,
+    price: stock.price
+  }));
 
-  const allLosers = [
-    { symbol: "META", change: -2.34, price: 485.20 },
-    { symbol: "NFLX", change: -1.78, price: 567.45 },
-    { symbol: "PYPL", change: -1.45, price: 89.32 },
-    { symbol: "UBER", change: -1.23, price: 45.67 },
-    { symbol: "SNAP", change: -1.12, price: 23.45 },
-    { symbol: "ROKU", change: -0.98, price: 78.90 },
-    { symbol: "COIN", change: -0.87, price: 156.78 },
-    { symbol: "ZOOM", change: -0.76, price: 123.45 },
-    { symbol: "PELOTON", change: -0.65, price: 34.56 }
-  ];
+  const transformedLosers = marketMovers.losers.map(stock => ({
+    symbol: stock.symbol,
+    name: stock.name,
+    change: stock.change,
+    change_percent: stock.change_percent,
+    price: stock.price
+  }));
 
+  if (loading) {
+    return (
+      <PageLayout title="Home">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <Text3>Loading market data...</Text3>
+          </div>
+        </div>
+      </PageLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageLayout title="Home">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <Text3 className="text-red-500 mb-4">Error: {error}</Text3>
+            <Button1 onClick={fetchMarketData}>Retry</Button1>
+          </div>
+        </div>
+      </PageLayout>
+    );
+  }
 
   return (
     <PageLayout title="Home">
@@ -91,7 +186,16 @@ export default function HomePage() {
                         {formatMoney(index.value)}
                       </Text2>
                       <Text5 variant={index.change >= 0 ? "green" : "red"}>
-                        {index.change >= 0 ? "+" : ""}{index.change.toFixed(2)} ({index.percent >= 0 ? "+" : ""}{index.percent.toFixed(2)}%)
+                        <div className="flex items-center gap-1">
+                          {index.change >= 0 ? (
+                            <ArrowUp className="h-5 w-5" />
+                          ) : (
+                            <ArrowDown className="h-5 w-5" />
+                          )}
+                          <span>
+                            {index.change >= 0 ? "+" : ""}{index.change.toFixed(2)} ({index.percent >= 0 ? "+" : ""}{index.percent.toFixed(2)}%) Today
+                          </span>
+                        </div>
                       </Text5>
                     </div>
                   </Tile>
@@ -106,13 +210,25 @@ export default function HomePage() {
                 {/* Top Gainers */}
                 <div>
                   <Title3>Top Gainers</Title3>
-                  <StockCarousel stocks={allGainers} variant="green" />
+                  {transformedGainers.length > 0 ? (
+                    <StockCarousel stocks={transformedGainers} variant="green" />
+                  ) : (
+                    <div className="text-center py-8">
+                      <Text3>No gainers data available</Text3>
+                    </div>
+                  )}
                 </div>
 
                 {/* Top Losers */}
                 <div>
                   <Title3>Top Losers</Title3>
-                  <StockCarousel stocks={allLosers} variant="red" />
+                  {transformedLosers.length > 0 ? (
+                    <StockCarousel stocks={transformedLosers} variant="red" />
+                  ) : (
+                    <div className="text-center py-8">
+                      <Text3>No losers data available</Text3>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
