@@ -10,7 +10,6 @@ interface UserData {
 
 interface UserContextType {
   userData: UserData | null;
-  isLoading: boolean;
   refreshUserData: () => void;
   logout: () => void;
 }
@@ -19,26 +18,28 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   const refreshUserData = async () => {
-    setIsLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token');
+      console.log('UserContext: refreshUserData called, token exists:', !!token);
       if (!token) {
+        console.log('UserContext: No token found, clearing user data');
         setUserData(null);
-        setIsLoading(false);
         return;
       }
 
+      console.log('UserContext: Calling /auth/me endpoint');
       const response = await fetch('http://localhost:8000/api/v1/auth/me', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
 
+      console.log('UserContext: /auth/me response status:', response.status);
       if (response.ok) {
         const userData = await response.json();
+        console.log('UserContext: Successfully fetched user data:', userData);
         setUserData({
           first_name: userData.first_name,
           last_name: userData.last_name,
@@ -48,22 +49,23 @@ export function UserProvider({ children }: { children: ReactNode }) {
         });
       } else {
         // Token is invalid, clear it
-        localStorage.removeItem('token');
+        console.log('UserContext: /auth/me failed, clearing token. Status:', response.status);
+        const errorText = await response.text();
+        console.log('UserContext: Error response:', errorText);
+        localStorage.removeItem('access_token');
         setUserData(null);
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error('UserContext: Error fetching user data:', error);
       // Clear user data on error
       setUserData(null);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const logout = () => {
     setUserData(null);
     // Clear any stored tokens/session data
-    localStorage.removeItem('token');
+    localStorage.removeItem('access_token');
     localStorage.removeItem('auth_token');
     sessionStorage.removeItem('auth_token');
     // Navigate to landing page
@@ -75,7 +77,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <UserContext.Provider value={{ userData, isLoading, refreshUserData, logout }}>
+    <UserContext.Provider value={{ userData, refreshUserData, logout }}>
       {children}
     </UserContext.Provider>
   );

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button1 } from "@/components/button-1";
 import { PageLayout } from "@/components/page-layout";
 import { TextField } from "@/components/text-field";
+import { Text4 } from "@/components/text-4";
 import { Title2 } from "@/components/title-2";
 import { CustomDropdown } from "@/components/custom-dropdown";
 import { WatchlistTile } from "@/components/watchlist-tile";
@@ -37,9 +38,15 @@ export default function WatchlistPage() {
 
     async function fetchWatchlist() {
         try {
-            setLoading(true);
             setError(null);
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem("access_token");
+            
+            if (!token) {
+                // No token means user is not logged in - show empty watchlist
+                setWatchlist([]);
+                setLoading(false);
+                return;
+            }
             
             const response = await fetch(`${API_BASE_URL}/watchlist/`, {
                 headers: {
@@ -65,10 +72,15 @@ export default function WatchlistPage() {
     async function addToWatchlist() {
         if (!newSymbol.trim()) return;
         
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            setError("Please log in to add stocks to your watchlist");
+            return;
+        }
+        
         try {
             setAdding(true);
             setError(null);
-            const token = localStorage.getItem("token");
             
             const response = await fetch(`${API_BASE_URL}/watchlist/`, {
                 method: "POST",
@@ -97,9 +109,14 @@ export default function WatchlistPage() {
     }
 
     async function removeFromWatchlist(symbol: string) {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            setError("Please log in to manage your watchlist");
+            return;
+        }
+        
         try {
             setError(null);
-            const token = localStorage.getItem("token");
             
             const response = await fetch(`${API_BASE_URL}/watchlist/${symbol}`, {
                 method: "DELETE",
@@ -180,7 +197,12 @@ export default function WatchlistPage() {
                         />
                     </div>
                     <div className="space-y-4">
-                        {watchlist
+                        {watchlist.length === 0 ? (
+                            <div className="text-center">
+                                <Text4>Nothing here yet.</Text4>
+                            </div>
+                        ) : (
+                            watchlist
                                 .sort((a, b) => {
                                     switch (sortBy) {
                                         case "symbol":
@@ -209,7 +231,7 @@ export default function WatchlistPage() {
                                         onRemove={removeFromWatchlist}
                                     />
                                 ))
-                        }
+                        )}
                     </div>
                 </div>
         </PageLayout>

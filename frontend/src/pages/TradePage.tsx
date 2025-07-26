@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Search, AlertCircle, CheckCircle } from "lucide-react";
+import { Search, CheckCircle } from "lucide-react";
 import { Button1 } from "@/components/button-1";
 import { Button2 } from "@/components/button-2";
-import { MarketStatus } from "@/components/market-status";
+import { MarketStatus, useMarketStatus } from "@/components/market-status";
 import { PageLayout } from "@/components/page-layout";
 import { Text2 } from "@/components/text-2";
 import { Text3 } from "@/components/text-3";
@@ -13,13 +13,18 @@ import { TextField } from "@/components/text-field";
 import { Tile } from "@/components/tile";
 import { Title2 } from "@/components/title-2";
 import { formatMoney } from "@/lib/format-money";
+import { ErrorTile } from "@/components/error-tile";
+import { TradeConfirm } from "@/components/trade-confirm-dialog";
+import { TradeSuccess } from "@/components/trade-success-dialog";
 
 export default function TradePage() {
+  const isMarketOpen = useMarketStatus();
   // State declarations
   const [symbol, setSymbol] = useState('');
   const [action, setAction] = useState<"buy" | "sell" | null>(null);
   const [quantity, setQuantity] = useState('');
   const [price, setPrice] = useState<number | null>(null);
+  const [companyName, setCompanyName] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
@@ -64,6 +69,7 @@ export default function TradePage() {
   useEffect(() => {
     if (!symbol) {
       setPrice(null);
+      setCompanyName('');
       setDisplaySymbol('');
       setError(null);
       setAction(null);
@@ -74,7 +80,7 @@ export default function TradePage() {
 
   const fetchPortfolioData = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token');
       const response = await fetch('http://localhost:8000/api/v1/portfolio/summary', {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -98,7 +104,7 @@ export default function TradePage() {
     setError(null);
   
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token');
       
       // Fetch both price and portfolio data concurrently
       const [priceResponse, portfolioResponse] = await Promise.all([
@@ -122,6 +128,7 @@ export default function TradePage() {
       }
       
       setPrice(priceData.current_price);
+      setCompanyName(priceData.company_name || symbol.toUpperCase());
       setDisplaySymbol(symbol.toUpperCase());
   
       // Handle portfolio data
@@ -134,6 +141,7 @@ export default function TradePage() {
     } catch (err: any) {
       setError(err.message || 'Unable to fetch stock price');
       setPrice(null);
+      setCompanyName('');
       setSharesOwned(0);
       setQuantity('');
       setAction(null);
@@ -156,7 +164,7 @@ export default function TradePage() {
     // Refresh shares owned before validating sell order
     if (action === 'sell') {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('access_token');
         const portfolioResponse = await fetch(`http://localhost:8000/api/v1/trading/portfolio/${symbol.toUpperCase()}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -183,7 +191,7 @@ export default function TradePage() {
 
   const confirmOrder = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token');
       const response = await fetch('http://localhost:8000/api/v1/trading/orders', {
         method: 'POST',
         headers: {
@@ -209,6 +217,7 @@ export default function TradePage() {
       setSymbol('');
       setQuantity('');
       setPrice(null);
+      setCompanyName('');
       setAction(null);
       setIsConfirmDialogOpen(false);
 
@@ -235,6 +244,7 @@ export default function TradePage() {
                     setSymbol(newValue);
                     if (!newValue) {
                       setPrice(null);
+                      setCompanyName('');
                       setDisplaySymbol('');
                       setError(null);
                       setAction(null);
@@ -257,10 +267,7 @@ export default function TradePage() {
 
             {/* Error Handling */}
             {error && (
-              <div className="flex items-center text-red-500 mb-4 p-4 bg-red-50 rounded-md">
-                <AlertCircle className="mr-2 h-5 w-5" />
-                <span>{error}</span>
-              </div>
+              <ErrorTile description={error} className="mt-4" />
             )}
 
             {/* Stock Price Display */}
@@ -268,10 +275,13 @@ export default function TradePage() {
               <Tile>
                 <div className="flex sm:flex-row sm:justify-between sm:items-center gap-4">
                   <div>
+                    <Text5>
+                      {companyName}
+                    </Text5>
                     <Text4>
                       Market Price for {displaySymbol}
                     </Text4>
-                    <Text2>
+                    <Text2 className={isMarketOpen ? "animate-pulse" : ""}>
                       {formatMoney(price)}
                     </Text2>
                     {sharesOwned > 0 && (
@@ -344,22 +354,18 @@ export default function TradePage() {
                   price != null &&
                   quantity &&
                   price * Number(quantity) > (availableCash ?? 0) && (
-                    <div className="flex items-center text-red-500 mt-2">
-                      <AlertCircle className="mr-2 h-5 w-5" />
-                      <span>
-                        Insufficient cash available to complete transaction
-                      </span>
-                    </div>
+                    <ErrorTile 
+                      description="Insufficient cash available to complete transaction"
+                      className="mt-4"
+                    />
                   )}
                 {action === 'sell' &&
                   quantity &&
                   Number(quantity) > sharesOwned && (
-                    <div className="flex items-center text-red-500 mt-2">
-                      <AlertCircle className="mr-2 h-5 w-5" />
-                      <span>
-                        You can sell up to {sharesOwned.toLocaleString()} shares
-                      </span>
-                    </div>
+                    <ErrorTile 
+                      description={`You can sell up to ${sharesOwned.toLocaleString()} shares`}
+                      className="mt-4"
+                    />
                   )}
               </div>
             )}
@@ -416,62 +422,21 @@ export default function TradePage() {
             </Button1>
 
             {/* Confirmation Dialog */}
-            {isConfirmDialogOpen && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
-                  <h3 className="text-lg font-semibold mb-4">Confirm Order</h3>
-                  <p className="text-gray-600 mb-4">Please review your order.</p>
-                  <div className="space-y-2 mb-4">
-                    <div className="flex justify-between">
-                      <span>Symbol:</span>
-                      <span className="font-semibold">{symbol}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Action:</span>
-                      <span className="font-semibold capitalize">{action}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Quantity:</span>
-                      <span className="font-semibold">{Number(quantity).toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Price per Share:</span>
-                      <span className="font-semibold">{formatMoney(price ?? 0)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Total Value:</span>
-                      <span className="font-semibold text-lg">{formatMoney((price ?? 0) * Number(quantity))}</span>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button2 onClick={() => setIsConfirmDialogOpen(false)} className="flex-1">
-                      Cancel
-                    </Button2>
-                    <Button1 onClick={confirmOrder} className="flex-1">
-                      Confirm Order
-                    </Button1>
-                  </div>
-                </div>
-              </div>
-            )}
+            <TradeConfirm
+              isOpen={isConfirmDialogOpen}
+              onClose={() => setIsConfirmDialogOpen(false)}
+              onConfirm={confirmOrder}
+              symbol={symbol}
+              action={action || ''}
+              quantity={quantity}
+              price={price ?? 0}
+            />
 
             {/* Success Dialog */}
-            {isCongratsDialogOpen && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
-                  <div className="flex items-center gap-4 mb-4">
-                    <CheckCircle className="h-6 w-6 text-green-600" />
-                    <h3 className="text-lg font-semibold">Order Confirmed</h3>
-                  </div>
-                  <p className="text-gray-600 mb-4">
-                    Your order has been executed. Please visit the Activity tab for details.
-                  </p>
-                  <Button1 onClick={() => setIsCongratsDialogOpen(false)} className="w-full">
-                    Close
-                  </Button1>
-                </div>
-              </div>
-            )}
+            <TradeSuccess
+              isOpen={isCongratsDialogOpen}
+              onClose={() => setIsCongratsDialogOpen(false)}
+            />
     </PageLayout>
   );
 }

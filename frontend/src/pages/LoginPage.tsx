@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { PublicLayout } from "@/components/public-layout";
 import { AuthTile } from "@/components/auth-tile";
+import { ErrorTile } from "@/components/error-tile";
 import { Text2 } from "@/components/text-2";
 import { Text4 } from "@/components/text-4";
 import { Text5 } from "@/components/text-5";
@@ -41,11 +42,17 @@ export default function LoginPage() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Login: Received response from auth API');
-        localStorage.setItem('token', data.access_token);
+        console.log('Login: Received response from auth API:', data);
+        console.log('Login: Access token:', data.access_token);
+        localStorage.setItem('access_token', data.access_token);
         console.log('Login: Token saved to localStorage');
         
+        // Verify the token was stored
+        const storedToken = localStorage.getItem('access_token');
+        console.log('Login: Verified stored token:', storedToken ? storedToken.substring(0, 20) + '...' : 'NO TOKEN FOUND');
+        
         // Refresh user data immediately after login
+        console.log('Login: Refreshing user data...');
         await refreshUserData();
         
         console.log('Login: Navigating to /home');
@@ -73,9 +80,7 @@ export default function LoginPage() {
             </div>
             
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
-                {error}
-              </div>
+              <ErrorTile description={error} className="mt-4" />
             )}
             
             <div className="space-y-4">

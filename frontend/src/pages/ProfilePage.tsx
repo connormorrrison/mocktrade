@@ -7,7 +7,9 @@ import { TextField } from "@/components/text-field";
 import { Text5 } from "@/components/text-5";
 import { Title2 } from "@/components/title-2";
 import { Title3 } from "@/components/title-3";
+import { UserProfileHeader } from "@/components/user-profile-header";
 import { useUser } from "@/contexts/UserContext";
+import { ErrorTile } from "@/components/error-tile";
 
 export default function ProfilePage() {
   const { userData, refreshUserData } = useUser();
@@ -15,7 +17,6 @@ export default function ProfilePage() {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   
   // Form states
   const [firstName, setFirstName] = useState("");
@@ -39,13 +40,11 @@ export default function ProfilePage() {
   const handleEditProfile = () => {
     setIsEditing(true);
     setError("");
-    setSuccessMessage("");
   };
 
   const handleCancelEdit = () => {
     setIsEditing(false);
     setError("");
-    setSuccessMessage("");
     // Reset form fields
     if (userData) {
       setFirstName(userData.first_name);
@@ -58,10 +57,9 @@ export default function ProfilePage() {
   const handleSaveProfile = async () => {
     setIsLoading(true);
     setError("");
-    setSuccessMessage("");
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token');
       if (!token) {
         throw new Error('No authentication token found');
       }
@@ -82,7 +80,6 @@ export default function ProfilePage() {
 
       if (response.ok) {
         setIsEditing(false);
-        setSuccessMessage('Profile updated successfully!');
         refreshUserData();
       } else {
         const errorData = await response.json();
@@ -99,13 +96,11 @@ export default function ProfilePage() {
   const handleChangePassword = () => {
     setIsChangingPassword(true);
     setError("");
-    setSuccessMessage("");
   };
 
   const handleCancelPasswordChange = () => {
     setIsChangingPassword(false);
     setError("");
-    setSuccessMessage("");
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
@@ -124,10 +119,9 @@ export default function ProfilePage() {
 
     setIsLoading(true);
     setError("");
-    setSuccessMessage("");
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token');
       if (!token) {
         throw new Error('No authentication token found');
       }
@@ -146,7 +140,6 @@ export default function ProfilePage() {
 
       if (response.ok) {
         setIsChangingPassword(false);
-        setSuccessMessage('Password changed successfully!');
         setCurrentPassword("");
         setNewPassword("");
         setConfirmPassword("");
@@ -166,8 +159,7 @@ export default function ProfilePage() {
     if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
       setIsLoading(true);
       setError("");
-      setSuccessMessage("");
-
+  
       try {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -183,7 +175,7 @@ export default function ProfilePage() {
 
         if (response.ok) {
           // Clear authentication and redirect
-          localStorage.removeItem('token');
+          localStorage.removeItem('access_token');
           window.location.href = '/';
         } else {
           const errorData = await response.json();
@@ -201,24 +193,27 @@ export default function ProfilePage() {
   if (!userData) {
     return (
       <PageLayout title="Profile">
-        <div>Loading...</div>
+        <div>Please log in to view your profile.</div>
       </PageLayout>
     );
   }
 
   return (
     <PageLayout title="Profile">
-            {/* Error/Success Messages */}
+            {/* Error Messages */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm mb-4">
-                {error}
-              </div>
+              <ErrorTile description={error} className="mt-4" />
             )}
-            {successMessage && (
-              <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-md text-sm mb-4">
-                {successMessage}
-              </div>
-            )}
+
+            {/* User Profile Header */}
+            <div className="mb-8">
+              <UserProfileHeader 
+                firstName={userData.first_name}
+                lastName={userData.last_name}
+                username={userData.username}
+                joinedDate={userData.created_at || ''}
+              />
+            </div>
 
             {/* Personal Information */}
             <div>

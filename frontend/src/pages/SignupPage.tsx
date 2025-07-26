@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PublicLayout } from "@/components/public-layout";
 import { AuthTile } from "@/components/auth-tile";
+import { ErrorTile } from "@/components/error-tile";
 import { Text2 } from "@/components/text-2";
 import { Text4 } from "@/components/text-4";
 import { Text5 } from "@/components/text-5";
@@ -77,7 +78,7 @@ export default function SignupPage() {
 
       if (loginResponse.ok) {
         const loginData = await loginResponse.json();
-        localStorage.setItem('token', loginData.access_token);
+        localStorage.setItem('access_token', loginData.access_token);
         navigate('/home');
       } else {
         navigate('/login');
@@ -100,9 +101,7 @@ export default function SignupPage() {
             </div>
             
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
-                {error}
-              </div>
+              <ErrorTile description={error} className="mt-4" />
             )}
             
             <div className="space-y-4">

@@ -51,20 +51,21 @@ export default function HomePage() {
     gainers: [],
     losers: []
   });
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchMarketData = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      const headers = {
-        'Authorization': `Bearer ${token}`,
+      const token = localStorage.getItem('access_token');
+      console.log('HomePage: fetchMarketData called, token exists:', !!token);
+      console.log('HomePage: Token value:', token ? token.substring(0, 20) + '...' : 'NO TOKEN');
+      
+      const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
 
       // Fetch market indices and movers in parallel
       const [indicesResponse, moversResponse] = await Promise.all([
@@ -93,8 +94,6 @@ export default function HomePage() {
     } catch (err) {
       console.error('Error fetching market data:', err);
       setError(err instanceof Error ? err.message : 'Failed to load market data');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -122,18 +121,6 @@ export default function HomePage() {
     price: stock.price
   }));
 
-  if (loading) {
-    return (
-      <PageLayout title="Home">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <Text3>Loading market data...</Text3>
-          </div>
-        </div>
-      </PageLayout>
-    );
-  }
 
   if (error) {
     return (
@@ -211,24 +198,16 @@ export default function HomePage() {
                 <div>
                   <Title3>Top Gainers</Title3>
                   {transformedGainers.length > 0 ? (
-                    <StockCarousel stocks={transformedGainers} variant="green" />
-                  ) : (
-                    <div className="text-center py-8">
-                      <Text3>No gainers data available</Text3>
-                    </div>
-                  )}
+                    <StockCarousel stocks={transformedGainers} variant="green" isMarketOpen={isMarketOpen} />
+                  ) : null}
                 </div>
 
                 {/* Top Losers */}
                 <div>
                   <Title3>Top Losers</Title3>
                   {transformedLosers.length > 0 ? (
-                    <StockCarousel stocks={transformedLosers} variant="red" />
-                  ) : (
-                    <div className="text-center py-8">
-                      <Text3>No losers data available</Text3>
-                    </div>
-                  )}
+                    <StockCarousel stocks={transformedLosers} variant="red" isMarketOpen={isMarketOpen} />
+                  ) : null}
                 </div>
               </div>
             </div>

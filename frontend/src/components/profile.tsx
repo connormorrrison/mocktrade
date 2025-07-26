@@ -48,8 +48,8 @@ export default function Profile() {
     setTimeout(measureWidth, 10);
   }, []);
 
-  // Only render if we have user data or are loading
-  if (!isLoading && !userData) {
+  // Don't render until we have user data initially
+  if (isLoading && !userData) {
     return null;
   }
 
@@ -85,10 +85,10 @@ export default function Profile() {
               }`}
             >
               <Text5 className="whitespace-nowrap">
-                {isLoading ? 'Loading...' : `${userData!.first_name} ${userData!.last_name}`}
+                {userData ? `${userData.first_name} ${userData.last_name}` : 'User'}
               </Text5>
               <Text4 className="whitespace-nowrap">
-                {isLoading ? '' : `@${userData!.username}`}
+                {userData ? `@${userData.username}` : '@user'}
               </Text4>
             </div>
           </div>

@@ -1,3 +1,4 @@
+import { Text4 } from "@/components/text-4";
 import { Text5 } from "@/components/text-5";
 import { formatMoney } from "@/lib/format-money";
 
@@ -11,12 +12,12 @@ interface Transaction {
   created_at: string
 }
 
-interface TransactionsTableProps {
+interface ActivityTableProps {
   transactions: Transaction[]
   isLoading?: boolean
 }
 
-export const TransactionsTable = ({ transactions, isLoading = false }: TransactionsTableProps) => {
+export const ActivityTable = ({ transactions, isLoading = false }: ActivityTableProps) => {
 
   return (
     // CRITICAL: Use relative positioning to establish a containing block
@@ -43,8 +44,14 @@ export const TransactionsTable = ({ transactions, isLoading = false }: Transacti
                   <Text5>Loading...</Text5>
                 </td>
               </tr>
+            ) : !transactions || transactions.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="text-center py-2">
+                  <Text4>Nothing here yet.</Text4>
+                </td>
+              </tr>
             ) : (
-              transactions.map(tx => (
+              (transactions || []).map(tx => (
                 <tr key={tx.id} className="hover:bg-zinc-700">
                   <td className="px-4 py-2 whitespace-nowrap"><Text5>{tx.id}</Text5></td>
                   <td className="px-4 py-2 whitespace-nowrap">

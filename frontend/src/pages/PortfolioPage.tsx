@@ -3,17 +3,31 @@ import { useNavigate } from "react-router-dom";
 import { PageLayout } from "@/components/page-layout";
 import { PortfolioChart } from "@/components/portfolio-chart";
 import { Tile } from "@/components/tile";
+import { Text4 } from "@/components/text-4";
 import { Title2 } from "@/components/title-2";
 import { CustomDropdown } from "@/components/custom-dropdown";
 import { PortfolioTile } from "@/components/portfolio-tile";
 import { UserProfileTiles } from "@/components/user-profile-tiles";
-import { formatMoney } from "@/lib/format-money";
+
+interface Position {
+  symbol: string;
+  shares: number;
+  current_price: number;
+  average_price: number;
+  current_value: number;
+}
+
+interface PortfolioData {
+  total_value: number;
+  cash_balance: number;
+  positions: Position[];
+}
 
 export default function PortfolioPage() {
   const navigate = useNavigate();
   const [selectedFilter, setSelectedFilter] = useState("1mo");
   const [sortBy, setSortBy] = useState("symbol");
-  const [portfolioData, setPortfolioData] = useState(null);
+  const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
   const [transactionCount, setTransactionCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -21,9 +35,16 @@ export default function PortfolioPage() {
   const fetchPortfolioData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token');
       if (!token) {
-        setError('No authentication token found');
+        // No token means user is not logged in - show empty portfolio
+        setPortfolioData({
+          total_value: 0,
+          cash_balance: 0,
+          positions: []
+        });
+        setTransactionCount(0);
+        setLoading(false);
         return;
       }
 
@@ -147,42 +168,48 @@ export default function PortfolioPage() {
             />
           </div>
           <div className="space-y-4">
-            {portfolioData?.positions
-              ?.sort((a, b) => {
-                switch (sortBy) {
-                  case "symbol":
-                    return a.symbol.localeCompare(b.symbol);
-                  case "quantity":
-                    return b.shares - a.shares;
-                  case "avgPrice":
-                    return b.average_price - a.average_price;
-                  case "currentPrice":
-                    return b.current_price - a.current_price;
-                  case "marketValue":
-                    return b.current_value - a.current_value;
-                  case "portfolio":
-                    const aPercent = portfolioData.total_value > 0 ? (a.current_value / portfolioData.total_value) * 100 : 0;
-                    const bPercent = portfolioData.total_value > 0 ? (b.current_value / portfolioData.total_value) * 100 : 0;
-                    return bPercent - aPercent;
-                  default:
-                    return 0;
-                }
-              })
-              .map((pos) => (
-                <PortfolioTile
-                  key={pos.symbol}
-                  position={{
-                    symbol: pos.symbol,
-                    shares: pos.shares,
-                    current_price: pos.current_price,
-                    average_price: pos.average_price,
-                    previous_price: pos.current_price, // TODO: Get previous price from API
-                    company_name: pos.symbol // TODO: Get company name from API
-                  }}
-                  totalPortfolioValue={portfolioData.total_value}
-                  onTrade={(symbol) => navigate(`/trade/${symbol}`)}
-                />
-              )) || []}
+            {!portfolioData?.positions || portfolioData.positions.length === 0 ? (
+              <div className="text-center">
+                <Text4>Nothing here yet.</Text4>
+              </div>
+            ) : (
+              portfolioData.positions
+                .sort((a, b) => {
+                  switch (sortBy) {
+                    case "symbol":
+                      return a.symbol.localeCompare(b.symbol);
+                    case "quantity":
+                      return b.shares - a.shares;
+                    case "avgPrice":
+                      return b.average_price - a.average_price;
+                    case "currentPrice":
+                      return b.current_price - a.current_price;
+                    case "marketValue":
+                      return b.current_value - a.current_value;
+                    case "portfolio":
+                      const aPercent = portfolioData.total_value > 0 ? (a.current_value / portfolioData.total_value) * 100 : 0;
+                      const bPercent = portfolioData.total_value > 0 ? (b.current_value / portfolioData.total_value) * 100 : 0;
+                      return bPercent - aPercent;
+                    default:
+                      return 0;
+                  }
+                })
+                .map((pos) => (
+                  <PortfolioTile
+                    key={pos.symbol}
+                    position={{
+                      symbol: pos.symbol,
+                      shares: pos.shares,
+                      current_price: pos.current_price,
+                      average_price: pos.average_price,
+                      previous_price: pos.current_price, // TODO: Get previous price from API
+                      company_name: pos.symbol // TODO: Get company name from API
+                    }}
+                    totalPortfolioValue={portfolioData.total_value}
+                    onTrade={(symbol) => navigate(`/trade/${symbol}`)}
+                  />
+                ))
+            )}
           </div>
         </div>
     </PageLayout>

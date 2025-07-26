@@ -17,9 +17,10 @@ interface Stock {
 interface StockCarouselProps {
   stocks: Stock[];
   variant: "green" | "red";
+  isMarketOpen?: boolean;
 }
 
-export function StockCarousel({ stocks, variant }: StockCarouselProps) {
+export function StockCarousel({ stocks, variant, isMarketOpen = false }: StockCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const tileRef = useRef<HTMLDivElement>(null);
   const [tileHeight, setTileHeight] = useState(0);
@@ -107,10 +108,10 @@ export function StockCarousel({ stocks, variant }: StockCarouselProps) {
                     <Text6 className="whitespace-nowrap">{stock.symbol}</Text6>
                     <Text4 className="truncate">{stock.name}</Text4>
                   </div>
-                  <Text5 className="sm:hidden whitespace-nowrap">{formatMoney(stock.price)}</Text5>
+                  <Text5 className={`sm:hidden whitespace-nowrap ${isMarketOpen ? "animate-pulse" : ""}`}>{formatMoney(stock.price)}</Text5>
                 </div>
                 <div className="hidden sm:flex sm:gap-4 sm:items-center">
-                  <Text5 className="whitespace-nowrap">{formatMoney(stock.price)}</Text5>
+                  <Text5 className={`whitespace-nowrap ${isMarketOpen ? "animate-pulse" : ""}`}>{formatMoney(stock.price)}</Text5>
                   <Text5 variant={variant} className="whitespace-nowrap">
                     {formatChange(stock)}
                   </Text5>

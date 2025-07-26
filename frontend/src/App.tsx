@@ -9,7 +9,7 @@ import PortfolioPage from "@/pages/PortfolioPage"
 import TradePage from "@/pages/TradePage"
 import WatchlistPage from "@/pages/WatchlistPage"
 import LeaderboardPage from "@/pages/LeaderboardPage"
-import TransactionsPage from "@/pages/TransactionsPage"
+import ActivityPage from "@/pages/ActivityPage"
 import ProfilePage from "@/pages/ProfilePage"
 import UserProfilePage from "@/pages/UserProfilePage"
 import LoginPage from "@/pages/LoginPage"
@@ -150,7 +150,7 @@ function App() {
                 <main className="flex flex-col min-w-0 h-full overflow-hidden">
                   <div className="flex-1 overflow-y-auto min-w-0 pb-8">
                     <div className="pt-2"><Profile /></div>
-                    <div className="mt-8"><TransactionsPage /></div>
+                    <div className="mt-8"><ActivityPage /></div>
                   </div>
                 </main>
               </div>
@@ -227,7 +227,7 @@ function App() {
                       <Route path="/trade" element={<TradePage />} />
                       <Route path="/watchlist" element={<WatchlistPage />} />
                       <Route path="/leaderboard" element={<LeaderboardPage />} />
-                      <Route path="/activity" element={<TransactionsPage />} />
+                      <Route path="/activity" element={<ActivityPage />} />
                       <Route path="/profile" element={<ProfilePage />} />
                       </Routes>
                     </div>

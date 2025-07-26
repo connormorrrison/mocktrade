@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { Download, AlertCircle } from "lucide-react";
+import { Download } from "lucide-react";
 import { Button2 } from "@/components/button-2";
 import { PageLayout } from "@/components/page-layout";
-import { TransactionsTable } from "@/components/transactions-table";
+import { ActivityTable } from "@/components/activity-table";
 import { CustomDropdown } from "@/components/custom-dropdown";
 import { CustomDatePicker } from "@/components/custom-date-picker";
+import { ErrorTile } from "@/components/error-tile";
 
 interface Transaction {
   id: number;
@@ -16,7 +17,7 @@ interface Transaction {
   created_at: string;
 }
 
-export default function TransactionsPage() {
+export default function ActivityPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,9 +34,12 @@ export default function TransactionsPage() {
     setError(null);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token');
       if (!token) {
-        throw new Error('No authentication token found');
+        // No token means user is not logged in - just show empty state
+        setTransactions([]);
+        setIsLoading(false);
+        return;
       }
 
       const response = await fetch('http://localhost:8000/api/v1/trading/transactions', {
@@ -152,10 +156,7 @@ export default function TransactionsPage() {
       {/* Add overflow-hidden wrapper to prevent page expansion */}
       <div className="overflow-hidden">
         {error && (
-          <div className="flex items-center text-red-500 mb-4 p-4 bg-red-50 rounded-md">
-            <AlertCircle className="mr-2 h-5 w-5" />
-            <span>{error}</span>
-          </div>
+          <ErrorTile description={error} className="mt-4" />
         )}
 
         {/* Filters Section */}
@@ -197,7 +198,7 @@ export default function TransactionsPage() {
         </div>
 
         {/* Activity Table - Now properly constrained */}
-        <TransactionsTable 
+        <ActivityTable 
           transactions={filteredTransactions} 
           isLoading={isLoading}
         />

@@ -48,8 +48,15 @@ class StockService:
                     "volume": float(row['Volume'])
                 })
 
+            # Get company name
+            try:
+                company_name = await self.get_company_name(symbol)
+            except:
+                company_name = symbol
+
             return {
                 "symbol": symbol,
+                "company_name": company_name,
                 "current_price": float(current_price),
                 "previous_close_price": float(prev_close),
                 "historical_prices": historical_prices,

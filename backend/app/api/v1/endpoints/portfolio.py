@@ -135,3 +135,40 @@ async def get_leaderboard(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to retrieve leaderboard data"
         )
+
+@router.get("/leaderboard/{username}", response_model=PortfolioSummary)
+async def get_user_leaderboard_profile(
+    username: str,
+    db: Session = Depends(get_db)
+):
+    """Get specific user's portfolio data for leaderboard profile view."""
+    try:
+        # Find user by username
+        user = db.query(User).filter(User.username == username, User.is_active == True).first()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        
+        # Get portfolio data for the user
+        portfolio_data = await PortfolioService.calculate_portfolio_value(db, user.id)
+        
+        return PortfolioSummary(
+            cash_balance=portfolio_data["cash_balance"],
+            positions_value=portfolio_data["positions_value"],
+            total_value=portfolio_data["total_value"],
+            starting_value=portfolio_data["starting_value"],
+            total_return=portfolio_data["total_return"],
+            return_percentage=portfolio_data["return_percentage"],
+            positions=portfolio_data["positions"]
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting leaderboard profile for user {username}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve user profile data"
+        )

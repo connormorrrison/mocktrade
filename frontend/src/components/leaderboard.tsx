@@ -20,7 +20,7 @@ interface LeaderboardProps {
 export function Leaderboard({ title, users, type, formatValue }: LeaderboardProps) {
   return (
     <Tile className="w-full max-w-md">
-      <div className="py-2 px-2">
+      <div className="py-2 px-4">
         <Title2>{title}</Title2>
         <div className="space-y-2">
           {users.map((user) => (
