@@ -15,23 +15,26 @@ import { Title2 } from "@/components/title-2";
 import { formatMoney } from "@/lib/format-money";
 import { ErrorTile } from "@/components/error-tile";
 import { TradeConfirm } from "@/components/trade-confirm-dialog";
-import { TradeSuccess } from "@/components/trade-success-dialog";
+import { StockPriceDisplay } from "@/components/stock-price-display";
+import { CustomSkeleton } from "@/components/custom-skeleton";
 
 export default function TradePage() {
+  // Loading state first
+  const [pageLoading, setPageLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Other state
   const isMarketOpen = useMarketStatus();
-  // State declarations
   const [symbol, setSymbol] = useState('');
   const [action, setAction] = useState<"buy" | "sell" | null>(null);
   const [quantity, setQuantity] = useState('');
   const [price, setPrice] = useState<number | null>(null);
   const [companyName, setCompanyName] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [displaySymbol, setDisplaySymbol] = useState('');
   const [availableCash, setAvailableCash] = useState<number | null>(null);
   const [sharesOwned, setSharesOwned] = useState(0);
-  const [isCongratsDialogOpen, setIsCongratsDialogOpen] = useState(false);
 
   const { symbol: urlSymbol } = useParams<{ symbol?: string }>();
   // Portfolio data
@@ -91,6 +94,8 @@ export default function TradePage() {
       }
     } catch (err: any) {
       console.error('Error fetching portfolio:', err);
+    } finally {
+      setPageLoading(false);
     }
   };
 
@@ -221,13 +226,19 @@ export default function TradePage() {
       setAction(null);
       setIsConfirmDialogOpen(false);
 
-      // Open success dialog
-      setIsCongratsDialogOpen(true);
-
     } catch (err: any) {
       setError(err.message || 'Failed to execute trade');
     }
   };
+
+  // Loading check first
+  if (pageLoading) {
+    return (
+      <PageLayout title="Trade">
+        <CustomSkeleton />
+      </PageLayout>
+    );
+  }
 
   return (
     <PageLayout title="Trade">
@@ -239,6 +250,7 @@ export default function TradePage() {
                   className="flex-1"
                   placeholder="Enter symbol (e.g., AAPL)"
                   value={symbol}
+                  uppercase
                   onChange={(e) => {
                     const newValue = e.target.value.toUpperCase();
                     setSymbol(newValue);
@@ -266,40 +278,17 @@ export default function TradePage() {
             </div>
 
             {/* Error Handling */}
-            {error && (
-              <ErrorTile description={error} className="mt-4" />
-            )}
+            <ErrorTile description={error} className="mt-4" />
 
             {/* Stock Price Display */}
-            {symbol && price && !error && price !== 0 && (
-              <Tile>
-                <div className="flex sm:flex-row sm:justify-between sm:items-center gap-4">
-                  <div>
-                    <Text5>
-                      {companyName}
-                    </Text5>
-                    <Text4>
-                      Market Price for {displaySymbol}
-                    </Text4>
-                    <Text2 className={isMarketOpen ? "animate-pulse" : ""}>
-                      {formatMoney(price)}
-                    </Text2>
-                    {sharesOwned > 0 && (
-                      <Text4>
-                        You own {sharesOwned.toLocaleString()}{' '}
-                        {sharesOwned === 1 ? 'share' : 'shares'} of {displaySymbol}
-                      </Text4>
-                    )}
-                  </div>
-                  <div className="text-left sm:text-right">
-                    <Text4>Status</Text4>
-                    <div className="flex justify-end">
-                      <MarketStatus />
-                    </div>
-                  </div>
-                </div>
-              </Tile>
-            )}
+            <StockPriceDisplay
+              symbol={displaySymbol}
+              price={price}
+              companyName={companyName}
+              sharesOwned={sharesOwned}
+              isMarketOpen={isMarketOpen}
+              error={error}
+            />
 
             {/* Action Section */}
             {symbol && price && !error && (
@@ -432,11 +421,6 @@ export default function TradePage() {
               price={price ?? 0}
             />
 
-            {/* Success Dialog */}
-            <TradeSuccess
-              isOpen={isCongratsDialogOpen}
-              onClose={() => setIsCongratsDialogOpen(false)}
-            />
     </PageLayout>
   );
 }

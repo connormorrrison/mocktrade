@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button1 } from "@/components/button-1";
+import { Button2 } from "@/components/button-2";
 import { PageLayout } from "@/components/page-layout";
 import { TextField } from "@/components/text-field";
 import { Text4 } from "@/components/text-4";
 import { Title2 } from "@/components/title-2";
 import { CustomDropdown } from "@/components/custom-dropdown";
 import { WatchlistTile } from "@/components/watchlist-tile";
+import { CustomSkeleton } from "@/components/custom-skeleton";
 
 interface WatchlistStock {
     id: number;
@@ -22,13 +23,16 @@ interface WatchlistStock {
 }
 
 export default function WatchlistPage() {
+    // Loading state first
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    
+    // Other state
     const navigate = useNavigate();
     const [sortBy, setSortBy] = useState("symbol");
     const [newSymbol, setNewSymbol] = useState("");
     const [watchlist, setWatchlist] = useState<WatchlistStock[]>([]);
-    const [loading, setLoading] = useState(true);
     const [adding, setAdding] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
     const API_BASE_URL = "http://localhost:8000/api/v1";
 
@@ -146,9 +150,7 @@ export default function WatchlistPage() {
     if (loading) {
         return (
             <PageLayout title="Watchlist">
-                <div className="flex justify-center items-center h-64">
-                    <div className="text-lg">Loading watchlist...</div>
-                </div>
+                <CustomSkeleton />
             </PageLayout>
         );
     }
@@ -168,15 +170,16 @@ export default function WatchlistPage() {
                         <TextField
                             placeholder="Enter symbol (e.g., AAPL)"
                             value={newSymbol}
-                            onChange={(e) => setNewSymbol(e.target.value)}
+                            uppercase
+                            onChange={(e) => setNewSymbol(e.target.value.toUpperCase())}
                             className="flex-1"
                             onKeyDown={(e) => e.key === "Enter" && !adding && addToWatchlist()}
                             disabled={adding}
                         />
-                        <Button1 onClick={addToWatchlist} disabled={adding || !newSymbol.trim()}>
+                        <Button2 onClick={addToWatchlist} disabled={adding || !newSymbol.trim()}>
                             <Plus />
                             {adding ? "Adding..." : "Add"}
-                        </Button1>
+                        </Button2>
                     </div>
                 </div>
 

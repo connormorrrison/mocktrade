@@ -8,6 +8,7 @@ import { Title2 } from "@/components/title-2";
 import { CustomDropdown } from "@/components/custom-dropdown";
 import { PortfolioTile } from "@/components/portfolio-tile";
 import { UserProfileTiles } from "@/components/user-profile-tiles";
+import { CustomSkeleton } from "@/components/custom-skeleton";
 
 interface Position {
   symbol: string;
@@ -24,13 +25,16 @@ interface PortfolioData {
 }
 
 export default function PortfolioPage() {
+  // Loading state first
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  
+  // Other state
   const navigate = useNavigate();
   const [selectedFilter, setSelectedFilter] = useState("1mo");
   const [sortBy, setSortBy] = useState("symbol");
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
   const [transactionCount, setTransactionCount] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   const fetchPortfolioData = async () => {
     try {
@@ -100,7 +104,7 @@ export default function PortfolioPage() {
   if (loading) {
     return (
       <PageLayout title="Portfolio">
-        <div>Loading portfolio data...</div>
+        <CustomSkeleton />
       </PageLayout>
     );
   }
@@ -145,7 +149,7 @@ export default function PortfolioPage() {
             />
           </div>
           <Tile>
-            <PortfolioChart />
+            <PortfolioChart timeframe={selectedFilter} />
           </Tile>
         </div>
 

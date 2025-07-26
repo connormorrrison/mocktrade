@@ -1,65 +1,79 @@
-import { Tile } from "@/components/tile";
-import { Button1 } from "@/components/button-1";
-import { Button2 } from "@/components/button-2";
-import { formatMoney } from "@/lib/format-money";
+import { CustomAlertDialog, AlertDialogHeader, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from "@/components/custom-alert-dialog";
+import { Text3 } from "@/components/text-3";
+import { Text5 } from "@/components/text-5";
+import { Check } from "lucide-react";
+import confetti from "canvas-confetti";
 
 interface TradeConfirmProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
-  symbol: string;
-  action: string;
-  quantity: string;
-  price: number;
+  symbol?: string;
+  action?: string;
+  quantity?: number;
+  price?: number;
+  onConfirm?: () => void;
 }
 
 export const TradeConfirm = ({ 
   isOpen, 
   onClose, 
-  onConfirm, 
-  symbol, 
-  action, 
-  quantity, 
-  price 
+  symbol = "AAPL",
+  action = "BUY",
+  quantity = 10,
+  price = 150.00,
+  onConfirm
 }: TradeConfirmProps) => {
-  if (!isOpen) return null;
+  const totalValue = quantity * price;
+
+  const handleConfirm = () => {
+    // Trigger confetti animation
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+    
+    if (onConfirm) {
+      onConfirm();
+    }
+  };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-      <Tile className="max-w-md w-full mx-4">
-        <h3 className="text-lg font-semibold mb-4">Confirm Order</h3>
-        <p className="text-gray-400 mb-4">Please review your order.</p>
-        <div className="space-y-2 mb-4">
-          <div className="flex justify-between">
-            <span>Symbol:</span>
-            <span className="font-semibold">{symbol}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Action:</span>
-            <span className="font-semibold capitalize">{action}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Quantity:</span>
-            <span className="font-semibold">{Number(quantity).toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Price per Share:</span>
-            <span className="font-semibold">{formatMoney(price)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Total Value:</span>
-            <span className="font-semibold text-lg">{formatMoney(price * Number(quantity))}</span>
-          </div>
+    <CustomAlertDialog isOpen={isOpen} onClose={onClose}>
+      <AlertDialogHeader>
+        <div className="flex items-center gap-2">
+          <Check className="text-green-600" />
+          <Text3>Confirm Order</Text3>
         </div>
-        <div className="flex gap-2">
-          <Button2 onClick={onClose} className="flex-1">
-            Cancel
-          </Button2>
-          <Button1 onClick={onConfirm} className="flex-1">
-            Confirm Order
-          </Button1>
+      </AlertDialogHeader>
+      
+      <div className="space-y-2">
+        <div className="flex justify-between">
+          <Text5 variant="white">Symbol:</Text5>
+          <Text5 variant="white">{symbol}</Text5>
         </div>
-      </Tile>
-    </div>
+        <div className="flex justify-between">
+          <Text5 variant="white">Action:</Text5>
+          <Text5 variant="white">{action.charAt(0).toUpperCase() + action.slice(1).toLowerCase()}</Text5>
+        </div>
+        <div className="flex justify-between">
+          <Text5 variant="white">Quantity:</Text5>
+          <Text5 variant="white">{quantity}</Text5>
+        </div>
+        <div className="flex justify-between">
+          <Text5 variant="white">Price per Share:</Text5>
+          <Text5 variant="white">${price.toFixed(2)}</Text5>
+        </div>
+        <div className="flex justify-between">
+          <Text5 variant="white">Total Value:</Text5>
+          <Text3>${totalValue.toFixed(2)}</Text3>
+        </div>
+      </div>
+
+      <AlertDialogFooter>
+        <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
+        <AlertDialogAction onClick={handleConfirm} className="!w-full">Confirm Order</AlertDialogAction>
+      </AlertDialogFooter>
+    </CustomAlertDialog>
   );
 };

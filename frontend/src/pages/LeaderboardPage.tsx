@@ -4,6 +4,7 @@ import { Button1 } from "@/components/button-1";
 import { Countdown } from "@/components/countdown";
 import { Leaderboard } from "@/components/leaderboard";
 import { formatMoney } from "@/lib/format-money";
+import { CustomSkeleton } from "@/components/custom-skeleton";
 
 interface LeaderboardUser {
   rank: number;
@@ -14,10 +15,13 @@ interface LeaderboardUser {
 }
 
 export default function LeaderboardPage() {
-  const [timeframe, setTimeframe] = useState<"Day" | "Week" | "Month" | "All">("Day");
-  const [leaderboardData, setLeaderboardData] = useState<LeaderboardUser[]>([]);
+  // Loading state first
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Other state
+  const [timeframe, setTimeframe] = useState<"Day" | "Week" | "Month" | "All">("Day");
+  const [leaderboardData, setLeaderboardData] = useState<LeaderboardUser[]>([]);
 
   const mapTimeframeToAPI = (timeframe: string) => {
     switch (timeframe) {
@@ -81,9 +85,7 @@ export default function LeaderboardPage() {
   if (loading) {
     return (
       <PageLayout title="Leaderboard">
-        <div className="flex justify-center items-center py-12">
-          <div className="text-white">Loading leaderboard...</div>
-        </div>
+        <CustomSkeleton />
       </PageLayout>
     );
   }

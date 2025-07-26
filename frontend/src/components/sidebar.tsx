@@ -1,12 +1,15 @@
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Card } from '@/components/ui/card'
 import { Button2 } from '@/components/button-2'
 import { House, Wallet, TrendingUp, FileText, User, LogOut, Eye, Trophy, Bug } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
+import { ReportBugDialog } from '@/components/report-bug-dialog'
 
 export default function Sidebar() {
   const location = useLocation()
   const { logout } = useUser()
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
   
   const menuItems = [
     { name: 'Home', path: '/home', icon: House },
@@ -23,7 +26,7 @@ export default function Sidebar() {
       <Card
         className="
           relative flex flex-col
-          w-52 p-4 rounded-xl !border-[oklch(1_0_0_/_10%)] dark:bg-input/30 shadow-none
+          w-52 p-4 rounded-xl !border-[oklch(1_0_0_/_10%)] bg-input/30 shadow-none
         "
         style={{
           height: 'calc(100vh - 144px)',
@@ -59,7 +62,7 @@ export default function Sidebar() {
 
         {/* Bottom buttons stacked vertically */}
         <div className="mt-4 flex flex-col gap-2 items-start">
-          <Button2>
+          <Button2 onClick={() => setIsReportDialogOpen(true)}>
             <Bug className="!text-orange-600" />
             Report
           </Button2>
@@ -68,6 +71,12 @@ export default function Sidebar() {
             Logout
           </Button2>
         </div>
+        
+        {/* Report Bug Dialog */}
+        <ReportBugDialog 
+          isOpen={isReportDialogOpen} 
+          onOpenChange={setIsReportDialogOpen}
+        />
       </Card>
     </div>
   )

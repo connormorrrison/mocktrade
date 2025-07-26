@@ -6,6 +6,7 @@ import { ActivityTable } from "@/components/activity-table";
 import { CustomDropdown } from "@/components/custom-dropdown";
 import { CustomDatePicker } from "@/components/custom-date-picker";
 import { ErrorTile } from "@/components/error-tile";
+import { CustomSkeleton } from "@/components/custom-skeleton";
 
 interface Transaction {
   id: number;
@@ -18,9 +19,12 @@ interface Transaction {
 }
 
 export default function ActivityPage() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  // Loading state first
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Other state
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
   const [toDate, setToDate] = useState<Date | undefined>(undefined);
@@ -151,6 +155,15 @@ export default function ActivityPage() {
     window.URL.revokeObjectURL(url);
   };
 
+  // Loading check first
+  if (isLoading) {
+    return (
+      <PageLayout title="Activity">
+        <CustomSkeleton />
+      </PageLayout>
+    );
+  }
+
   return (
     <PageLayout title="Activity">
       {/* Add overflow-hidden wrapper to prevent page expansion */}
@@ -202,6 +215,7 @@ export default function ActivityPage() {
           transactions={filteredTransactions} 
           isLoading={isLoading}
         />
+        
       </div>
     </PageLayout>
   );

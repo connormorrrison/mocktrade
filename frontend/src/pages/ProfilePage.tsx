@@ -10,13 +10,18 @@ import { Title3 } from "@/components/title-3";
 import { UserProfileHeader } from "@/components/user-profile-header";
 import { useUser } from "@/contexts/UserContext";
 import { ErrorTile } from "@/components/error-tile";
+import { CustomSkeleton } from "@/components/custom-skeleton";
 
 export default function ProfilePage() {
+  // Loading state first
+  const [pageLoading, setPageLoading] = useState(true);
+  const [error, setError] = useState("");
+  
+  // Other state
   const { userData, refreshUserData } = useUser();
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   
   // Form states
   const [firstName, setFirstName] = useState("");
@@ -34,6 +39,7 @@ export default function ProfilePage() {
       setLastName(userData.last_name);
       setEmail(userData.email);
       setUsername(userData.username);
+      setPageLoading(false);
     }
   }, [userData]);
 
@@ -194,6 +200,15 @@ export default function ProfilePage() {
     return (
       <PageLayout title="Profile">
         <div>Please log in to view your profile.</div>
+      </PageLayout>
+    );
+  }
+
+  // Loading check first
+  if (pageLoading) {
+    return (
+      <PageLayout title="Profile">
+        <CustomSkeleton />
       </PageLayout>
     );
   }

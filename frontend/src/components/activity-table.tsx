@@ -1,6 +1,7 @@
 import { Text4 } from "@/components/text-4";
 import { Text5 } from "@/components/text-5";
 import { formatMoney } from "@/lib/format-money";
+import { CustomSkeleton } from "@/components/custom-skeleton";
 
 interface Transaction {
   id: number
@@ -26,7 +27,7 @@ export const ActivityTable = ({ transactions, isLoading = false }: ActivityTable
       <div className="overflow-x-auto rounded-xl border !border-[oklch(1_0_0_/_10%)]">
         {/* Table with explicit minimum width to force scrolling */}
         <table className="w-full min-w-[700px] divide-y divide-zinc-800">
-          <thead className="bg-input/30">
+          <thead className="bg-zinc-800/55">
             <tr>
               <th className="px-4 py-2 text-left whitespace-nowrap"><Text5>ID</Text5></th>
               <th className="px-4 py-2 text-left whitespace-nowrap"><Text5>Date</Text5></th>
@@ -37,11 +38,11 @@ export const ActivityTable = ({ transactions, isLoading = false }: ActivityTable
               <th className="px-4 py-2 text-left whitespace-nowrap"><Text5>Total</Text5></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-800 bg-input/30">
+          <tbody className="divide-y divide-zinc-800 bg-zinc-800/55">
             {isLoading ? (
               <tr>
-                <td colSpan={7} className="text-center py-8">
-                  <Text5>Loading...</Text5>
+                <td colSpan={7} className="py-4">
+                  <CustomSkeleton />
                 </td>
               </tr>
             ) : !transactions || transactions.length === 0 ? (

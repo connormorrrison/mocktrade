@@ -1,17 +1,89 @@
+import { useState, useEffect } from "react";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { Text4 } from "@/components/text-4";
 import { formatMoney } from "@/lib/format-money";
+import { CustomSkeleton } from "@/components/custom-skeleton";
 
-interface PortfolioChartProps {
-  data?: Array<{ date: string; value: number }>;
+interface PortfolioHistory {
+  date: string;
+  total_value: number;
+  cash_balance: number;
+  positions_value: number;
+  return_amount: number;
+  return_percentage: number;
 }
 
-export function PortfolioChart({ data }: PortfolioChartProps) {
-  // Use provided data or fall back to mock data
-  const chartData = data || [];
-  
+interface PortfolioChartProps {
+  timeframe?: string;
+}
+
+export function PortfolioChart({ timeframe = "1mo" }: PortfolioChartProps) {
+  const [data, setData] = useState<PortfolioHistory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchPortfolioHistory = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          setData([]);
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch(
+          `http://localhost:8000/api/v1/portfolio/history?timeframe=${timeframe}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const historyData = await response.json();
+          setData(historyData);
+        } else {
+          throw new Error('Failed to fetch portfolio history');
+        }
+      } catch (err: any) {
+        console.error('Error fetching portfolio history:', err);
+        setError(err.message || 'Failed to load portfolio history');
+        setData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPortfolioHistory();
+  }, [timeframe]);
+
+  if (loading) {
+    return (
+      <CustomSkeleton />
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-2 w-full flex items-center justify-center">
+        <Text4>Unable to load chart data</Text4>
+      </div>
+    );
+  }
+
+  // Transform data for the chart
+  const chartData = data.map(item => ({
+    date: item.date,
+    value: item.total_value
+  }));
+
   // If no data, show empty state
-  if (!data || data.length === 0) {
+  if (chartData.length === 0) {
     return (
       <div className="py-2 w-full flex items-center justify-center">
         <Text4>Nothing here yet.</Text4>

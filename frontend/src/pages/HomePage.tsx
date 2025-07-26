@@ -12,6 +12,7 @@ import { Tile } from "@/components/tile";
 import { Title2 } from "@/components/title-2";
 import { Title3 } from "@/components/title-3";
 import { formatMoney } from "@/lib/format-money";
+import { CustomSkeleton } from "@/components/custom-skeleton";
 
 interface MarketIndex {
   symbol: string;
@@ -40,9 +41,13 @@ interface MarketMoversData {
 }
 
 export default function HomePage() {
+  // Loading state first
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Other state
   const isMarketOpen = useMarketStatus();
   const navigate = useNavigate();
-  
   const [marketData, setMarketData] = useState<MarketData>({
     isOpen: isMarketOpen,
     indices: []
@@ -51,10 +56,10 @@ export default function HomePage() {
     gainers: [],
     losers: []
   });
-  const [error, setError] = useState<string | null>(null);
 
   const fetchMarketData = async () => {
     try {
+      setLoading(true);
       const token = localStorage.getItem('access_token');
       console.log('HomePage: fetchMarketData called, token exists:', !!token);
       console.log('HomePage: Token value:', token ? token.substring(0, 20) + '...' : 'NO TOKEN');
@@ -94,6 +99,8 @@ export default function HomePage() {
     } catch (err) {
       console.error('Error fetching market data:', err);
       setError(err instanceof Error ? err.message : 'Failed to load market data');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -121,6 +128,14 @@ export default function HomePage() {
     price: stock.price
   }));
 
+
+  if (loading) {
+    return (
+      <PageLayout title="Home">
+        <CustomSkeleton />
+      </PageLayout>
+    );
+  }
 
   if (error) {
     return (

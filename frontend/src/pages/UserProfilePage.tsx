@@ -13,6 +13,7 @@ import { UserProfileTiles } from "@/components/user-profile-tiles";
 import { Button2 } from "@/components/button-2";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { CustomSkeleton } from "@/components/custom-skeleton";
 
 interface UserData {
   cash_balance: number;
@@ -33,11 +34,15 @@ interface UserData {
 }
 
 export default function UserProfilePage() {
+  // Loading state first
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Other state
   const { username } = useParams<{ username: string }>();
   const [selectedFilter, setSelectedFilter] = useState("1mo");
   const [sortBy, setSortBy] = useState("symbol");
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   // Mock watchlist state (in a real app, this would come from context/API)
   const [watchlist, setWatchlist] = useState<string[]>([
@@ -48,6 +53,7 @@ export default function UserProfilePage() {
     if (!username) return;
     
     try {
+      setLoading(true);
       setError(null);
       
       const headers: Record<string, string> = {
@@ -72,6 +78,8 @@ export default function UserProfilePage() {
     } catch (err) {
       console.error('Error fetching user data:', err);
       setError('Failed to load user data');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -79,6 +87,15 @@ export default function UserProfilePage() {
     fetchUserData();
   }, [username]);
 
+
+  // Loading check first
+  if (loading) {
+    return (
+      <PageLayout title="">
+        <CustomSkeleton />
+      </PageLayout>
+    );
+  }
 
   if (error || !userData) {
     return (

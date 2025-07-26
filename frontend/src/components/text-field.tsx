@@ -6,9 +6,12 @@ import { Eye, EyeOff } from "lucide-react"
 interface TextFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string
   className?: string
+  uppercase?: boolean
+  multiline?: boolean
+  rows?: number
 }
 
-export const TextField = ({ label, className, type, ...props }: TextFieldProps) => {
+export const TextField = ({ label, className, type, uppercase = false, multiline = false, rows = 3, ...props }: TextFieldProps) => {
   const [showPassword, setShowPassword] = useState(false)
   const isPassword = type === "password"
   const inputType = isPassword ? (showPassword ? "text" : "password") : type
@@ -21,15 +24,27 @@ export const TextField = ({ label, className, type, ...props }: TextFieldProps) 
         </Text4>
       )}
       <div className="relative">
-        <input
-          type={inputType}
-          className={cn(
-            "!w-full !px-4 !py-2 h-10 !text-lg !font-normal !text-muted-foreground !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl !focus:outline-none focus:!ring-0",
-            isPassword && "pr-12"
-          )}
-          {...props}
-        />
-        {isPassword && (
+        {multiline ? (
+          <textarea
+            className={cn(
+              "!w-full !px-4 !py-2 !text-lg !font-normal !text-muted-foreground !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl !focus:outline-none focus:!ring-0 resize-none",
+              uppercase && "[&:not(:placeholder-shown)]:uppercase"
+            )}
+            rows={rows}
+            {...(props as any)}
+          />
+        ) : (
+          <input
+            type={inputType}
+            className={cn(
+              "!w-full !px-4 !py-2 h-10 !text-lg !font-normal !text-muted-foreground !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl !focus:outline-none focus:!ring-0",
+              isPassword && "pr-12",
+              uppercase && "[&:not(:placeholder-shown)]:uppercase"
+            )}
+            {...props}
+          />
+        )}
+        {isPassword && !multiline && (
           <div 
             onClick={() => setShowPassword(!showPassword)}
             className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
