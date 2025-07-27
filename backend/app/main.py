@@ -1,55 +1,66 @@
-# /Users/connormorrison/Developer/projects/mocktrade/app/main.py
+# app/main.py
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from app.api.v1.api import api_router
-from app.core.config import settings
 import logging
-from app.db.base import Base, engine
+
+from app.core.config import settings
+from app.core.middleware import setup_middleware
+from app.infrastructure.database import create_tables
+
+# Domain API routers
+from app.domains.auth.api import router as auth_router
+from app.domains.trading.api import router as trading_router
+from app.domains.stocks.api import router as stocks_router
+from app.domains.portfolio.api import router as portfolio_router
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=getattr(logging, settings.LOG_LEVEL))
 logger = logging.getLogger(__name__)
 
+# Create FastAPI app
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
 
-# List your allowed origins exactly as they appear
-origins = [
-    "https://www.mocktrade.ca",
-    "https://mocktrade.ca",
-    "https://mocktrade-frontend.vercel.app",
-    "http://localhost",
-    "http://localhost:5173",  # Vite's default port
-]
+# Setup middleware (CORS, logging, etc.)
+setup_middleware(app)
 
-# Add the CORS middleware BEFORE including any routers
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,  # Allow only these origins
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Include domain routers
+app.include_router(auth_router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
+app.include_router(trading_router, prefix=f"{settings.API_V1_STR}/trading", tags=["trading"])
+app.include_router(stocks_router, prefix=f"{settings.API_V1_STR}/stocks", tags=["stocks"])
+app.include_router(portfolio_router, prefix=f"{settings.API_V1_STR}/portfolio", tags=["portfolio"])
 
-# Create database tables
-def init_db():
-    logger.info("Creating database tables...")
+@app.on_event("startup")
+async def startup_event():
+    """Initialize application on startup"""
+    logger.info(f"Starting {settings.PROJECT_NAME} v{settings.VERSION}")
+    logger.info(f"Database: {settings.DATABASE_URL}")
+    
+    # Create database tables
     try:
-        Base.metadata.create_all(bind=engine)
+        create_tables()
         logger.info("Database tables created successfully")
     except Exception as e:
         logger.error(f"Error creating database tables: {e}")
-        raise e
+        raise
 
-# Initialize the database on startup
-@app.on_event("startup")
-async def startup_event():
-    logger.info(f"Starting application with DATABASE_URL: {settings.DATABASE_URL}")
-    init_db()
+@app.get("/")
+async def root():
+    """Health check endpoint"""
+    return {
+        "message": f"Welcome to {settings.PROJECT_NAME}",
+        "version": settings.VERSION,
+        "status": "healthy"
+    }
 
-# Include the API router AFTER adding the middleware
-app.include_router(api_router, prefix=settings.API_V1_STR)
+@app.get("/health")
+async def health_check():
+    """Detailed health check"""
+    return {
+        "status": "healthy",
+        "version": settings.VERSION,
+        "database": "connected"
+    }

@@ -1,0 +1,165 @@
+# app/domains/stocks/services.py
+
+import logging
+from typing import Dict, List, Optional
+from datetime import datetime, timedelta
+
+from app.domains.stocks.external import YFinanceClient
+from app.domains.stocks.schemas import StockData, MarketIndex, MarketMover, MarketIndicesResponse, MarketMoversResponse
+
+logger = logging.getLogger(__name__)
+
+class StockService:
+    """Business logic for stock data management"""
+    
+    def __init__(self):
+        self.client = YFinanceClient()
+        self._cache = {}
+        self._cache_duration = timedelta(minutes=5)  # 5 minute cache
+    
+    async def get_stock_data(self, symbol: str) -> Dict[str, any]:
+        """Get complete stock data with caching"""
+        cache_key = f"stock_data_{symbol.upper()}"
+        
+        # Check cache
+        if self._is_cache_valid(cache_key):
+            logger.info(f"Returning cached stock data for {symbol}")
+            return self._cache[cache_key]['data']
+        
+        # Fetch fresh data
+        stock_data = await self.client.get_stock_data(symbol)
+        
+        if stock_data:
+            result = {
+                "symbol": stock_data.symbol,
+                "company_name": stock_data.company_name,
+                "current_price": stock_data.current_price,
+                "previous_close_price": stock_data.previous_close_price,
+                "market_capitalization": stock_data.market_capitalization,
+                "timestamp": stock_data.timestamp
+            }
+            
+            # Cache the result
+            self._cache[cache_key] = {
+                'data': result,
+                'timestamp': datetime.now()
+            }
+            
+            logger.info(f"Fetched fresh stock data for {symbol}")
+            return result
+        
+        raise Exception(f"Could not fetch stock data for {symbol}")
+    
+    async def get_current_price(self, symbol: str) -> Dict[str, any]:
+        """Get current price only - faster endpoint"""
+        cache_key = f"price_{symbol.upper()}"
+        
+        # Check cache (shorter cache for prices)
+        if self._is_cache_valid(cache_key, duration_minutes=1):
+            logger.info(f"Returning cached price for {symbol}")
+            return self._cache[cache_key]['data']
+        
+        # Fetch fresh price
+        price = await self.client.get_current_price(symbol)
+        
+        if price is not None:
+            result = {
+                "symbol": symbol.upper(),
+                "current_price": price,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            # Cache the result
+            self._cache[cache_key] = {
+                'data': result,
+                'timestamp': datetime.now()
+            }
+            
+            logger.info(f"Fetched fresh price for {symbol}")
+            return result
+        
+        raise Exception(f"Could not fetch price for {symbol}")
+    
+    async def get_market_indices(self) -> MarketIndicesResponse:
+        """Get market indices with caching"""
+        cache_key = "market_indices"
+        
+        # Check cache
+        if self._is_cache_valid(cache_key):
+            logger.info("Returning cached market indices")
+            return MarketIndicesResponse(indices=self._cache[cache_key]['data'])
+        
+        # Fetch fresh data
+        indices = await self.client.get_market_indices()
+        
+        if indices:
+            # Cache the result
+            self._cache[cache_key] = {
+                'data': indices,
+                'timestamp': datetime.now()
+            }
+            
+            logger.info("Fetched fresh market indices")
+            return MarketIndicesResponse(indices=indices)
+        
+        raise Exception("Could not fetch market indices")
+    
+    async def get_market_movers(self) -> MarketMoversResponse:
+        """Get market movers with caching"""
+        cache_key = "market_movers"
+        
+        # Check cache
+        if self._is_cache_valid(cache_key):
+            logger.info("Returning cached market movers")
+            cached_data = self._cache[cache_key]['data']
+            return MarketMoversResponse(
+                gainers=cached_data['gainers'],
+                losers=cached_data['losers']
+            )
+        
+        # Fetch fresh data
+        movers_data = await self.client.get_market_movers()
+        
+        if movers_data:
+            # Cache the result
+            self._cache[cache_key] = {
+                'data': movers_data,
+                'timestamp': datetime.now()
+            }
+            
+            logger.info("Fetched fresh market movers")
+            return MarketMoversResponse(
+                gainers=movers_data['gainers'],
+                losers=movers_data['losers']
+            )
+        
+        raise Exception("Could not fetch market movers")
+    
+    async def validate_symbol(self, symbol: str) -> bool:
+        """Validate if a stock symbol exists"""
+        cache_key = f"valid_{symbol.upper()}"
+        
+        # Check cache (longer cache for validation)
+        if self._is_cache_valid(cache_key, duration_minutes=60):
+            return self._cache[cache_key]['data']
+        
+        # Validate symbol
+        is_valid = await self.client.validate_symbol(symbol)
+        
+        # Cache the result
+        self._cache[cache_key] = {
+            'data': is_valid,
+            'timestamp': datetime.now()
+        }
+        
+        return is_valid
+    
+    def _is_cache_valid(self, cache_key: str, duration_minutes: int = 5) -> bool:
+        """Check if cached data is still valid"""
+        if cache_key not in self._cache:
+            return False
+        
+        cache_time = self._cache[cache_key]['timestamp']
+        expiry_time = cache_time + timedelta(minutes=duration_minutes)
+        
+        return datetime.now() < expiry_time
