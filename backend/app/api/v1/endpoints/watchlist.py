@@ -39,12 +39,12 @@ async def get_watchlist(
                 watchlist_with_data.append(WatchlistResponse(
                     id=item.id,
                     symbol=item.symbol,
-                    name=stock_data.get("name", item.symbol),
+                    name=stock_data.get("company_name", item.symbol),
                     current_price=stock_data["current_price"],
-                    previous_close=stock_data.get("previous_close", stock_data["current_price"]),
-                    change=stock_data["current_price"] - stock_data.get("previous_close", stock_data["current_price"]),
-                    change_percent=((stock_data["current_price"] - stock_data.get("previous_close", stock_data["current_price"])) / stock_data.get("previous_close", stock_data["current_price"])) * 100 if stock_data.get("previous_close") else 0.0,
-                    market_cap=stock_data.get("market_cap", "N/A"),
+                    previous_close=stock_data.get("previous_close_price", stock_data["current_price"]),
+                    change=stock_data["current_price"] - stock_data.get("previous_close_price", stock_data["current_price"]),
+                    change_percent=((stock_data["current_price"] - stock_data.get("previous_close_price", stock_data["current_price"])) / stock_data.get("previous_close_price", stock_data["current_price"])) * 100 if stock_data.get("previous_close_price") else 0.0,
+                    market_cap=stock_data.get("market_capitalization", "N/A"),
                     created_at=item.created_at
                 ))
             except Exception as e:

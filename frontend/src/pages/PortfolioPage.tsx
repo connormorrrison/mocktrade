@@ -6,12 +6,13 @@ import { Tile } from "@/components/tile";
 import { Text4 } from "@/components/text-4";
 import { Title2 } from "@/components/title-2";
 import { CustomDropdown } from "@/components/custom-dropdown";
-import { PortfolioTile } from "@/components/portfolio-tile";
+import { PositionTile } from "@/components/position-tile";
 import { UserProfileTiles } from "@/components/user-profile-tiles";
 import { CustomSkeleton } from "@/components/custom-skeleton";
 
 interface Position {
   symbol: string;
+  company_name?: string;
   shares: number;
   current_price: number;
   average_price: number;
@@ -34,7 +35,7 @@ export default function PortfolioPage() {
   const [selectedFilter, setSelectedFilter] = useState("1mo");
   const [sortBy, setSortBy] = useState("symbol");
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
-  const [transactionCount, setTransactionCount] = useState(0);
+  const [activityCount, setActivityCount] = useState(0);
 
   const fetchPortfolioData = async () => {
     try {
@@ -47,12 +48,12 @@ export default function PortfolioPage() {
           cash_balance: 0,
           positions: []
         });
-        setTransactionCount(0);
+        setActivityCount(0);
         setLoading(false);
         return;
       }
 
-      const response = await fetch('http://localhost:8000/api/v1/portfolio/summary', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/portfolio/summary`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -73,14 +74,14 @@ export default function PortfolioPage() {
     }
   };
 
-  const fetchTransactionCount = async () => {
+  const fetchActivityCount = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token');
       if (!token) {
         return;
       }
 
-      const response = await fetch('http://localhost:8000/api/v1/trading/transactions', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/trading/activities`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -88,17 +89,17 @@ export default function PortfolioPage() {
 
       if (response.ok) {
         const data = await response.json();
-        setTransactionCount(data.length);
+        setActivityCount(data.length);
       }
     } catch (error) {
-      console.error('Error fetching transaction count:', error);
+      console.error('Error fetching activity count:', error);
       // Keep default value of 0
     }
   };
 
   useEffect(() => {
     fetchPortfolioData();
-    fetchTransactionCount();
+    fetchActivityCount();
   }, []);
 
   if (loading) {
@@ -127,7 +128,7 @@ export default function PortfolioPage() {
           <UserProfileTiles
             totalValue={portfolioData?.total_value || 0}
             cashBalance={portfolioData?.cash_balance || 0}
-            transactionCount={transactionCount}
+            activityCount={activityCount}
           />
         </div>
 
@@ -199,7 +200,7 @@ export default function PortfolioPage() {
                   }
                 })
                 .map((pos) => (
-                  <PortfolioTile
+                  <PositionTile
                     key={pos.symbol}
                     position={{
                       symbol: pos.symbol,
@@ -207,10 +208,11 @@ export default function PortfolioPage() {
                       current_price: pos.current_price,
                       average_price: pos.average_price,
                       previous_price: pos.current_price, // TODO: Get previous price from API
-                      company_name: pos.symbol // TODO: Get company name from API
+                      company_name: pos.company_name || pos.symbol
                     }}
                     totalPortfolioValue={portfolioData.total_value}
                     onTrade={(symbol) => navigate(`/trade/${symbol}`)}
+                    isVisible={true}
                   />
                 ))
             )}

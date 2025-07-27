@@ -4,7 +4,7 @@ from pathlib import Path
 import asyncio
 from sqlalchemy.orm import Session
 from app.db.base import engine, Base, SessionLocal
-from app.models.trading import Position, Transaction
+from app.models.trading import Position, Activity
 from app.models.user import User
 from datetime import datetime
 
@@ -52,23 +52,23 @@ def test_database():
         print(f"Shares: {test_position.shares}")
         print(f"Average Price: ${test_position.average_price:,.2f}")
 
-        # 3. Create a transaction
-        test_transaction = Transaction(
+        # 3. Create an activity
+        test_activity = Activity(
             user_id=test_user.id,
             position_id=test_position.id,
             symbol="AAPL",
-            transaction_type="BUY",
+            activity_type="BUY",
             shares=10.0,
             price=150.0,
             total_amount=1500.0
         )
-        db.add(test_transaction)
+        db.add(test_activity)
         db.commit()
-        db.refresh(test_transaction)
-        print(f"\nCreated transaction:")
-        print(f"Type: {test_transaction.transaction_type}")
-        print(f"Symbol: {test_transaction.symbol}")
-        print(f"Amount: ${test_transaction.total_amount:,.2f}")
+        db.refresh(test_activity)
+        print(f"\nCreated activity:")
+        print(f"Type: {test_activity.activity_type}")
+        print(f"Symbol: {test_activity.symbol}")
+        print(f"Amount: ${test_activity.total_amount:,.2f}")
 
         # 4. Verify relationships
         print("\nVerifying relationships:")
@@ -76,13 +76,13 @@ def test_database():
         user_positions = db.query(Position).filter(Position.user_id == test_user.id).all()
         print(f"User has {len(user_positions)} position(s)")
         
-        # Check user's transactions
-        user_transactions = db.query(Transaction).filter(Transaction.user_id == test_user.id).all()
-        print(f"User has {len(user_transactions)} transaction(s)")
+        # Check user's activities
+        user_activities = db.query(Activity).filter(Activity.user_id == test_user.id).all()
+        print(f"User has {len(user_activities)} activity(s)")
         
-        # Verify position-transaction relationship
-        position_transactions = db.query(Transaction).filter(Transaction.position_id == test_position.id).all()
-        print(f"Position has {len(position_transactions)} transaction(s)")
+        # Verify position-activity relationship
+        position_activities = db.query(Activity).filter(Activity.position_id == test_position.id).all()
+        print(f"Position has {len(position_activities)} activity(s)")
 
         print("\nDatabase test completed successfully!")
 

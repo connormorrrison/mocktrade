@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from typing import Dict, Any, List
 from app.services.stock_service import StockService
 from app.models.user import User
-from app.models.trading import Position, Transaction
+from app.models.trading import Position, Activity
 
 class TradingService:
     def __init__(self):
@@ -16,7 +16,7 @@ class TradingService:
         user_id: int,
         symbol: str,
         shares: float,
-        transaction_type: str
+        activity_type: str
     ) -> Dict[str, Any]:
         """
         Execute a buy or sell trade
@@ -33,7 +33,7 @@ class TradingService:
 
             total_amount = shares * current_price
 
-            if transaction_type == "BUY":
+            if activity_type == "BUY":
                 if user.cash_balance < total_amount:
                     raise ValueError("Insufficient funds")
                 
@@ -79,28 +79,28 @@ class TradingService:
                 # Update cash balance
                 user.cash_balance += total_amount
 
-            # Record transaction
-            transaction = Transaction(
+            # Record activity
+            activity = Activity(
                 user_id=user_id,
                 position_id=position.id if position else None,
                 symbol=symbol,
-                transaction_type=transaction_type,
+                activity_type=activity_type,
                 shares=shares,
                 price=current_price,
                 total_amount=total_amount
             )
-            db.add(transaction)
+            db.add(activity)
             db.commit()
-            db.refresh(transaction)
+            db.refresh(activity)
 
             return {
                 "status": "success",
-                "transaction_id": transaction.id,
+                "activity_id": activity.id,
                 "symbol": symbol,
                 "shares": shares,
                 "price": current_price,
                 "total_amount": total_amount,
-                "transaction_type": transaction_type
+                "activity_type": activity_type
             }
 
         except Exception as e:
@@ -148,24 +148,24 @@ class TradingService:
         except Exception as e:
             raise e
 
-    async def get_user_transactions(self, db: Session, user_id: int) -> List[Dict[str, Any]]:
+    async def get_user_activities(self, db: Session, user_id: int) -> List[Dict[str, Any]]:
         """
-        Get user's transaction history
+        Get user's activity history
         """
         try:
-            transactions = db.query(Transaction).filter(
-                Transaction.user_id == user_id
-            ).order_by(Transaction.created_at.desc()).all()
+            activities = db.query(Activity).filter(
+                Activity.user_id == user_id
+            ).order_by(Activity.created_at.desc()).all()
 
             return [{
                 "id": t.id,
                 "symbol": t.symbol,
-                "transaction_type": t.transaction_type,
+                "activity_type": t.activity_type,
                 "shares": t.shares,
                 "price": t.price,
                 "total_amount": t.total_amount,
                 "created_at": t.created_at
-            } for t in transactions]
+            } for t in activities]
 
         except Exception as e:
             raise e

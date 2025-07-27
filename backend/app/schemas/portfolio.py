@@ -4,6 +4,7 @@ from datetime import date
 
 class PositionDetail(BaseModel):
     symbol: str
+    company_name: Optional[str] = None
     shares: float
     average_price: float
     current_price: float
@@ -30,6 +31,8 @@ class PortfolioHistory(BaseModel):
 
 class LeaderboardEntry(BaseModel):
     rank: int
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     username: str
     total_value: float
     return_amount: float

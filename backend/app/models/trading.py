@@ -18,24 +18,24 @@ class Position(Base):
 
     # Relationships
     user = relationship("User", back_populates="positions")
-    transactions = relationship("Transaction", back_populates="position")
+    activities = relationship("Activity", back_populates="position")
 
-class Transaction(Base):
-    __tablename__ = "transactions"
+class Activity(Base):
+    __tablename__ = "activities"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     position_id = Column(Integer, ForeignKey("positions.id"))
     symbol = Column(String, index=True)
-    transaction_type = Column(String)  # "BUY" or "SELL"
+    activity_type = Column(String)  # "BUY" or "SELL"
     shares = Column(Float)
     price = Column(Float)
     total_amount = Column(Float)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
-    user = relationship("User", back_populates="transactions")
-    position = relationship("Position", back_populates="transactions")
+    user = relationship("User", back_populates="activities")
+    position = relationship("Position", back_populates="activities")
 
 class Watchlist(Base):
     __tablename__ = "watchlist"

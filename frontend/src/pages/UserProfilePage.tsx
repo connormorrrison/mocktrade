@@ -7,7 +7,7 @@ import { Tile } from "@/components/tile";
 import { Title2 } from "@/components/title-2";
 import { Text4 } from "@/components/text-4";
 import { CustomDropdown } from "@/components/custom-dropdown";
-import { PortfolioTile } from "@/components/portfolio-tile";
+import { PositionTile } from "@/components/position-tile";
 import { UserProfileHeader } from "@/components/user-profile-header";
 import { UserProfileTiles } from "@/components/user-profile-tiles";
 import { Button2 } from "@/components/button-2";
@@ -16,12 +16,24 @@ import { Link } from "react-router-dom";
 import { CustomSkeleton } from "@/components/custom-skeleton";
 
 interface UserData {
+  first_name?: string;
+  last_name?: string;
   cash_balance: number;
   positions_value: number;
   total_value: number;
   starting_value: number;
   total_return: number;
   return_percentage: number;
+  activity_count?: number;
+  activities?: Array<{
+    id: number;
+    symbol: string;
+    activity_type: string;
+    shares: number;
+    price: number;
+    total_amount: number;
+    created_at: string;
+  }>;
   positions: Array<{
     symbol: string;
     shares: number;
@@ -43,6 +55,8 @@ export default function UserProfilePage() {
   const [selectedFilter, setSelectedFilter] = useState("1mo");
   const [sortBy, setSortBy] = useState("symbol");
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [activities, setActivities] = useState<any[]>([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(false);
 
   // Mock watchlist state (in a real app, this would come from context/API)
   const [watchlist, setWatchlist] = useState<string[]>([
@@ -60,7 +74,7 @@ export default function UserProfilePage() {
         'Content-Type': 'application/json',
       };
 
-      const response = await fetch(`http://localhost:8000/api/v1/portfolio/leaderboard/${username}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/portfolio/leaderboard/${username}`, {
         headers
       });
 
@@ -83,9 +97,62 @@ export default function UserProfilePage() {
     }
   };
 
+  const fetchUserActivities = async () => {
+    // Check if activities are included in userData first
+    if (userData?.activities) {
+      setActivities(userData.activities);
+      setActivitiesLoading(false);
+      return;
+    }
+    
+    if (!username) return;
+    
+    try {
+      setActivitiesLoading(true);
+      
+      // Check if the leaderboard endpoint includes activities
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/portfolio/leaderboard/${username}?include_activities=true`, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.activities) {
+          const validActivities = data.activities.map((tx: any) => ({
+            id: tx.id,
+            symbol: tx.symbol,
+            activity_type: tx.activity_type,
+            shares: tx.shares,
+            price: tx.price,
+            total_amount: tx.total_amount,
+            created_at: tx.created_at,
+          }));
+          setActivities(validActivities);
+        } else {
+          setActivities([]);
+        }
+      } else {
+        setActivities([]);
+      }
+    } catch (err) {
+      console.error('Error fetching user activities:', err);
+      setActivities([]);
+    } finally {
+      setActivitiesLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchUserData();
   }, [username]);
+
+  useEffect(() => {
+    if (userData) {
+      fetchUserActivities();
+    }
+  }, [userData]);
 
 
   // Loading check first
@@ -138,8 +205,9 @@ export default function UserProfilePage() {
         
         {/* Profile Header */}
         <UserProfileHeader 
-          username={username!} 
-          joinedDate="2024-01-01T00:00:00Z" // Mock joined date since it's not in API
+          firstName={userData.first_name}
+          lastName={userData.last_name}
+          username={username!}
         />
 
         {/* Overview Section */}
@@ -148,7 +216,7 @@ export default function UserProfilePage() {
           <UserProfileTiles
             totalValue={userData.total_value}
             cashBalance={userData.cash_balance}
-            transactionCount={userData.positions.length} // Use positions count since we don't have transactions
+            activityCount={userData.activity_count || userData.positions.length} // Use actual count if available
           />
         </div>
       </div>
@@ -231,7 +299,7 @@ export default function UserProfilePage() {
               };
               
               return (
-                <PortfolioTile
+                <PositionTile
                   key={pos.symbol}
                   position={transformedPos}
                   totalPortfolioValue={userData.total_value}
@@ -250,7 +318,7 @@ export default function UserProfilePage() {
       <div>
         <Title2>Activity</Title2>
         <div className="overflow-hidden">
-          <ActivityTable transactions={[]} />
+          <ActivityTable activities={activities} isLoading={activitiesLoading} />
         </div>
       </div>
     </PageLayout>

@@ -16,6 +16,7 @@ from app.core.security import (
 from app.models.user import User
 from app.schemas.auth import TokenData, UserCreate, UserUpdate, PasswordChange
 from app.db.base import get_db
+from app.services.portfolio_service import PortfolioService
 
 logger = logging.getLogger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
@@ -71,6 +72,15 @@ class AuthService:
                 db.add(db_user)
                 db.commit()
                 db.refresh(db_user)
+                
+                # Create initial portfolio snapshot for the new user
+                try:
+                    await PortfolioService.create_portfolio_snapshot(db, db_user.id)
+                    logger.info(f"Created initial portfolio snapshot for user: {user_data.email}")
+                except Exception as snapshot_error:
+                    logger.warning(f"Failed to create initial portfolio snapshot for {user_data.email}: {snapshot_error}")
+                    # Don't fail user creation if snapshot creation fails
+                
                 logger.info(f"Successfully created user: {user_data.email}")
                 return db_user
             except Exception as e:

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 from typing import List, Optional
 from fastapi import HTTPException
-from app.models import User, Position, Transaction
+from app.models import User, Position, Activity
 from datetime import datetime
 
 class TradingCRUD:
@@ -15,15 +15,15 @@ class TradingCRUD:
         return positions
 
     @staticmethod
-    async def get_user_transactions(db: Session, user_id: int) -> List[Transaction]:
-        """Get all transactions for a user"""
-        transactions = (
-            db.query(Transaction)
-            .filter(Transaction.user_id == user_id)
-            .order_by(Transaction.created_at.desc())
+    async def get_user_activities(db: Session, user_id: int) -> List[Activity]:
+        """Get all activities for a user"""
+        activities = (
+            db.query(Activity)
+            .filter(Activity.user_id == user_id)
+            .order_by(Activity.created_at.desc())
             .all()
         )
-        return transactions
+        return activities
 
     @staticmethod
     async def create_position(
@@ -81,30 +81,30 @@ class TradingCRUD:
             raise HTTPException(status_code=500, detail=str(e))
 
     @staticmethod
-    async def record_transaction(
+    async def record_activity(
         db: Session,
         user_id: int,
         position_id: int,
         symbol: str,
-        transaction_type: str,
+        activity_type: str,
         shares: float,
         price: float
-    ) -> Transaction:
-        """Record a buy/sell transaction"""
+    ) -> Activity:
+        """Record a buy/sell activity"""
         try:
-            transaction = Transaction(
+            activity = Activity(
                 user_id=user_id,
                 position_id=position_id,
                 symbol=symbol,
-                transaction_type=transaction_type,
+                activity_type=activity_type,
                 shares=shares,
                 price=price,
                 total_amount=shares * price
             )
-            db.add(transaction)
+            db.add(activity)
             db.commit()
-            db.refresh(transaction)
-            return transaction
+            db.refresh(activity)
+            return activity
         except Exception as e:
             db.rollback()
             raise HTTPException(status_code=500, detail=str(e))

@@ -27,7 +27,7 @@ async def create_order(
             user_id=current_user.id,
             symbol=order.symbol,
             shares=order.shares,
-            transaction_type=order.transaction_type
+            activity_type=order.activity_type
         )
     except ValueError as e:
         logger.warning(f"Validation error in create_order: {str(e)}")
@@ -85,19 +85,19 @@ async def get_position(
             detail=f"Failed to fetch position: {str(e)}"
         )
 
-@router.get("/transactions")
-async def get_transactions(
+@router.get("/activities")
+async def get_activities(
     current_user = Depends(AuthService.get_current_user),
     db: Session = Depends(get_db)
 ) -> List[Dict[str, Any]]:
     """
-    Get user's transaction history
+    Get user's activity history
     """
     try:
-        return await trading_service.get_user_transactions(db, current_user.id)
+        return await trading_service.get_user_activities(db, current_user.id)
     except Exception as e:
-        logger.error(f"Error fetching transactions: {str(e)}")
+        logger.error(f"Error fetching activities: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to fetch transactions: {str(e)}"
+            detail=f"Failed to fetch activities: {str(e)}"
         )

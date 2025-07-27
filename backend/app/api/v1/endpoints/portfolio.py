@@ -121,6 +121,8 @@ async def get_leaderboard(
         return [
             LeaderboardEntry(
                 rank=item["rank"],
+                first_name=item["first_name"],
+                last_name=item["last_name"],
                 username=item["username"],
                 total_value=item["total_value"],
                 return_amount=item["return_amount"],
@@ -136,9 +138,10 @@ async def get_leaderboard(
             detail="Failed to retrieve leaderboard data"
         )
 
-@router.get("/leaderboard/{username}", response_model=PortfolioSummary)
+@router.get("/leaderboard/{username}")
 async def get_user_leaderboard_profile(
     username: str,
+    include_activities: bool = Query(False),
     db: Session = Depends(get_db)
 ):
     """Get specific user's portfolio data for leaderboard profile view."""
@@ -154,15 +157,27 @@ async def get_user_leaderboard_profile(
         # Get portfolio data for the user
         portfolio_data = await PortfolioService.calculate_portfolio_value(db, user.id)
         
-        return PortfolioSummary(
-            cash_balance=portfolio_data["cash_balance"],
-            positions_value=portfolio_data["positions_value"],
-            total_value=portfolio_data["total_value"],
-            starting_value=portfolio_data["starting_value"],
-            total_return=portfolio_data["total_return"],
-            return_percentage=portfolio_data["return_percentage"],
-            positions=portfolio_data["positions"]
-        )
+        response_data = {
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "cash_balance": portfolio_data["cash_balance"],
+            "positions_value": portfolio_data["positions_value"],
+            "total_value": portfolio_data["total_value"],
+            "starting_value": portfolio_data["starting_value"],
+            "total_return": portfolio_data["total_return"],
+            "return_percentage": portfolio_data["return_percentage"],
+            "positions": portfolio_data["positions"]
+        }
+        
+        # Include activities if requested
+        if include_activities:
+            from app.services.trading_service import TradingService
+            trading_service = TradingService()
+            activities = await trading_service.get_user_activities(db, user.id)
+            response_data["activities"] = activities
+            response_data["activity_count"] = len(activities)
+        
+        return response_data
         
     except HTTPException:
         raise

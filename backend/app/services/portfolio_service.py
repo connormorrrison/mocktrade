@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from typing import List, Dict, Optional
 from datetime import date, datetime, timedelta
 from app.models.user import User
-from app.models.trading import Position, Transaction, PortfolioSnapshot
+from app.models.trading import Position, Activity, PortfolioSnapshot
 from app.services.stock_service import StockService
 import logging
 
@@ -32,16 +32,23 @@ class PortfolioService:
             # Calculate value of each position
             for position in positions:
                 try:
-                    # Get current stock price
+                    # Get current stock price and company name
                     stock_service = StockService()
                     stock_data = await stock_service.get_stock_price(position.symbol)
                     current_price = stock_data["current_price"]
+                    
+                    # Get company name
+                    try:
+                        company_name = await stock_service.get_company_name(position.symbol)
+                    except:
+                        company_name = position.symbol
                     
                     position_value = position.shares * current_price
                     positions_value += position_value
                     
                     position_details.append({
                         "symbol": position.symbol,
+                        "company_name": company_name,
                         "shares": position.shares,
                         "average_price": position.average_price,
                         "current_price": current_price,
@@ -57,6 +64,7 @@ class PortfolioService:
                     
                     position_details.append({
                         "symbol": position.symbol,
+                        "company_name": position.symbol,  # Fallback to symbol
                         "shares": position.shares,
                         "average_price": position.average_price,
                         "current_price": position.average_price,  # Fallback
@@ -177,6 +185,9 @@ class PortfolioService:
             # TODO: Implement timeframe-specific calculations using snapshots
             
             users = db.query(User).filter(User.is_active == True).all()
+            # Refresh users to ensure all fields are loaded
+            for user in users:
+                db.refresh(user)
             leaderboard = []
             
             for user in users:
@@ -184,7 +195,10 @@ class PortfolioService:
                     # Calculate current portfolio (this should be cached/optimized)
                     portfolio_data = await PortfolioService.calculate_portfolio_value(db, user.id)
                     
+                    logger.info(f"User {user.username}: first_name={user.first_name}, last_name={user.last_name}")
                     leaderboard.append({
+                        "first_name": user.first_name,
+                        "last_name": user.last_name,
                         "username": user.username,
                         "total_value": portfolio_data["total_value"],
                         "return_amount": portfolio_data["total_return"],

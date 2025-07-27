@@ -8,10 +8,10 @@ import { CustomDatePicker } from "@/components/custom-date-picker";
 import { ErrorTile } from "@/components/error-tile";
 import { CustomSkeleton } from "@/components/custom-skeleton";
 
-interface Transaction {
+interface Activity {
   id: number;
   symbol: string;
-  transaction_type: 'BUY' | 'SELL';
+  activity_type: 'BUY' | 'SELL';
   shares: number;
   price: number;
   total_amount: number;
@@ -24,16 +24,16 @@ export default function ActivityPage() {
   const [error, setError] = useState<string | null>(null);
   
   // Other state
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
   const [toDate, setToDate] = useState<Date | undefined>(undefined);
 
   useEffect(() => {
-    fetchTransactions();
+    fetchActivities();
   }, []);
 
-  const fetchTransactions = async () => {
+  const fetchActivities = async () => {
     setIsLoading(true);
     setError(null);
 
@@ -41,37 +41,37 @@ export default function ActivityPage() {
       const token = localStorage.getItem('access_token');
       if (!token) {
         // No token means user is not logged in - just show empty state
-        setTransactions([]);
+        setActivities([]);
         setIsLoading(false);
         return;
       }
 
-      const response = await fetch('http://localhost:8000/api/v1/trading/transactions', {
+      const response = await fetch('http://localhost:8000/api/v1/trading/activities', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch transactions');
+        throw new Error('Failed to fetch activities');
       }
 
       const data = await response.json();
 
-      const validTransactions = data.map((tx: any) => ({
+      const validActivities = data.map((tx: any) => ({
         id: tx.id,
         symbol: tx.symbol,
-        transaction_type: tx.transaction_type,
+        activity_type: tx.activity_type,
         shares: tx.shares,
         price: tx.price,
         total_amount: tx.total_amount,
         created_at: tx.created_at,
       }));
 
-      setTransactions(validTransactions);
+      setActivities(validActivities);
     } catch (err) {
-      console.error('Error fetching transactions:', err);
-      setError('Unable to load transactions');
+      console.error('Error fetching activities:', err);
+      setError('Unable to load activities');
     } finally {
       setIsLoading(false);
     }
@@ -91,16 +91,16 @@ export default function ActivityPage() {
     return newDate;
   };
 
-  const filteredTransactions = transactions.filter(tx => {
+  const filteredActivities = activities.filter(tx => {
     const txDate = new Date(tx.created_at);
 
     const from = fromDate ? getStartOfDay(fromDate) : null;
     const to = toDate ? getEndOfDay(toDate) : null;
 
-    // If we have a fromDate, the transaction must be >= fromDate
+    // If we have a fromDate, the activity must be >= fromDate
     if (from && txDate < from) return false;
 
-    // If we have a toDate, the transaction must be <= toDate
+    // If we have a toDate, the activity must be <= toDate
     if (to && txDate > to) return false;
 
     // If fromDate is after toDate, automatically exclude all
@@ -108,7 +108,7 @@ export default function ActivityPage() {
 
     // Filter type if not 'All'
     const filterValue = selectedFilter === 'Buy' ? 'BUY' : selectedFilter === 'Sell' ? 'SELL' : 'All';
-    if (filterValue !== 'All' && tx.transaction_type !== filterValue) return false;
+    if (filterValue !== 'All' && tx.activity_type !== filterValue) return false;
 
     return true;
   });
@@ -121,11 +121,11 @@ export default function ActivityPage() {
     // Build an array of CSV rows
     const csvRows = [headers.join(',')];
     
-    filteredTransactions.forEach(tx => {
+    filteredActivities.forEach(tx => {
       const row = [
         tx.id,
         new Date(tx.created_at).toLocaleString(),
-        tx.transaction_type,
+        tx.activity_type,
         tx.symbol,
         tx.shares.toString(),
         tx.price.toString(),
@@ -212,7 +212,7 @@ export default function ActivityPage() {
 
         {/* Activity Table - Now properly constrained */}
         <ActivityTable 
-          transactions={filteredTransactions} 
+          activities={filteredActivities} 
           isLoading={isLoading}
         />
         

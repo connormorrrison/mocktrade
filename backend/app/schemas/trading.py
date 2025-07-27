@@ -7,12 +7,12 @@ from datetime import datetime
 class OrderCreate(BaseModel):
     symbol: str = Field(..., description="Stock symbol (e.g., 'AAPL')")
     shares: float = Field(..., gt=0, description="Number of shares to trade")
-    transaction_type: Literal["BUY", "SELL"] = Field(..., description="Type of transaction")
+    activity_type: Literal["BUY", "SELL"] = Field(..., description="Type of activity")
 
-class Transaction(BaseModel):
+class Activity(BaseModel):
     id: int
     symbol: str
-    transaction_type: str
+    activity_type: str
     shares: float
     price: float
     total_amount: float

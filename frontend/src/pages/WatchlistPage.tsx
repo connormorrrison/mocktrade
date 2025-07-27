@@ -33,6 +33,7 @@ export default function WatchlistPage() {
     const [newSymbol, setNewSymbol] = useState("");
     const [watchlist, setWatchlist] = useState<WatchlistStock[]>([]);
     const [adding, setAdding] = useState(false);
+    const [hidingSymbols, setHidingSymbols] = useState<Set<string>>(new Set());
 
     const API_BASE_URL = "http://localhost:8000/api/v1";
 
@@ -122,21 +123,44 @@ export default function WatchlistPage() {
         try {
             setError(null);
             
-            const response = await fetch(`${API_BASE_URL}/watchlist/${symbol}`, {
-                method: "DELETE",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
+            // Start hiding animation
+            setHidingSymbols(prev => new Set(prev).add(symbol));
+            
+            // Wait for animation to complete before removing from state
+            setTimeout(async () => {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/watchlist/${symbol}`, {
+                        method: "DELETE",
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json"
+                        }
+                    });
+
+                    if (!response.ok) {
+                        const data = await response.json();
+                        throw new Error(data.detail || "Failed to remove stock from watchlist");
+                    }
+
+                    // Update local state after API success
+                    setWatchlist(watchlist.filter(stock => stock.symbol !== symbol));
+                    setHidingSymbols(prev => {
+                        const next = new Set(prev);
+                        next.delete(symbol);
+                        return next;
+                    });
+                } catch (error: any) {
+                    console.error("Error removing from watchlist:", error);
+                    setError(error.message || "Failed to remove stock from watchlist");
+                    // Reset hiding state on error
+                    setHidingSymbols(prev => {
+                        const next = new Set(prev);
+                        next.delete(symbol);
+                        return next;
+                    });
                 }
-            });
-
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.detail || "Failed to remove stock from watchlist");
-            }
-
-            // Update local state immediately for better UX
-            setWatchlist(watchlist.filter(stock => stock.symbol !== symbol));
+            }, 200); // Match animation duration
+            
         } catch (error: any) {
             console.error("Error removing from watchlist:", error);
             setError(error.message || "Failed to remove stock from watchlist");
@@ -232,6 +256,7 @@ export default function WatchlistPage() {
                                         }}
                                         onTrade={handleTrade}
                                         onRemove={removeFromWatchlist}
+                                        isVisible={!hidingSymbols.has(stock.symbol)}
                                     />
                                 ))
                         )}

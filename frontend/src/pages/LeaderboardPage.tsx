@@ -8,6 +8,8 @@ import { CustomSkeleton } from "@/components/custom-skeleton";
 
 interface LeaderboardUser {
   rank: number;
+  first_name?: string;
+  last_name?: string;
   username: string;
   total_value: number;
   return_amount: number;
@@ -67,6 +69,8 @@ export default function LeaderboardPage() {
   // Transform API data for display
   const transformedUsers = leaderboardData.map(user => ({
     rank: user.rank,
+    first_name: user.first_name,
+    last_name: user.last_name,
     username: user.username,
     return: user.return_percentage,
     profit: user.return_amount

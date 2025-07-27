@@ -5,6 +5,8 @@ import { Tile } from "@/components/tile";
 import { ProfilePicture } from "@/components/profile-picture";
 
 interface LeaderboardUser {
+  first_name?: string;
+  last_name?: string;
   username: string;
   return: number;
   profit: number;

@@ -6,7 +6,7 @@ interface UserProfileHeaderProps {
   firstName?: string;
   lastName?: string;
   username: string;
-  joinedDate: string;
+  joinedDate?: string;
 }
 
 export function UserProfileHeader({ firstName, lastName, username, joinedDate }: UserProfileHeaderProps) {
@@ -20,16 +20,7 @@ export function UserProfileHeader({ firstName, lastName, username, joinedDate }:
             <Text4>@{username}</Text4>
           </>
         ) : (
-          <>
-            <Text2>@{username}</Text2>
-            <Text4>
-              Joined {new Date(joinedDate).toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric', 
-                year: 'numeric'
-              })}
-            </Text4>
-          </>
+          <Text2>@{username}</Text2>
         )}
       </div>
     </div>

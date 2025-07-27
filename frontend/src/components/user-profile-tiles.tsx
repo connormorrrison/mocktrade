@@ -6,13 +6,13 @@ import { formatMoney } from "@/lib/format-money";
 interface UserProfileTilesProps {
   totalValue: number;
   cashBalance: number;
-  transactionCount: number;
+  activityCount: number;
 }
 
 export function UserProfileTiles({ 
   totalValue, 
   cashBalance, 
-  transactionCount 
+  activityCount 
 }: UserProfileTilesProps) {
   const startingValue = 100000;
   const positionsValue = totalValue - cashBalance;
@@ -78,7 +78,7 @@ export function UserProfileTiles({
         <Tile>
           <div className="p-2">
             <Text4>Total Trades</Text4>
-            <Text2>{transactionCount}</Text2>
+            <Text2>{activityCount}</Text2>
           </div>
         </Tile>
       </div>

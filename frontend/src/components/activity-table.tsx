@@ -3,10 +3,10 @@ import { Text5 } from "@/components/text-5";
 import { formatMoney } from "@/lib/format-money";
 import { CustomSkeleton } from "@/components/custom-skeleton";
 
-interface Transaction {
+interface Activity {
   id: number
   symbol: string
-  transaction_type: string
+  activity_type: string
   shares: number
   price: number
   total_amount: number
@@ -14,11 +14,11 @@ interface Transaction {
 }
 
 interface ActivityTableProps {
-  transactions: Transaction[]
+  activities: Activity[]
   isLoading?: boolean
 }
 
-export const ActivityTable = ({ transactions, isLoading = false }: ActivityTableProps) => {
+export const ActivityTable = ({ activities, isLoading = false }: ActivityTableProps) => {
 
   return (
     // CRITICAL: Use relative positioning to establish a containing block
@@ -45,14 +45,14 @@ export const ActivityTable = ({ transactions, isLoading = false }: ActivityTable
                   <CustomSkeleton />
                 </td>
               </tr>
-            ) : !transactions || transactions.length === 0 ? (
+            ) : !activities || activities.length === 0 ? (
               <tr>
                 <td colSpan={7} className="text-center py-2">
                   <Text4>Nothing here yet.</Text4>
                 </td>
               </tr>
             ) : (
-              (transactions || []).map(tx => (
+              (activities || []).map(tx => (
                 <tr key={tx.id} className="hover:bg-zinc-700">
                   <td className="px-4 py-2 whitespace-nowrap"><Text5>{tx.id}</Text5></td>
                   <td className="px-4 py-2 whitespace-nowrap">
@@ -60,11 +60,11 @@ export const ActivityTable = ({ transactions, isLoading = false }: ActivityTable
                   </td>
                   <td className="px-4 whitespace-nowrap">
                     <Text5 className={`inline-block px-2 py-1 rounded-full ${
-                      tx.transaction_type === 'BUY'
+                      tx.activity_type === 'BUY'
                         ? 'bg-green-900/50 !text-green-300'
                         : 'bg-red-900/50 !text-red-300'
                     }`}>
-                      {tx.transaction_type}
+                      {tx.activity_type}
                     </Text5>
                   </td>
                   <td className="px-4 py-2 whitespace-nowrap"><Text5>{tx.symbol}</Text5></td>

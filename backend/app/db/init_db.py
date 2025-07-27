@@ -3,7 +3,7 @@
 from sqlalchemy import create_engine
 from app.db.base import Base
 from app.core.config import settings
-from app.models import User, Position, Transaction
+from app.models import User, Position, Activity
 
 # Create tables
 def init_db():

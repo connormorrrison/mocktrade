@@ -68,7 +68,7 @@ def test_create_buy_order(client, test_user_token):
     order_data = {
         "symbol": "AAPL",
         "shares": 10,
-        "transaction_type": "BUY"
+        "activity_type": "BUY"
     }
     
     response = client.post(
@@ -134,7 +134,7 @@ def test_create_sell_order_insufficient_shares(client, test_user_token):
     order_data = {
         "symbol": "MSFT",  # Haven't bought any MSFT
         "shares": 10,
-        "transaction_type": "SELL"
+        "activity_type": "SELL"
     }
     
     response = client.post(
@@ -166,7 +166,7 @@ def test_complete_trade_cycle(client, test_user_token):
     buy_order = {
         "symbol": symbol,
         "shares": shares,
-        "transaction_type": "BUY"
+        "activity_type": "BUY"
     }
     
     buy_response = client.post(
@@ -191,7 +191,7 @@ def test_complete_trade_cycle(client, test_user_token):
     sell_order = {
         "symbol": symbol,
         "shares": shares,
-        "transaction_type": "SELL"
+        "activity_type": "SELL"
     }
     
     sell_response = client.post(

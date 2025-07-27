@@ -48,17 +48,21 @@ class StockService:
                     "volume": float(row['Volume'])
                 })
 
-            # Get company name
+            # Get company name and market capitalization
             try:
                 company_name = await self.get_company_name(symbol)
             except:
                 company_name = symbol
+                
+            # Get market capitalization
+            market_capitalization = await self.get_market_capitalization(symbol)
 
             return {
                 "symbol": symbol,
                 "company_name": company_name,
                 "current_price": float(current_price),
                 "previous_close_price": float(prev_close),
+                "market_capitalization": market_capitalization,
                 "historical_prices": historical_prices,
                 "timestamp": datetime.now().isoformat()
             }
@@ -439,3 +443,32 @@ class StockService:
         except Exception as e:
             logger.warning(f"Could not fetch company name for {symbol}: {e}")
             return symbol  # Return symbol as fallback
+
+    async def get_market_capitalization(self, symbol: str) -> str:
+        """Get market capitalization for a given stock symbol"""
+        try:
+            logger.info(f"Fetching market capitalization for {symbol}")
+            ticker = yf.Ticker(symbol)
+            info = ticker.info
+            market_cap = info.get('marketCap')
+            
+            if market_cap is None:
+                logger.warning(f"No market cap data available for {symbol}")
+                return "N/A"
+            
+            # Format market cap in human-readable format
+            if market_cap >= 1_000_000_000_000:  # Trillions
+                formatted_cap = f"${market_cap / 1_000_000_000_000:.2f}T"
+            elif market_cap >= 1_000_000_000:  # Billions
+                formatted_cap = f"${market_cap / 1_000_000_000:.2f}B"
+            elif market_cap >= 1_000_000:  # Millions
+                formatted_cap = f"${market_cap / 1_000_000:.2f}M"
+            else:
+                formatted_cap = f"${market_cap:,.0f}"
+            
+            logger.info(f"Found market cap for {symbol}: {formatted_cap}")
+            return formatted_cap
+            
+        except Exception as e:
+            logger.warning(f"Could not fetch market capitalization for {symbol}: {e}")
+            return "N/A"

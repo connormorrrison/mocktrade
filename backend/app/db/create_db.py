@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 from app.db.base import Base
 from app.core.config import settings
 from app.models.user import User
-from app.models.trading import Position, Transaction
+from app.models.trading import Position, Activity
 
 def init_db():
     """Initialize the database, creating all tables."""

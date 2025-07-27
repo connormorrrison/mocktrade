@@ -206,7 +206,7 @@ export default function TradePage() {
         body: JSON.stringify({
           symbol: symbol.toUpperCase(),
           shares: Number(quantity),
-          transaction_type: action ? action.toUpperCase() : ''
+          activity_type: action ? action.toUpperCase() : ''
         })
       });
 
@@ -344,7 +344,7 @@ export default function TradePage() {
                   quantity &&
                   price * Number(quantity) > (availableCash ?? 0) && (
                     <ErrorTile 
-                      description="Insufficient cash available to complete transaction"
+                      description="Insufficient cash available to complete trade"
                       className="mt-4"
                     />
                   )}
