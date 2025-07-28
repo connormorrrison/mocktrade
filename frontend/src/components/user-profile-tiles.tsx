@@ -5,17 +5,18 @@ import { formatMoney } from "@/lib/format-money";
 
 interface UserProfileTilesProps {
   totalValue: number;
+  positionsValue: number;
   cashBalance: number;
   activityCount: number;
 }
 
 export function UserProfileTiles({ 
   totalValue, 
+  positionsValue,
   cashBalance, 
   activityCount 
 }: UserProfileTilesProps) {
   const startingValue = 100000;
-  const positionsValue = totalValue - cashBalance;
   const profitLoss = totalValue - startingValue;
   const cumulativeReturn = ((totalValue - startingValue) / startingValue) * 100;
 

@@ -11,7 +11,6 @@ class Settings(BaseSettings):
     # Project info
     PROJECT_NAME: str = "MockTrade"
     VERSION: str = "0.1.0"
-    API_V1_STR: str = "/api/v1"
     
     # Security
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-here")  # Change in production
@@ -22,7 +21,13 @@ class Settings(BaseSettings):
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./development.db")
     
     # CORS
-    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000"]
+    BACKEND_CORS_ORIGINS: List[str] = [
+        "http://localhost:3000",
+        "http://localhost:5173",  # Vite default
+        "https://www.mocktrade.ca",
+        "https://mocktrade.ca",
+        "https://mocktrade-frontend.vercel.app"
+    ]
     
     # Cache
     REDIS_URL: str = os.getenv("REDIS_URL", "")

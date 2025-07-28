@@ -6,8 +6,13 @@ from datetime import datetime, timedelta
 
 from app.domains.stocks.external import YFinanceClient
 from app.domains.stocks.schemas import StockData, MarketIndex, MarketMover, MarketIndicesResponse, MarketMoversResponse
+from app.core.exceptions import BusinessLogicError
 
 logger = logging.getLogger(__name__)
+
+class StockError(BusinessLogicError):
+    """Base exception for stock domain"""
+    pass
 
 class StockService:
     """Business logic for stock data management"""
@@ -89,20 +94,34 @@ class StockService:
             logger.info("Returning cached market indices")
             return MarketIndicesResponse(indices=self._cache[cache_key]['data'])
         
-        # Fetch fresh data
-        indices = await self.client.get_market_indices()
-        
-        if indices:
+        # Fetch real market indices data
+        try:
+            indices_data = await self.client.get_market_indices()
+            
+            # Convert to dict format for caching and response
+            indices_list = []
+            for index in indices_data:
+                indices_list.append({
+                    "symbol": index.symbol,
+                    "ticker": index.ticker,
+                    "value": index.value,
+                    "change": index.change,
+                    "percent": index.percent
+                })
+            
             # Cache the result
             self._cache[cache_key] = {
-                'data': indices,
+                'data': indices_list,
                 'timestamp': datetime.now()
             }
             
-            logger.info("Fetched fresh market indices")
-            return MarketIndicesResponse(indices=indices)
-        
-        raise Exception("Could not fetch market indices")
+            logger.info("Fetched fresh market indices from Yahoo Finance")
+            return MarketIndicesResponse(indices=indices_list)
+            
+        except Exception as e:
+            logger.error(f"Error fetching market indices: {e}")
+            # Fall back to empty list on error
+            return MarketIndicesResponse(indices=[])
     
     async def get_market_movers(self) -> MarketMoversResponse:
         """Get market movers with caching"""
@@ -117,23 +136,52 @@ class StockService:
                 losers=cached_data['losers']
             )
         
-        # Fetch fresh data
-        movers_data = await self.client.get_market_movers()
-        
-        if movers_data:
+        # Fetch real market movers data
+        try:
+            movers_data = await self.client.get_market_movers()
+            
+            # Convert to dict format for caching and response
+            gainers_list = []
+            for gainer in movers_data['gainers']:
+                gainers_list.append({
+                    "symbol": gainer.symbol,
+                    "name": gainer.name,
+                    "price": gainer.price,
+                    "change": gainer.change,
+                    "change_percent": gainer.change_percent
+                })
+            
+            losers_list = []
+            for loser in movers_data['losers']:
+                losers_list.append({
+                    "symbol": loser.symbol,
+                    "name": loser.name,
+                    "price": loser.price,
+                    "change": loser.change,
+                    "change_percent": loser.change_percent
+                })
+            
+            movers_dict = {
+                'gainers': gainers_list,
+                'losers': losers_list
+            }
+            
             # Cache the result
             self._cache[cache_key] = {
-                'data': movers_data,
+                'data': movers_dict,
                 'timestamp': datetime.now()
             }
             
-            logger.info("Fetched fresh market movers")
+            logger.info("Fetched fresh market movers from Yahoo Finance")
             return MarketMoversResponse(
-                gainers=movers_data['gainers'],
-                losers=movers_data['losers']
+                gainers=gainers_list,
+                losers=losers_list
             )
-        
-        raise Exception("Could not fetch market movers")
+            
+        except Exception as e:
+            logger.error(f"Error fetching market movers: {e}")
+            # Fall back to empty lists on error
+            return MarketMoversResponse(gainers=[], losers=[])
     
     async def validate_symbol(self, symbol: str) -> bool:
         """Validate if a stock symbol exists"""

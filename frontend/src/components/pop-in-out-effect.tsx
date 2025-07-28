@@ -5,24 +5,29 @@ interface PopInOutEffectProps {
   isVisible: boolean;
   className?: string;
   duration?: number;
+  delay?: number;
 }
 
 export const PopInOutEffect = ({ 
   children, 
   isVisible, 
   className = "",
-  duration = 200 
+  duration = 200,
+  delay = 0
 }: PopInOutEffectProps) => {
   const [showElement, setShowElement] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
     if (isVisible && !showElement) {
-      // Show with enter animation
-      setShowElement(true);
-      setIsExiting(false);
+      // Show with enter animation after delay
+      const timer = setTimeout(() => {
+        setShowElement(true);
+        setIsExiting(false);
+      }, delay);
+      return () => clearTimeout(timer);
     } else if (!isVisible && showElement) {
-      // Hide with exit animation
+      // Hide with exit animation (no delay on exit)
       setIsExiting(true);
       const timer = setTimeout(() => {
         setShowElement(false);
@@ -30,7 +35,7 @@ export const PopInOutEffect = ({
       }, duration);
       return () => clearTimeout(timer);
     }
-  }, [isVisible, showElement, duration]);
+  }, [isVisible, showElement, duration, delay]);
 
   if (!showElement) return null;
 

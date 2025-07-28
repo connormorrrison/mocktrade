@@ -1,8 +1,10 @@
 # app/domains/stocks/api.py
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 import logging
 
+from app.core.dependencies import get_current_user
+from app.domains.auth.models import User
 from app.domains.stocks.services import StockService
 from app.domains.stocks.schemas import (
     StockData, 
@@ -14,8 +16,25 @@ from app.domains.stocks.schemas import (
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+@router.get("/quote/{symbol}", response_model=dict)
+async def get_stock_quote(symbol: str, current_user: User = Depends(get_current_user)):
+    """Get stock quote - matches frontend expectation"""
+    try:
+        stock_service = StockService()
+        result = await stock_service.get_current_price(symbol.upper())
+        
+        logger.info(f"Successfully fetched quote for {symbol}")
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error fetching quote for {symbol}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Could not fetch quote for symbol {symbol}"
+        )
+
 @router.get("/{symbol}", response_model=dict)
-async def get_stock_data(symbol: str):
+async def get_stock_data(symbol: str, current_user: User = Depends(get_current_user)):
     """Get comprehensive stock data including company name and market cap"""
     try:
         stock_service = StockService()
@@ -68,7 +87,7 @@ async def validate_symbol(request: SymbolRequest):
         )
 
 @router.get("/market/indices", response_model=MarketIndicesResponse)
-async def get_market_indices():
+async def get_market_indices(current_user: User = Depends(get_current_user)):
     """Get major market indices (S&P 500, Dow Jones, NASDAQ, VIX)"""
     try:
         stock_service = StockService()
@@ -85,7 +104,7 @@ async def get_market_indices():
         )
 
 @router.get("/market/movers", response_model=MarketMoversResponse)
-async def get_market_movers():
+async def get_market_movers(current_user: User = Depends(get_current_user)):
     """Get top gainers and losers from the market"""
     try:
         stock_service = StockService()

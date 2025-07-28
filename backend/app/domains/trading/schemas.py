@@ -28,6 +28,24 @@ class OrderCreate(BaseModel):
             raise ValueError('Symbol cannot be empty')
         return v.upper().strip()
 
+class PositionCreate(BaseModel):
+    user_id: int
+    symbol: str
+    quantity: float
+    average_price: float
+
+    @validator('symbol')
+    def validate_symbol(cls, v):
+        if not v or len(v.strip()) == 0:
+            raise ValueError('Symbol cannot be empty')
+        return v.upper().strip()
+
+    @validator('quantity', 'average_price')
+    def validate_positive(cls, v):
+        if v <= 0:
+            raise ValueError('Quantity and price must be greater than 0')
+        return v
+
 class WatchlistCreate(BaseModel):
     symbol: str
 

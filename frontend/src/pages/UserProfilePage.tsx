@@ -18,9 +18,9 @@ import { CustomSkeleton } from "@/components/custom-skeleton";
 interface UserData {
   first_name?: string;
   last_name?: string;
-  cash_balance: number;
+  portfolio_value: number;
   positions_value: number;
-  total_value: number;
+  cash_balance: number;
   starting_value: number;
   total_return: number;
   return_percentage: number;
@@ -28,20 +28,19 @@ interface UserData {
   activities?: Array<{
     id: number;
     symbol: string;
-    activity_type: string;
-    shares: number;
+    action: string;
+    quantity: number;
     price: number;
     total_amount: number;
     created_at: string;
   }>;
   positions: Array<{
     symbol: string;
+    company_name?: string;
     shares: number;
     average_price: number;
     current_price: number;
     current_value: number;
-    unrealized_gain_loss: number;
-    unrealized_gain_loss_percent: number;
   }>;
 }
 
@@ -70,11 +69,16 @@ export default function UserProfilePage() {
       setLoading(true);
       setError(null);
       
+      const token = localStorage.getItem('access_token');
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/portfolio/leaderboard/${username}`, {
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/portfolio/user/${username}`, {
         headers
       });
 
@@ -110,11 +114,18 @@ export default function UserProfilePage() {
     try {
       setActivitiesLoading(true);
       
-      // Check if the leaderboard endpoint includes activities
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/portfolio/leaderboard/${username}?include_activities=true`, {
-        headers: {
-          'Content-Type': 'application/json',
-        }
+      const token = localStorage.getItem('access_token');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      // Check if the user endpoint includes activities
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/portfolio/user/${username}?include_activities=true`, {
+        headers
       });
 
       if (response.ok) {
@@ -123,8 +134,8 @@ export default function UserProfilePage() {
           const validActivities = data.activities.map((tx: any) => ({
             id: tx.id,
             symbol: tx.symbol,
-            activity_type: tx.activity_type,
-            shares: tx.shares,
+            action: tx.action?.toUpperCase(),
+            quantity: tx.quantity,
             price: tx.price,
             total_amount: tx.total_amount,
             created_at: tx.created_at,
@@ -155,8 +166,8 @@ export default function UserProfilePage() {
   }, [userData]);
 
 
-  // Loading check first
-  if (loading) {
+  // Loading check first - show skeleton if either main data or activities are loading
+  if (loading || activitiesLoading) {
     return (
       <PageLayout title="">
         <CustomSkeleton />
@@ -214,7 +225,8 @@ export default function UserProfilePage() {
         <div className="space-y-2">
           <Title2>Overview</Title2>
           <UserProfileTiles
-            totalValue={userData.total_value}
+            totalValue={userData.portfolio_value}
+            positionsValue={userData.positions_value}
             cashBalance={userData.cash_balance}
             activityCount={userData.activity_count || userData.positions.length} // Use actual count if available
           />
@@ -278,31 +290,29 @@ export default function UserProfilePage() {
                 case "portfolio":
                   const aMarketValue = a.shares * a.current_price;
                   const bMarketValue = b.shares * b.current_price;
-                  const aPercent = userData.total_value > 0 ? (aMarketValue / userData.total_value) * 100 : 0;
-                  const bPercent = userData.total_value > 0 ? (bMarketValue / userData.total_value) * 100 : 0;
+                  const aPercent = userData.portfolio_value > 0 ? (aMarketValue / userData.portfolio_value) * 100 : 0;
+                  const bPercent = userData.portfolio_value > 0 ? (bMarketValue / userData.portfolio_value) * 100 : 0;
                   return bPercent - aPercent;
                 default:
                   return 0;
               }
             })
             .map((pos) => {
-              // Transform API position data to match PortfolioTile interface
+              // Transform API position data to match PositionTile interface
               const transformedPos = {
                 symbol: pos.symbol,
-                company_name: pos.symbol, // Use symbol as company name since API doesn't provide it
+                company_name: pos.company_name || pos.symbol,
                 shares: pos.shares,
                 current_price: pos.current_price,
                 average_price: pos.average_price,
                 previous_price: pos.current_price, // Mock previous price
-                created_at: "2024-01-01T00:00:00Z", // Mock created date
-                price_at_selected_range: pos.current_price // Mock selected range price
               };
               
               return (
                 <PositionTile
                   key={pos.symbol}
                   position={transformedPos}
-                  totalPortfolioValue={userData.total_value}
+                  totalPortfolioValue={userData.portfolio_value}
                   onTrade={handleTrade}
                   onAddToWatchlist={addToWatchlist}
                   onRemoveFromWatchlist={removeFromWatchlist}
@@ -318,7 +328,7 @@ export default function UserProfilePage() {
       <div>
         <Title2>Activity</Title2>
         <div className="overflow-hidden">
-          <ActivityTable activities={activities} isLoading={activitiesLoading} />
+          <ActivityTable activities={activities} />
         </div>
       </div>
     </PageLayout>

@@ -56,13 +56,105 @@ async def create_portfolio_snapshot(
             detail="Failed to create portfolio snapshot"
         )
 
-@router.get("/history", response_model=PortfolioHistory)
-async def get_portfolio_history(
-    period: str = Query(default="1M", regex="^(1D|1W|1M|3M|1Y|ALL)$"),
+@router.get("/leaderboard")
+async def get_leaderboard(
+    timeframe: str = Query(default="day", regex="^(day|week|month|all)$"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Get portfolio history for specified period (1D, 1W, 1M, 3M, 1Y, ALL)"""
+    """Get leaderboard data for specified timeframe"""
+    try:
+        portfolio_service = PortfolioService(db)
+        leaderboard = await portfolio_service.get_leaderboard(timeframe)
+        
+        logger.info(f"Successfully fetched leaderboard ({timeframe}) for user {current_user.username}")
+        return leaderboard
+        
+    except PortfolioError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error fetching leaderboard: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve leaderboard"
+        )
+
+@router.get("/user/{username}")
+async def get_user_profile(
+    username: str,
+    include_activities: bool = Query(default=False),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get user profile data by username"""
+    try:
+        # Get user by username
+        from app.domains.auth.repositories import UserRepository
+        user_repo = UserRepository(db)
+        target_user = user_repo.get_by_username(username)
+        
+        if not target_user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        
+        portfolio_service = PortfolioService(db)
+        summary = await portfolio_service.get_portfolio_summary(target_user.id)
+        
+        # Use a standard starting value - could be made configurable later
+        # For now, all users start with the same amount as defined in user creation
+        starting_value = 100000.0  # This matches the default cash_balance in User model
+        
+        # Base response with correct order
+        user_profile = {
+            "first_name": target_user.first_name,
+            "last_name": target_user.last_name,
+            "portfolio_value": summary.portfolio_value,
+            "positions_value": summary.positions_value,
+            "cash_balance": summary.cash_balance,
+            "starting_value": starting_value,
+            "total_return": summary.portfolio_value - starting_value,
+            "return_percentage": ((summary.portfolio_value - starting_value) / starting_value) * 100 if starting_value > 0 else 0,
+            "activity_count": 0,  # Will be populated if activities requested
+            "positions": summary.positions  # Use enriched positions from summary
+        }
+        
+        # Add activities if requested
+        if include_activities:
+            from app.domains.trading.repositories import ActivityRepository
+            activity_repo = ActivityRepository(db)
+            activities = activity_repo.get_by_user(target_user.id)
+            user_profile["activity_count"] = len(activities)
+            user_profile["activities"] = [
+                {
+                    "id": activity.id,
+                    "symbol": activity.symbol,
+                    "action": activity.action,
+                    "quantity": activity.quantity,
+                    "price": activity.price,
+                    "total_amount": activity.total_amount,
+                    "created_at": activity.created_at.isoformat()
+                }
+                for activity in activities
+            ]
+        
+        logger.info(f"Successfully fetched user profile for {username}")
+        return user_profile
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching user profile for {username}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve user profile"
+        )
+
+@router.get("/history", response_model=PortfolioHistory)
+async def get_portfolio_history(
+    period: str = Query(default="1mo", regex="^(1d|5d|1mo|3mo|6mo|1y|5y|max)$"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get portfolio history for specified period (1d, 5d, 1mo, 3mo, 6mo, 1y, 5y, max)"""
     try:
         portfolio_service = PortfolioService(db)
         history = portfolio_service.get_portfolio_history(current_user.id, period)

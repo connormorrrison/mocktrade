@@ -2,15 +2,12 @@ import { useState, useEffect } from "react";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { Text4 } from "@/components/text-4";
 import { formatMoney } from "@/lib/format-money";
-import { CustomSkeleton } from "@/components/custom-skeleton";
 
 interface PortfolioHistory {
   date: string;
-  total_value: number;
-  cash_balance: number;
+  portfolio_value: number;
   positions_value: number;
-  return_amount: number;
-  return_percentage: number;
+  cash_balance: number;
 }
 
 interface PortfolioChartProps {
@@ -36,7 +33,7 @@ export function PortfolioChart({ timeframe = "1mo" }: PortfolioChartProps) {
         }
 
         const response = await fetch(
-          `http://localhost:8000/api/v1/portfolio/history?timeframe=${timeframe}`,
+          `${import.meta.env.VITE_API_URL}/portfolio/history?period=${timeframe}`,
           {
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -46,7 +43,7 @@ export function PortfolioChart({ timeframe = "1mo" }: PortfolioChartProps) {
 
         if (response.ok) {
           const historyData = await response.json();
-          setData(historyData);
+          setData(historyData.history || []);
         } else {
           throw new Error('Failed to fetch portfolio history');
         }
@@ -64,7 +61,8 @@ export function PortfolioChart({ timeframe = "1mo" }: PortfolioChartProps) {
 
   if (loading) {
     return (
-      <CustomSkeleton />
+      <div className="h-64 w-full">
+      </div>
     );
   }
 
@@ -79,7 +77,7 @@ export function PortfolioChart({ timeframe = "1mo" }: PortfolioChartProps) {
   // Transform data for the chart
   const chartData = data.map(item => ({
     date: item.date,
-    value: item.total_value
+    value: item.portfolio_value
   }));
 
   // If no data, show empty state

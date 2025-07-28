@@ -71,13 +71,58 @@ class PortfolioService:
                 day_change = portfolio_value - previous_snapshot.portfolio_value
                 day_change_percent = (day_change / previous_snapshot.portfolio_value) * 100 if previous_snapshot.portfolio_value > 0 else 0
             
+            # Create enriched positions list for frontend
+            enriched_positions = []
+            for position in positions:
+                try:
+                    # Get comprehensive stock data including company name
+                    stock_data = await self.stock_service.get_stock_data(position.symbol)
+                    current_price = stock_data["current_price"]
+                    company_name = stock_data.get("company_name", position.symbol)
+                    
+                    enriched_positions.append({
+                        "symbol": position.symbol,
+                        "company_name": company_name,
+                        "shares": position.quantity,  # Using 'shares' to match frontend
+                        "current_price": current_price,
+                        "average_price": position.average_price,
+                        "current_value": position.quantity * current_price
+                    })
+                except Exception as e:
+                    logger.warning(f"Could not get stock data for {position.symbol}: {e}")
+                    # Try just getting the price as fallback
+                    try:
+                        current_price_data = await self.stock_service.get_current_price(position.symbol)
+                        current_price = current_price_data["current_price"]
+                        
+                        enriched_positions.append({
+                            "symbol": position.symbol,
+                            "company_name": position.symbol,  # Fallback to symbol
+                            "shares": position.quantity,
+                            "current_price": current_price,
+                            "average_price": position.average_price,
+                            "current_value": position.quantity * current_price
+                        })
+                    except Exception as e2:
+                        logger.warning(f"Could not get any stock data for {position.symbol}: {e2}")
+                        # Use average price as ultimate fallback
+                        enriched_positions.append({
+                            "symbol": position.symbol,
+                            "company_name": position.symbol,
+                            "shares": position.quantity,
+                            "current_price": position.average_price,
+                            "average_price": position.average_price,
+                            "current_value": position.quantity * position.average_price
+                        })
+            
             return PortfolioSummary(
                 portfolio_value=portfolio_value,
                 positions_value=positions_value,
                 cash_balance=cash_balance,
                 positions_count=len(positions),
                 day_change=day_change,
-                day_change_percent=day_change_percent
+                day_change_percent=day_change_percent,
+                positions=enriched_positions
             )
             
         except Exception as e:
@@ -122,29 +167,33 @@ class PortfolioService:
             logger.error(f"Error creating portfolio snapshot for user {user_id}: {e}")
             raise PortfolioError(f"Could not create portfolio snapshot: {str(e)}")
 
-    def get_portfolio_history(self, user_id: int, period: str = "1M") -> PortfolioHistory:
+    def get_portfolio_history(self, user_id: int, period: str = "1mo") -> PortfolioHistory:
         """Get portfolio history for a specified period"""
         try:
             # Calculate date range based on period
             end_date = date.today()
             
-            if period == "1D":
+            if period == "1d":
                 start_date = end_date - timedelta(days=1)
-            elif period == "1W":
-                start_date = end_date - timedelta(weeks=1)
-            elif period == "1M":
+            elif period == "5d":
+                start_date = end_date - timedelta(days=5)
+            elif period == "1mo":
                 start_date = end_date - timedelta(days=30)
-            elif period == "3M":
+            elif period == "3mo":
                 start_date = end_date - timedelta(days=90)
-            elif period == "1Y":
+            elif period == "6mo":
+                start_date = end_date - timedelta(days=180)
+            elif period == "1y":
                 start_date = end_date - timedelta(days=365)
-            elif period == "ALL":
+            elif period == "5y":
+                start_date = end_date - timedelta(days=365*5)
+            elif period == "max":
                 # Get all snapshots
                 snapshots = self.portfolio_repo.get_all_snapshots(user_id)
             else:
-                start_date = end_date - timedelta(days=30)  # Default to 1M
+                start_date = end_date - timedelta(days=30)  # Default to 1mo
             
-            if period != "ALL":
+            if period != "max":
                 snapshots = self.portfolio_repo.get_snapshots_by_date_range(user_id, start_date, end_date)
             
             # Convert to history points
@@ -165,3 +214,65 @@ class PortfolioService:
         except Exception as e:
             logger.error(f"Error getting portfolio history for user {user_id}: {e}")
             raise PortfolioError(f"Could not get portfolio history: {str(e)}")
+
+    async def get_leaderboard(self, timeframe: str = "day") -> List[dict]:
+        """Get leaderboard data for all users"""
+        try:
+            from app.domains.auth.repositories import UserRepository
+            user_repo = UserRepository(self.db)
+            
+            # Get all active users
+            all_users = user_repo.get_all_active()
+            leaderboard_data = []
+            
+            for user in all_users:
+                try:
+                    # Get current portfolio summary for each user
+                    summary = await self.get_portfolio_summary(user.id)
+                    
+                    # Calculate returns based on timeframe
+                    start_value = 100000.0  # Default starting value
+                    if timeframe != "all":
+                        # Get snapshot from start of timeframe
+                        if timeframe == "day":
+                            target_date = date.today() - timedelta(days=1)
+                        elif timeframe == "week":
+                            target_date = date.today() - timedelta(weeks=1)
+                        elif timeframe == "month":
+                            target_date = date.today() - timedelta(days=30)
+                        else:
+                            target_date = date.today() - timedelta(days=1)
+                        
+                        snapshot = self.portfolio_repo.get_snapshot_by_date(user.id, target_date)
+                        if snapshot:
+                            start_value = snapshot.portfolio_value
+                    
+                    current_value = summary.portfolio_value
+                    return_amount = current_value - start_value
+                    return_percentage = (return_amount / start_value * 100) if start_value > 0 else 0
+                    
+                    leaderboard_data.append({
+                        "username": user.username,
+                        "first_name": user.first_name,
+                        "last_name": user.last_name,
+                        "total_value": current_value,
+                        "return_amount": return_amount,
+                        "return_percentage": return_percentage
+                    })
+                    
+                except Exception as e:
+                    logger.warning(f"Could not get portfolio data for user {user.id}: {e}")
+                    continue
+            
+            # Sort by total value descending
+            leaderboard_data.sort(key=lambda x: x["total_value"], reverse=True)
+            
+            # Add rank
+            for idx, entry in enumerate(leaderboard_data):
+                entry["rank"] = idx + 1
+            
+            return leaderboard_data
+            
+        except Exception as e:
+            logger.error(f"Error getting leaderboard: {e}")
+            raise PortfolioError(f"Could not get leaderboard: {str(e)}")

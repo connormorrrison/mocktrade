@@ -25,6 +25,15 @@ class PortfolioSnapshot(BaseModel):
     class Config:
         from_attributes = True
 
+# Portfolio position schema (defined first for forward reference)
+class PortfolioPosition(BaseModel):
+    symbol: str
+    company_name: Optional[str] = None
+    shares: float  # Using 'shares' to match frontend expectation
+    current_price: float
+    average_price: float
+    current_value: float
+
 # Portfolio summary schemas
 class PortfolioSummary(BaseModel):
     portfolio_value: float
@@ -33,6 +42,7 @@ class PortfolioSummary(BaseModel):
     positions_count: int
     day_change: Optional[float] = None
     day_change_percent: Optional[float] = None
+    positions: List[PortfolioPosition] = []
 
 class PortfolioHistoryPoint(BaseModel):
     date: str

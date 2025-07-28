@@ -40,11 +40,16 @@ export default function LeaderboardPage() {
       setLoading(true);
       setError(null);
       
+      const token = localStorage.getItem('access_token');
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
 
-      const response = await fetch(`http://localhost:8000/api/v1/portfolio/leaderboard?timeframe=${mapTimeframeToAPI(timeframe)}`, {
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/portfolio/leaderboard?timeframe=${mapTimeframeToAPI(timeframe)}`, {
         headers
       });
 

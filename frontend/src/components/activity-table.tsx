@@ -6,8 +6,8 @@ import { CustomSkeleton } from "@/components/custom-skeleton";
 interface Activity {
   id: number
   symbol: string
-  activity_type: string
-  shares: number
+  action: string
+  quantity: number
   price: number
   total_amount: number
   created_at: string
@@ -31,9 +31,9 @@ export const ActivityTable = ({ activities, isLoading = false }: ActivityTablePr
             <tr>
               <th className="px-4 py-2 text-left whitespace-nowrap"><Text5>ID</Text5></th>
               <th className="px-4 py-2 text-left whitespace-nowrap"><Text5>Date</Text5></th>
-              <th className="px-4 py-2 text-left whitespace-nowrap"><Text5>Type</Text5></th>
+              <th className="px-4 py-2 text-left whitespace-nowrap"><Text5>Action</Text5></th>
               <th className="px-4 py-2 text-left whitespace-nowrap"><Text5>Symbol</Text5></th>
-              <th className="px-4 py-2 text-left whitespace-nowrap"><Text5>Shares</Text5></th>
+              <th className="px-4 py-2 text-left whitespace-nowrap"><Text5>Quantity</Text5></th>
               <th className="px-4 py-2 text-left whitespace-nowrap"><Text5>Price per Share</Text5></th>
               <th className="px-4 py-2 text-left whitespace-nowrap"><Text5>Total</Text5></th>
             </tr>
@@ -60,16 +60,16 @@ export const ActivityTable = ({ activities, isLoading = false }: ActivityTablePr
                   </td>
                   <td className="px-4 whitespace-nowrap">
                     <Text5 className={`inline-block px-2 py-1 rounded-full ${
-                      tx.activity_type === 'BUY'
+                      tx.action === 'BUY'
                         ? 'bg-green-900/50 !text-green-300'
                         : 'bg-red-900/50 !text-red-300'
                     }`}>
-                      {tx.activity_type}
+                      {tx.action}
                     </Text5>
                   </td>
                   <td className="px-4 py-2 whitespace-nowrap"><Text5>{tx.symbol}</Text5></td>
                   <td className="px-4 py-2 whitespace-nowrap">
-                    <Text5>{tx.shares.toLocaleString()}</Text5>
+                    <Text5>{tx.quantity?.toLocaleString() || 'N/A'}</Text5>
                   </td>
                   <td className="px-4 py-2 whitespace-nowrap">
                     <Text5>{formatMoney(tx.price)}</Text5>

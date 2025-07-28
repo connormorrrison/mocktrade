@@ -1,6 +1,6 @@
 # MockTrade
 
-**MockTrade** is a full-stack trading simulator that allows users to **practice trading stocks in a risk-free environment**. Users can search for stocks, execute buy/sell trades, view their portfolio performance, and track their transaction history.
+**MockTrade** is a full-stack trading simulator that allows users to **practice trading stocks in a risk-free environment**. Users can search for stocks, execute buy/sell trades, view their portfolio performance, and track their activity history.
 
 **Live at:** [mocktrade.ca](https://mocktrade.ca)
 
@@ -9,7 +9,7 @@
 - **Stock Search:** Find real-time stock prices.
 - **Portfolio Management:** Track holdings, cash balance, and overall portfolio performance.
 - **Trade Execution:** Buy and sell stocks using virtual cash.
-- **Transaction History:** View and filter past trades.
+- **Activity History:** View and filter past trades.
 - **Market Indices Dashboard:** Monitor key market indices such as **DJIA, S&P 500, and Nasdaq**.
 - **Data Visualization:** Enjoy portfolio performance charts and detailed stock price histories.
 

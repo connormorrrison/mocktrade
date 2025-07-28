@@ -18,8 +18,8 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     is_active = Column(Boolean, default=True)
 
-    # Relationships
-    positions = relationship("Position", back_populates="user")
-    activities = relationship("Activity", back_populates="user")
-    watchlist = relationship("Watchlist", back_populates="user")
-    portfolio_snapshots = relationship("PortfolioSnapshot", back_populates="user")
+    # Relationships - using string names to avoid circular imports
+    positions = relationship("Position", back_populates="user", lazy="dynamic")
+    activities = relationship("Activity", back_populates="user", lazy="dynamic")
+    watchlist = relationship("Watchlist", back_populates="user", lazy="dynamic")
+    portfolio_snapshots = relationship("PortfolioSnapshot", back_populates="user", lazy="dynamic")

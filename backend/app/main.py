@@ -21,17 +21,17 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    openapi_url="/openapi.json"
 )
 
 # Setup middleware (CORS, logging, etc.)
 setup_middleware(app)
 
 # Include domain routers
-app.include_router(auth_router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
-app.include_router(trading_router, prefix=f"{settings.API_V1_STR}/trading", tags=["trading"])
-app.include_router(stocks_router, prefix=f"{settings.API_V1_STR}/stocks", tags=["stocks"])
-app.include_router(portfolio_router, prefix=f"{settings.API_V1_STR}/portfolio", tags=["portfolio"])
+app.include_router(auth_router, prefix="/auth", tags=["auth"])
+app.include_router(trading_router, prefix="/trading", tags=["trading"])
+app.include_router(stocks_router, prefix="/stocks", tags=["stocks"])
+app.include_router(portfolio_router, prefix="/portfolio", tags=["portfolio"])
 
 @app.on_event("startup")
 async def startup_event():

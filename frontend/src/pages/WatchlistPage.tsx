@@ -9,6 +9,8 @@ import { Title2 } from "@/components/title-2";
 import { CustomDropdown } from "@/components/custom-dropdown";
 import { WatchlistTile } from "@/components/watchlist-tile";
 import { CustomSkeleton } from "@/components/custom-skeleton";
+import { PopInOutEffect } from "@/components/pop-in-out-effect";
+import { ErrorTile } from "@/components/error-tile";
 
 interface WatchlistStock {
     id: number;
@@ -35,7 +37,6 @@ export default function WatchlistPage() {
     const [adding, setAdding] = useState(false);
     const [hidingSymbols, setHidingSymbols] = useState<Set<string>>(new Set());
 
-    const API_BASE_URL = "http://localhost:8000/api/v1";
 
     useEffect(() => {
         fetchWatchlist();
@@ -53,7 +54,7 @@ export default function WatchlistPage() {
                 return;
             }
             
-            const response = await fetch(`${API_BASE_URL}/watchlist/`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/trading/watchlist`, {
                 headers: {
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json"
@@ -87,7 +88,7 @@ export default function WatchlistPage() {
             setAdding(true);
             setError(null);
             
-            const response = await fetch(`${API_BASE_URL}/watchlist/`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/trading/watchlist`, {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${token}`,
@@ -129,7 +130,7 @@ export default function WatchlistPage() {
             // Wait for animation to complete before removing from state
             setTimeout(async () => {
                 try {
-                    const response = await fetch(`${API_BASE_URL}/watchlist/${symbol}`, {
+                    const response = await fetch(`${import.meta.env.VITE_API_URL}/trading/watchlist/${symbol}`, {
                         method: "DELETE",
                         headers: {
                             "Authorization": `Bearer ${token}`,
@@ -181,87 +182,92 @@ export default function WatchlistPage() {
 
     return (
         <PageLayout title="Watchlist">
-                {error && (
-                    <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400">
-                        {error}
-                    </div>
-                )}
-                
                 {/* Add Stock Section */}
-                <div>
-                    <Title2>Add Stock</Title2>
-                    <div className="flex gap-4">
-                        <TextField
-                            placeholder="Enter symbol (e.g., AAPL)"
-                            value={newSymbol}
-                            uppercase
-                            onChange={(e) => setNewSymbol(e.target.value.toUpperCase())}
-                            className="flex-1"
-                            onKeyDown={(e) => e.key === "Enter" && !adding && addToWatchlist()}
-                            disabled={adding}
-                        />
-                        <Button2 onClick={addToWatchlist} disabled={adding || !newSymbol.trim()}>
-                            <Plus />
-                            {adding ? "Adding..." : "Add"}
-                        </Button2>
+                <PopInOutEffect isVisible={!loading} delay={50}>
+                    <div>
+                        <Title2>Add Stock</Title2>
+                        <div className="flex gap-4">
+                            <TextField
+                                placeholder="Enter symbol (e.g., AAPL)"
+                                value={newSymbol}
+                                uppercase
+                                onChange={(e) => {
+                                    const value = e.target.value.toUpperCase();
+                                    setNewSymbol(value);
+                                    if (!value) {
+                                        setError(null);
+                                    }
+                                }}
+                                className="flex-1"
+                                onKeyDown={(e) => e.key === "Enter" && !adding && addToWatchlist()}
+                                disabled={adding}
+                            />
+                            <Button2 onClick={addToWatchlist} disabled={adding || !newSymbol.trim()}>
+                                <Plus />
+                                {adding ? "Adding..." : "Add"}
+                            </Button2>
+                        </div>
+                        <ErrorTile description={error} className="mt-4" />
                     </div>
-                </div>
+                </PopInOutEffect>
 
                 {/* Watchlist */}
-                <div>
-                    <Title2>Watchlist</Title2>
-                    <div className="flex flex-col mb-4 w-full sm:w-fit">
-                        <CustomDropdown
-                            label="Sort By"
-                            value={sortBy === "symbol" ? "Symbol" : sortBy === "price" ? "Current Price" : sortBy === "change" ? "Change (Daily)" : "Market Capitalization"}
-                            options={[
-                                { value: "symbol", label: "Symbol" },
-                                { value: "price", label: "Current Price" },
-                                { value: "change", label: "Change (Daily)" },
-                                { value: "marketcapitalization", label: "Market Capitalization" },
-                            ]}
-                            onValueChange={setSortBy}
-                        />
+                <PopInOutEffect isVisible={!loading} delay={100}>
+                    <div>
+                        <Title2>Watchlist</Title2>
+                        <div className="flex flex-col mb-4 w-full sm:w-fit">
+                            <CustomDropdown
+                                label="Sort By"
+                                value={sortBy === "symbol" ? "Symbol" : sortBy === "price" ? "Current Price" : sortBy === "change" ? "Change (Daily)" : "Market Capitalization"}
+                                options={[
+                                    { value: "symbol", label: "Symbol" },
+                                    { value: "price", label: "Current Price" },
+                                    { value: "change", label: "Change (Daily)" },
+                                    { value: "marketcapitalization", label: "Market Capitalization" },
+                                ]}
+                                onValueChange={setSortBy}
+                            />
+                        </div>
+                        <div className="space-y-4">
+                            {watchlist.length === 0 ? (
+                                <div className="text-center">
+                                    <Text4>Nothing here yet.</Text4>
+                                </div>
+                            ) : (
+                                watchlist
+                                    .sort((a, b) => {
+                                        switch (sortBy) {
+                                            case "symbol":
+                                                return a.symbol.localeCompare(b.symbol);
+                                            case "price":
+                                                return b.current_price - a.current_price;
+                                            case "change":
+                                                return b.change - a.change;
+                                            case "marketcapitalization":
+                                                return a.market_cap.localeCompare(b.market_cap);
+                                            default:
+                                                return 0;
+                                        }
+                                    })
+                                    .map((stock, index) => (
+                                        <PopInOutEffect key={stock.symbol} isVisible={!hidingSymbols.has(stock.symbol)} delay={adding ? 0 : 150 + (index * 50)}>
+                                            <WatchlistTile 
+                                                stock={{
+                                                    symbol: stock.symbol,
+                                                    name: stock.name,
+                                                    current_price: stock.current_price,
+                                                    previous_price: stock.previous_close,
+                                                    market_capitalization: stock.market_cap
+                                                }}
+                                                onTrade={handleTrade}
+                                                onRemove={removeFromWatchlist}
+                                            />
+                                        </PopInOutEffect>
+                                    ))
+                            )}
+                        </div>
                     </div>
-                    <div className="space-y-4">
-                        {watchlist.length === 0 ? (
-                            <div className="text-center">
-                                <Text4>Nothing here yet.</Text4>
-                            </div>
-                        ) : (
-                            watchlist
-                                .sort((a, b) => {
-                                    switch (sortBy) {
-                                        case "symbol":
-                                            return a.symbol.localeCompare(b.symbol);
-                                        case "price":
-                                            return b.current_price - a.current_price;
-                                        case "change":
-                                            return b.change - a.change;
-                                        case "marketcapitalization":
-                                            return a.market_cap.localeCompare(b.market_cap);
-                                        default:
-                                            return 0;
-                                    }
-                                })
-                                .map((stock) => (
-                                    <WatchlistTile 
-                                        key={stock.symbol}
-                                        stock={{
-                                            symbol: stock.symbol,
-                                            name: stock.name,
-                                            current_price: stock.current_price,
-                                            previous_price: stock.previous_close,
-                                            market_capitalization: stock.market_cap
-                                        }}
-                                        onTrade={handleTrade}
-                                        onRemove={removeFromWatchlist}
-                                        isVisible={!hidingSymbols.has(stock.symbol)}
-                                    />
-                                ))
-                        )}
-                    </div>
-                </div>
+                </PopInOutEffect>
         </PageLayout>
     );
 }

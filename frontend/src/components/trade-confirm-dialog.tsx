@@ -41,8 +41,7 @@ export const TradeConfirm = ({
   return (
     <CustomAlertDialog isOpen={isOpen} onClose={onClose}>
       <AlertDialogHeader>
-        <div className="flex items-center gap-2">
-          <Check className="text-green-600" />
+        <div className="flex items-center justify-center gap-2">
           <Text3>Confirm Order</Text3>
         </div>
       </AlertDialogHeader>

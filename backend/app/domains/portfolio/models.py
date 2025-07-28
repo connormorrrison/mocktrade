@@ -1,11 +1,10 @@
 # app/domains/portfolio/models.py
 
 from sqlalchemy import Column, Integer, Float, Date, ForeignKey, DateTime
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
-Base = declarative_base()
+from app.infrastructure.database import Base
 
 class PortfolioSnapshot(Base):
     __tablename__ = "portfolio_snapshots"

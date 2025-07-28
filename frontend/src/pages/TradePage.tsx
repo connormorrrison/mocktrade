@@ -17,6 +17,7 @@ import { ErrorTile } from "@/components/error-tile";
 import { TradeConfirm } from "@/components/trade-confirm-dialog";
 import { StockPriceDisplay } from "@/components/stock-price-display";
 import { CustomSkeleton } from "@/components/custom-skeleton";
+import { PopInOutEffect } from "@/components/pop-in-out-effect";
 
 export default function TradePage() {
   // Loading state first
@@ -28,6 +29,8 @@ export default function TradePage() {
   const [symbol, setSymbol] = useState('');
   const [action, setAction] = useState<"buy" | "sell" | null>(null);
   const [quantity, setQuantity] = useState('');
+  const [dollarAmount, setDollarAmount] = useState('');
+  const [inputMode, setInputMode] = useState<'quantity' | 'dollars'>('quantity');
   const [price, setPrice] = useState<number | null>(null);
   const [companyName, setCompanyName] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -84,7 +87,7 @@ export default function TradePage() {
   const fetchPortfolioData = async () => {
     try {
       const token = localStorage.getItem('access_token');
-      const response = await fetch('http://localhost:8000/api/v1/portfolio/summary', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/portfolio/summary`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -111,15 +114,10 @@ export default function TradePage() {
     try {
       const token = localStorage.getItem('access_token');
       
-      // Fetch both price and portfolio data concurrently
-      const [priceResponse, portfolioResponse] = await Promise.all([
-        fetch(`http://localhost:8000/api/v1/stocks/quote/${symbol.toUpperCase()}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        fetch(`http://localhost:8000/api/v1/trading/portfolio/${symbol.toUpperCase()}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-      ]);
+      // Fetch stock data (includes company name)
+      const priceResponse = await fetch(`${import.meta.env.VITE_API_URL}/stocks/${symbol.toUpperCase()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
   
       if (!priceResponse.ok) {
         throw new Error('Invalid symbol');
@@ -136,11 +134,21 @@ export default function TradePage() {
       setCompanyName(priceData.company_name || symbol.toUpperCase());
       setDisplaySymbol(symbol.toUpperCase());
   
-      // Handle portfolio data
-      if (portfolioResponse.ok) {
-        const portfolioData = await portfolioResponse.json();
-        setSharesOwned(portfolioData.shares || 0);
-      } else {
+      // Fetch portfolio data separately and handle 404 gracefully
+      try {
+        const portfolioResponse = await fetch(`${import.meta.env.VITE_API_URL}/trading/positions/${symbol.toUpperCase()}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        
+        if (portfolioResponse.ok) {
+          const portfolioData = await portfolioResponse.json();
+          setSharesOwned(portfolioData.quantity || 0);
+        } else {
+          // 404 is expected when user doesn't own this stock
+          setSharesOwned(0);
+        }
+      } catch (portfolioError) {
+        // Silently handle any portfolio fetch errors
         setSharesOwned(0);
       }
     } catch (err: any) {
@@ -170,7 +178,7 @@ export default function TradePage() {
     if (action === 'sell') {
       try {
         const token = localStorage.getItem('access_token');
-        const portfolioResponse = await fetch(`http://localhost:8000/api/v1/trading/portfolio/${symbol.toUpperCase()}`, {
+        const portfolioResponse = await fetch(`${import.meta.env.VITE_API_URL}/trading/positions/${symbol.toUpperCase()}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         
@@ -197,7 +205,7 @@ export default function TradePage() {
   const confirmOrder = async () => {
     try {
       const token = localStorage.getItem('access_token');
-      const response = await fetch('http://localhost:8000/api/v1/trading/orders', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/trading/orders`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -205,8 +213,8 @@ export default function TradePage() {
         },
         body: JSON.stringify({
           symbol: symbol.toUpperCase(),
-          shares: Number(quantity),
-          activity_type: action ? action.toUpperCase() : ''
+          quantity: Number(quantity),
+          action: action ? action.toLowerCase() : ''
         })
       });
 
@@ -281,17 +289,19 @@ export default function TradePage() {
             <ErrorTile description={error} className="mt-4" />
 
             {/* Stock Price Display */}
-            <StockPriceDisplay
-              symbol={displaySymbol}
-              price={price}
-              companyName={companyName}
-              sharesOwned={sharesOwned}
-              isMarketOpen={isMarketOpen}
-              error={error}
-            />
+            <PopInOutEffect isVisible={!!symbol && !!price && !error}>
+              <StockPriceDisplay
+                symbol={displaySymbol}
+                price={price}
+                companyName={companyName}
+                sharesOwned={sharesOwned}
+                isMarketOpen={isMarketOpen}
+                error={error}
+              />
+            </PopInOutEffect>
 
             {/* Action Section */}
-            {symbol && price && !error && (
+            <PopInOutEffect isVisible={!!symbol && !!price && !error}>
               <div>
                 <Title2>Action</Title2>
                 <div className="flex sm:flex-row gap-4">
@@ -312,33 +322,68 @@ export default function TradePage() {
                   </Button1>
                 </div>
               </div>
-            )}
+            </PopInOutEffect>
 
-            {/* Quantity Input */}
-            {action && (
+            {/* Quantity Section */}
+            <PopInOutEffect isVisible={!!action}>
               <div>
                 <Title2>Quantity</Title2>
+                <div className="flex sm:flex-row gap-4 mb-4">
+                  <Button1
+                    onClick={() => {
+                      setInputMode('quantity');
+                      setDollarAmount('');
+                      setError(null);
+                    }}
+                    className="flex-1"
+                    variant={inputMode === 'quantity' ? 'primary' : 'secondary'}
+                  >
+                    Shares
+                  </Button1>
+                  <Button1
+                    onClick={() => {
+                      setInputMode('dollars');
+                      setQuantity('');
+                      setError(null);
+                    }}
+                    className="flex-1"
+                    variant={inputMode === 'dollars' ? 'primary' : 'secondary'}
+                  >
+                    Dollar Amount
+                  </Button1>
+                </div>
+                
                 <TextField
                   type="number"
-                  value={quantity || ''}
+                  formatType={inputMode === 'dollars' ? 'currency' : 'number'}
+                  value={inputMode === 'quantity' ? (quantity || '') : (dollarAmount || '')}
                   onChange={(e) => {
-                    // Only allow whole numbers
-                    const value = Math.floor(Number(e.target.value));
-                    if (e.target.value === '') {
-                      setQuantity('');
-                    } else {
-                      setQuantity(value.toString());
+                    const value = e.target.value;
+                    if (value === '' || (!isNaN(Number(value)) && Number(value) >= 0)) {
+                      if (inputMode === 'quantity') {
+                        setQuantity(value);
+                        setDollarAmount('');
+                      } else {
+                        setDollarAmount(value);
+                        // Calculate equivalent shares
+                        if (price && Number(value) > 0) {
+                          const calculatedShares = Number(value) / price;
+                          setQuantity(calculatedShares.toString());
+                        }
+                      }
                     }
                     setError(null);
                   }}
-                  onKeyDown={(e) => {
-                    // Prevent decimal point
-                    if (e.key === '.') {
-                      e.preventDefault();
-                    }
-                  }}
-                  step="1"
+                  step={inputMode === 'quantity' ? "0.001" : "0.01"}
+                  min={inputMode === 'quantity' ? "0.001" : "0.01"}
+                  placeholder={inputMode === 'quantity' ? "Enter number of shares" : "Enter dollar amount"}
                 />
+              </div>
+            </PopInOutEffect>
+
+            {/* Error Messages */}
+            {action && (
+              <div>
                 {action === 'buy' &&
                   price != null &&
                   quantity &&
@@ -352,7 +397,7 @@ export default function TradePage() {
                   quantity &&
                   Number(quantity) > sharesOwned && (
                     <ErrorTile 
-                      description={`You can sell up to ${sharesOwned.toLocaleString()} shares`}
+                      description={`You can sell up to ${sharesOwned} shares`}
                       className="mt-4"
                     />
                   )}
@@ -360,55 +405,63 @@ export default function TradePage() {
             )}
 
             {/* Order Summary */}
-            <div>
-              <Title2>Order Preview</Title2>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <Text4>Order</Text4>
-                  <Text5>
-                    {action && quantity && symbol && Number(quantity) > 0
-                      ? `${action.charAt(0).toUpperCase() + action.slice(1)} 
-                        ${Number(quantity).toLocaleString()} 
-                        ${Number(quantity) === 1 ? 'share' : 'shares'} at Market`
-                      : 'N/A'}
-                  </Text5>
-                </div>
-                <div className="flex justify-between items-center">
-                  <Text4>Price per Share</Text4>
-                  <Text5>{price != null ? formatMoney(price) : formatMoney(0)}</Text5>
-                </div>
-                <div className="flex justify-between items-center">
-                  <Text4>Cash Available</Text4>
-                  <Text5>{formatMoney(availableCash ?? 0)}</Text5>
-                </div>
-                <div className="flex justify-between items-center">
-                  <Text4>Total Value</Text4>
-                  <Text3>
-                    {price != null && quantity && Number(quantity) > 0
-                      ? formatMoney(price * Number(quantity))
-                      : formatMoney(0)}
-                  </Text3>
+            <PopInOutEffect isVisible={!!action}>
+              <div>
+                <Title2>Order Preview</Title2>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Text4>Order</Text4>
+                    <Text5>
+                      {action && symbol && ((inputMode === 'quantity' && quantity && Number(quantity) > 0) || (inputMode === 'dollars' && dollarAmount && Number(dollarAmount) > 0))
+                        ? inputMode === 'quantity' 
+                          ? `${action.charAt(0).toUpperCase() + action.slice(1)} 
+                            ${Number(quantity)} 
+                            ${Number(quantity) === 1 ? 'share' : 'shares'} at Market`
+                          : `${action.charAt(0).toUpperCase() + action.slice(1)} 
+                            $${Number(dollarAmount).toFixed(2)} worth 
+                            (≈${Number(quantity).toFixed(3)} shares) at Market`
+                        : 'N/A'}
+                    </Text5>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <Text4>Price per Share</Text4>
+                    <Text5>{price != null ? formatMoney(price) : formatMoney(0)}</Text5>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <Text4>Cash Available</Text4>
+                    <Text5>{formatMoney(availableCash ?? 0)}</Text5>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <Text4>Total Value</Text4>
+                    <Text3>
+                      {price != null && quantity && Number(quantity) > 0
+                        ? formatMoney(price * Number(quantity))
+                        : formatMoney(0)}
+                    </Text3>
+                  </div>
                 </div>
               </div>
-            </div>
+            </PopInOutEffect>
 
             {/* Submit Order Button */}
-            <Button1 
-              className="w-full" 
-              onClick={handleSubmitOrder}
-              disabled={
-                !symbol ||
-                !quantity ||
-                price == null ||
-                Number(quantity) < 1 ||
-                !Number.isInteger(Number(quantity)) ||
-                (action === 'buy' &&
-                  price * Number(quantity) > (availableCash ?? 0)) ||
-                (action === 'sell' && Number(quantity) > sharesOwned)
-              }
-            >
-              Submit Order
-            </Button1>
+            <PopInOutEffect isVisible={!!action}>
+              <Button1 
+                className="w-full" 
+                onClick={handleSubmitOrder}
+                disabled={
+                  !symbol ||
+                  price == null ||
+                  (inputMode === 'quantity' && (!quantity || Number(quantity) < 0.001)) ||
+                  (inputMode === 'dollars' && (!dollarAmount || Number(dollarAmount) < 0.01)) ||
+                  !quantity || Number(quantity) < 0.001 ||
+                  (action === 'buy' &&
+                    price * Number(quantity) > (availableCash ?? 0)) ||
+                  (action === 'sell' && Number(quantity) > sharesOwned)
+                }
+              >
+                Submit Order
+              </Button1>
+            </PopInOutEffect>
 
             {/* Confirmation Dialog */}
             <TradeConfirm
@@ -417,7 +470,7 @@ export default function TradePage() {
               onConfirm={confirmOrder}
               symbol={symbol}
               action={action || ''}
-              quantity={quantity}
+              quantity={Number(quantity)}
               price={price ?? 0}
             />
 

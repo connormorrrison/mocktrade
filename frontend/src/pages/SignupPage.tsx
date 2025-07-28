@@ -51,7 +51,7 @@ export default function SignupPage() {
       };
 
       // Make API call to backend
-      const response = await fetch('http://localhost:8000/api/v1/auth/register', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -65,7 +65,7 @@ export default function SignupPage() {
       }
 
       // Auto-login after successful registration
-      const loginResponse = await fetch('http://localhost:8000/api/v1/auth/login', {
+      const loginResponse = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',

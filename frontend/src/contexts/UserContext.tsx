@@ -12,25 +12,29 @@ interface UserContextType {
   userData: UserData | null;
   refreshUserData: () => void;
   logout: () => void;
+  isLoading: boolean;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const refreshUserData = async () => {
     try {
+      setIsLoading(true);
       const token = localStorage.getItem('access_token');
       console.log('UserContext: refreshUserData called, token exists:', !!token);
       if (!token) {
         console.log('UserContext: No token found, clearing user data');
         setUserData(null);
+        setIsLoading(false);
         return;
       }
 
       console.log('UserContext: Calling /auth/me endpoint');
-      const response = await fetch('http://localhost:8000/api/v1/auth/me', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -59,6 +63,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       console.error('UserContext: Error fetching user data:', error);
       // Clear user data on error
       setUserData(null);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -77,7 +83,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <UserContext.Provider value={{ userData, refreshUserData, logout }}>
+    <UserContext.Provider value={{ userData, refreshUserData, logout, isLoading }}>
       {children}
     </UserContext.Provider>
   );

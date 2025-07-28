@@ -11,6 +11,7 @@ import { UserProfileHeader } from "@/components/user-profile-header";
 import { useUser } from "@/contexts/UserContext";
 import { ErrorTile } from "@/components/error-tile";
 import { CustomSkeleton } from "@/components/custom-skeleton";
+import { PopInOutEffect } from "@/components/pop-in-out-effect";
 
 export default function ProfilePage() {
   // Loading state first
@@ -70,7 +71,7 @@ export default function ProfilePage() {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('http://localhost:8000/api/v1/auth/profile', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -132,7 +133,7 @@ export default function ProfilePage() {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('http://localhost:8000/api/v1/auth/change-password', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/change-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -167,12 +168,12 @@ export default function ProfilePage() {
       setError("");
   
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('access_token');
         if (!token) {
           throw new Error('No authentication token found');
         }
 
-        const response = await fetch('http://localhost:8000/api/v1/auth/me', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -221,136 +222,146 @@ export default function ProfilePage() {
             )}
 
             {/* User Profile Header */}
-            <div className="mb-8">
-              <UserProfileHeader 
-                firstName={userData.first_name}
-                lastName={userData.last_name}
-                username={userData.username}
-                joinedDate={userData.created_at || ''}
-              />
-            </div>
+            <PopInOutEffect isVisible={!pageLoading} delay={50}>
+              <div className="mb-8">
+                <UserProfileHeader 
+                  firstName={userData.first_name}
+                  lastName={userData.last_name}
+                  username={userData.username}
+                  joinedDate={userData.created_at || ''}
+                />
+              </div>
+            </PopInOutEffect>
 
             {/* Personal Information */}
-            <div>
-              <Title2>Personal Information</Title2>
-              
-              {/* Edit Profile Button */}
-              <div className="flex sm:flex-row items-start sm:items-center justify-start sm:justify-between mb-4">
-                {!isEditing ? (
-                  <Button2 onClick={handleEditProfile}>
-                    <Settings2 />
-                    Edit Profile
-                  </Button2>
-                ) : (
-                  <div className="flex gap-2">
-                    <Button1 onClick={handleSaveProfile} disabled={isLoading}>
-                      {isLoading ? 'Saving...' : 'Save Changes'}
-                    </Button1>
-                    <Button2 onClick={handleCancelEdit} disabled={isLoading}>
-                      Cancel
+            <PopInOutEffect isVisible={!pageLoading} delay={100}>
+              <div>
+                <Title2>Personal Information</Title2>
+                
+                {/* Edit Profile Button */}
+                <div className="flex sm:flex-row items-start sm:items-center justify-start sm:justify-between mb-4">
+                  {!isEditing ? (
+                    <Button2 onClick={handleEditProfile}>
+                      <Settings2 />
+                      Edit Profile
                     </Button2>
-                  </div>
-                )}
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <TextField
-                  label="First Name"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  disabled={!isEditing}
-                />
-                <TextField
-                  label="Last Name"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  disabled={!isEditing}
-                />
-                <TextField
-                  label="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={!isEditing}
-                />
-                <TextField
-                  label="Username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  disabled={!isEditing}
-                />
-              </div>
-            </div>
-
-            {/* Security */}
-            <div>
-              <Title2>Security</Title2>
-              <div className="space-y-4">
-                {!isChangingPassword ? (
-                  <Button2 onClick={handleChangePassword}>
-                    <Lock />
-                    Change Password
-                  </Button2>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 gap-4 max-w-md">
-                      <TextField
-                        label="Current Password"
-                        type="password"
-                        value={currentPassword}
-                        onChange={(e) => setCurrentPassword(e.target.value)}
-                        placeholder="Enter current password"
-                      />
-                      <TextField
-                        label="New Password"
-                        type="password"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="Enter new password (min 8 characters)"
-                      />
-                      <TextField
-                        label="Confirm New Password"
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Confirm new password"
-                      />
-                    </div>
+                  ) : (
                     <div className="flex gap-2">
-                      <Button1 onClick={handleSavePassword} disabled={isLoading}>
-                        {isLoading ? 'Changing...' : 'Change Password'}
+                      <Button1 onClick={handleSaveProfile} disabled={isLoading}>
+                        {isLoading ? 'Saving...' : 'Save Changes'}
                       </Button1>
-                      <Button2 onClick={handleCancelPasswordChange} disabled={isLoading}>
+                      <Button2 onClick={handleCancelEdit} disabled={isLoading}>
                         Cancel
                       </Button2>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <TextField
+                    label="First Name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    disabled={!isEditing}
+                  />
+                  <TextField
+                    label="Last Name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    disabled={!isEditing}
+                  />
+                  <TextField
+                    label="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={!isEditing}
+                  />
+                  <TextField
+                    label="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    disabled={!isEditing}
+                  />
+                </div>
               </div>
-            </div>
+            </PopInOutEffect>
+
+            {/* Security */}
+            <PopInOutEffect isVisible={!pageLoading} delay={150}>
+              <div>
+                <Title2>Security</Title2>
+                <div className="space-y-4">
+                  {!isChangingPassword ? (
+                    <Button2 onClick={handleChangePassword}>
+                      <Lock />
+                      Change Password
+                    </Button2>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 gap-4 max-w-md">
+                        <TextField
+                          label="Current Password"
+                          type="password"
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                          placeholder="Enter current password"
+                        />
+                        <TextField
+                          label="New Password"
+                          type="password"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="Enter new password (min 8 characters)"
+                        />
+                        <TextField
+                          label="Confirm New Password"
+                          type="password"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="Confirm new password"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button1 onClick={handleSavePassword} disabled={isLoading}>
+                          {isLoading ? 'Changing...' : 'Change Password'}
+                        </Button1>
+                        <Button2 onClick={handleCancelPasswordChange} disabled={isLoading}>
+                          Cancel
+                        </Button2>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </PopInOutEffect>
 
             {/* Account Details */}
-            <div>
-              <Title2>Account Details</Title2>
+            <PopInOutEffect isVisible={!pageLoading} delay={200}>
               <div>
-                <Title3>Joined</Title3>
-                <Text5>
-                  {userData.created_at ? new Date(userData.created_at).toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric', 
-                    year: 'numeric'
-                  }) : 'Unknown'}
-                </Text5>
+                <Title2>Account Details</Title2>
+                <div>
+                  <Title3>Joined</Title3>
+                  <Text5>
+                    {userData.created_at ? new Date(userData.created_at).toLocaleDateString('en-US', {
+                      month: 'long',
+                      day: 'numeric', 
+                      year: 'numeric'
+                    }) : 'Unknown'}
+                  </Text5>
+                </div>
               </div>
-            </div>
+            </PopInOutEffect>
 
             {/* Danger Zone */}
-            <div>
-              <Title2>Delete Account</Title2>
-              <Button1 onClick={handleDeleteAccount} className="!bg-red-600 hover:!bg-red-700">
-                <Trash2 />
-                Delete Account
-              </Button1>
-            </div>
+            <PopInOutEffect isVisible={!pageLoading} delay={250}>
+              <div>
+                <Title2>Delete Account</Title2>
+                <Button1 onClick={handleDeleteAccount} className="!bg-red-600 hover:!bg-red-700">
+                  <Trash2 />
+                  Delete Account
+                </Button1>
+              </div>
+            </PopInOutEffect>
     </PageLayout>
   );
 }

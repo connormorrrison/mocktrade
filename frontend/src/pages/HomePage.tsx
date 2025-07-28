@@ -1,6 +1,7 @@
 import { TrendingUp, Wallet, FileText, Eye, ArrowUp, ArrowDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useUser } from "@/contexts/UserContext";
 import { Button1 } from "@/components/button-1";
 import { MarketStatus, useMarketStatus } from "@/components/market-status";
 import { PageLayout } from "@/components/page-layout";
@@ -13,6 +14,7 @@ import { Title2 } from "@/components/title-2";
 import { Title3 } from "@/components/title-3";
 import { formatMoney } from "@/lib/format-money";
 import { CustomSkeleton } from "@/components/custom-skeleton";
+import { PopInOutEffect } from "@/components/pop-in-out-effect";
 
 interface MarketIndex {
   symbol: string;
@@ -46,6 +48,7 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   
   // Other state
+  const { isLoading: userLoading } = useUser();
   const isMarketOpen = useMarketStatus();
   const navigate = useNavigate();
   const [marketData, setMarketData] = useState<MarketData>({
@@ -74,8 +77,8 @@ export default function HomePage() {
 
       // Fetch market indices and movers in parallel
       const [indicesResponse, moversResponse] = await Promise.all([
-        fetch('http://localhost:8000/api/v1/stocks/market/indices', { headers }),
-        fetch('http://localhost:8000/api/v1/stocks/market/movers', { headers })
+        fetch(`${import.meta.env.VITE_API_URL}/stocks/market/indices`, { headers }),
+        fetch(`${import.meta.env.VITE_API_URL}/stocks/market/movers`, { headers })
       ]);
 
       if (!indicesResponse.ok || !moversResponse.ok) {
@@ -105,11 +108,14 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    fetchMarketData();
-    // Refresh data every 5 minutes
-    const interval = setInterval(fetchMarketData, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [isMarketOpen]);
+    // Wait for user context to finish loading before fetching market data
+    if (!userLoading) {
+      fetchMarketData();
+      // Refresh data every 5 minutes
+      const interval = setInterval(fetchMarketData, 5 * 60 * 1000);
+      return () => clearInterval(interval);
+    }
+  }, [isMarketOpen, userLoading]);
 
   // Transform market movers data to match the expected format for StockCarousel
   const transformedGainers = marketMovers.gainers.map(stock => ({
@@ -129,7 +135,7 @@ export default function HomePage() {
   }));
 
 
-  if (loading) {
+  if (loading || userLoading) {
     return (
       <PageLayout title="Home">
         <CustomSkeleton />
@@ -153,79 +159,85 @@ export default function HomePage() {
   return (
     <PageLayout title="Home">
             {/* Quick Actions */}
-            <div>
-              <Title2>Quick Actions</Title2>
-              <div className="flex flex-wrap gap-4">
-                <Button1 onClick={() => navigate('/trade')}>
-                  <TrendingUp />
-                  New Trade
-                </Button1>
-                <Button1 onClick={() => navigate('/portfolio')}>
-                  <Wallet />
-                  View Portfolio
-                </Button1>
-                <Button1 onClick={() => navigate('/watchlist')}>
-                  <Eye />
-                  View Watchlist
-                </Button1>
-                <Button1 onClick={() => navigate('/activity')}>
-                  <FileText />
-                  View Activity
-                </Button1>
+            <PopInOutEffect isVisible={!loading && !userLoading} delay={50}>
+              <div>
+                <Title2>Quick Actions</Title2>
+                <div className="flex flex-wrap gap-4">
+                  <Button1 onClick={() => navigate('/trade')}>
+                    <TrendingUp />
+                    New Trade
+                  </Button1>
+                  <Button1 onClick={() => navigate('/portfolio')}>
+                    <Wallet />
+                    View Portfolio
+                  </Button1>
+                  <Button1 onClick={() => navigate('/watchlist')}>
+                    <Eye />
+                    View Watchlist
+                  </Button1>
+                  <Button1 onClick={() => navigate('/activity')}>
+                    <FileText />
+                    View Activity
+                  </Button1>
+                </div>
               </div>
-            </div>
+            </PopInOutEffect>
 
             {/* Market Overview */}
-            <div>
-              <Title2>Market Overview</Title2>
-              <MarketStatus className="mb-4" />
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {marketData.indices.map((index, i) => (
-                  <Tile key={i}>
-                    <div className="text-left">
-                      <Text3>{index.symbol} ({index.ticker})</Text3>
-                      <Text2 className={marketData.isOpen ? "animate-pulse" : ""}>
-                        {formatMoney(index.value)}
-                      </Text2>
-                      <Text5 variant={index.change >= 0 ? "green" : "red"}>
-                        <div className="flex items-center gap-1">
-                          {index.change >= 0 ? (
-                            <ArrowUp className="h-5 w-5" />
-                          ) : (
-                            <ArrowDown className="h-5 w-5" />
-                          )}
-                          <span>
-                            {index.change >= 0 ? "+" : ""}{index.change.toFixed(2)} ({index.percent >= 0 ? "+" : ""}{index.percent.toFixed(2)}%) Today
-                          </span>
-                        </div>
-                      </Text5>
-                    </div>
-                  </Tile>
-                ))}
+            <PopInOutEffect isVisible={!loading && !userLoading} delay={100}>
+              <div>
+                <Title2>Market Overview</Title2>
+                <MarketStatus className="mb-4" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {marketData.indices.map((index, i) => (
+                    <Tile key={i}>
+                      <div className="text-left">
+                        <Text3>{index.symbol} ({index.ticker})</Text3>
+                        <Text2 className={marketData.isOpen ? "animate-pulse" : ""}>
+                          {formatMoney(index.value)}
+                        </Text2>
+                        <Text5 variant={index.change >= 0 ? "green" : "red"}>
+                          <div className="flex items-center gap-1">
+                            {index.change >= 0 ? (
+                              <ArrowUp className="h-5 w-5" />
+                            ) : (
+                              <ArrowDown className="h-5 w-5" />
+                            )}
+                            <span>
+                              {index.change >= 0 ? "+" : ""}{index.change.toFixed(2)} ({index.percent >= 0 ? "+" : ""}{index.percent.toFixed(2)}%) Today
+                            </span>
+                          </div>
+                        </Text5>
+                      </div>
+                    </Tile>
+                  ))}
+                </div>
               </div>
-            </div>
+            </PopInOutEffect>
 
             {/* Market Movers */}
-            <div>
-              <Title2>Market Movers</Title2>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {/* Top Gainers */}
-                <div>
-                  <Title3>Top Gainers</Title3>
-                  {transformedGainers.length > 0 ? (
-                    <StockCarousel stocks={transformedGainers} variant="green" isMarketOpen={isMarketOpen} />
-                  ) : null}
-                </div>
+            <PopInOutEffect isVisible={!loading && !userLoading} delay={150}>
+              <div>
+                <Title2>Market Movers</Title2>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {/* Top Gainers */}
+                  <div>
+                    <Title3>Top Gainers</Title3>
+                    {transformedGainers.length > 0 ? (
+                      <StockCarousel stocks={transformedGainers} variant="green" isMarketOpen={isMarketOpen} />
+                    ) : null}
+                  </div>
 
-                {/* Top Losers */}
-                <div>
-                  <Title3>Top Losers</Title3>
-                  {transformedLosers.length > 0 ? (
-                    <StockCarousel stocks={transformedLosers} variant="red" isMarketOpen={isMarketOpen} />
-                  ) : null}
+                  {/* Top Losers */}
+                  <div>
+                    <Title3>Top Losers</Title3>
+                    {transformedLosers.length > 0 ? (
+                      <StockCarousel stocks={transformedLosers} variant="red" isMarketOpen={isMarketOpen} />
+                    ) : null}
+                  </div>
                 </div>
               </div>
-            </div>
+            </PopInOutEffect>
     </PageLayout>
   );
 }

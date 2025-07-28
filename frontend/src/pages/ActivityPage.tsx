@@ -11,8 +11,8 @@ import { CustomSkeleton } from "@/components/custom-skeleton";
 interface Activity {
   id: number;
   symbol: string;
-  activity_type: 'BUY' | 'SELL';
-  shares: number;
+  action: 'BUY' | 'SELL';
+  quantity: number;
   price: number;
   total_amount: number;
   created_at: string;
@@ -46,7 +46,7 @@ export default function ActivityPage() {
         return;
       }
 
-      const response = await fetch('http://localhost:8000/api/v1/trading/activities', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/trading/activities`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -61,8 +61,8 @@ export default function ActivityPage() {
       const validActivities = data.map((tx: any) => ({
         id: tx.id,
         symbol: tx.symbol,
-        activity_type: tx.activity_type,
-        shares: tx.shares,
+        action: tx.action?.toUpperCase(),
+        quantity: tx.quantity,
         price: tx.price,
         total_amount: tx.total_amount,
         created_at: tx.created_at,
@@ -108,7 +108,7 @@ export default function ActivityPage() {
 
     // Filter type if not 'All'
     const filterValue = selectedFilter === 'Buy' ? 'BUY' : selectedFilter === 'Sell' ? 'SELL' : 'All';
-    if (filterValue !== 'All' && tx.activity_type !== filterValue) return false;
+    if (filterValue !== 'All' && tx.action !== filterValue) return false;
 
     return true;
   });
@@ -116,7 +116,7 @@ export default function ActivityPage() {
   // CSV Export implementation
   const handleExport = () => {
     // Prepare the headers for CSV file
-    const headers = ['ID', 'Date', 'Type', 'Symbol', 'Shares', 'Price per Share', 'Total'];
+    const headers = ['ID', 'Date', 'Action', 'Symbol', 'Quantity', 'Price per Share', 'Total'];
     
     // Build an array of CSV rows
     const csvRows = [headers.join(',')];
@@ -125,9 +125,9 @@ export default function ActivityPage() {
       const row = [
         tx.id,
         new Date(tx.created_at).toLocaleString(),
-        tx.activity_type,
+        tx.action,
         tx.symbol,
-        tx.shares.toString(),
+        tx.quantity.toString(),
         tx.price.toString(),
         tx.total_amount.toString(),
       ];
