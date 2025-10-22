@@ -1,176 +1,145 @@
-import { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button2 } from "@/components/button-2";
 import { PageLayout } from "@/components/page-layout";
-import { TextField } from "@/components/text-field";
-import { Text4 } from "@/components/text-4";
-import { Title2 } from "@/components/title-2";
-import { CustomDropdown } from "@/components/custom-dropdown";
-import { WatchlistTile } from "@/components/watchlist-tile";
 import { CustomSkeleton } from "@/components/custom-skeleton";
 import { PopInOutEffect } from "@/components/pop-in-out-effect";
 import { ErrorTile } from "@/components/error-tile";
 
-interface WatchlistStock {
-    id: number;
-    symbol: string;
-    name: string;
-    current_price: number;
-    previous_close: number;
-    change: number;
-    change_percent: number;
-    market_cap: string;
-    created_at: string;
+// import the new data hook
+import { useWatchlist } from "@/lib/hooks/useWatchlist";
+import { useApi } from "@/lib/hooks/useApi";
+import { useMarketStatus } from "@/components/market-status";
+// import the new sorting hook
+import {
+    useSortedWatchlist,
+    type WatchlistSortKey
+} from "@/lib/hooks/useSortedWatchlist";
+
+// import the new presentational components
+import { StockSearchForm } from "@/components/trade/StockSearchForm";
+import { StockPriceDisplay } from "@/components/stock-price-display";
+import { WatchlistDisplay } from "@/components/watchlist/WatchlistDisplay";
+
+// types
+interface StockData {
+  current_price: number;
+  company_name: string;
+}
+
+interface PositionData {
+  quantity: number;
 }
 
 export default function WatchlistPage() {
-    // Loading state first
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    
-    // Other state
     const navigate = useNavigate();
-    const [sortBy, setSortBy] = useState("symbol");
-    const [newSymbol, setNewSymbol] = useState("");
-    const [watchlist, setWatchlist] = useState<WatchlistStock[]>([]);
-    const [adding, setAdding] = useState(false);
-    const [hidingSymbols, setHidingSymbols] = useState<Set<string>>(new Set());
 
+    // core hooks
+    const {
+        execute: apiExecute,
+        isLoading: isApiLoading,
+        error: apiError,
+        setError: setApiError
+    } = useApi();
+    const isMarketOpen = useMarketStatus();
 
-    useEffect(() => {
-        fetchWatchlist();
-    }, []);
+    // search state
+    const [symbolInput, setSymbolInput] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
 
-    async function fetchWatchlist() {
-        try {
-            setError(null);
-            const token = localStorage.getItem("access_token");
-            
-            if (!token) {
-                // No token means user is not logged in - show empty watchlist
-                setWatchlist([]);
-                setLoading(false);
-                return;
-            }
-            
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/trading/watchlist`, {
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                }
-            });
+    // stock data state
+    const [price, setPrice] = useState<number | null>(null);
+    const [companyName, setCompanyName] = useState("");
+    const [sharesOwned, setSharesOwned] = useState(0);
 
-            if (!response.ok) {
-                throw new Error("Failed to fetch watchlist");
-            }
+    // data fetching hook
+    const {
+        watchlist,
+        loading,
+        hidingSymbols,
+        addToWatchlist,
+        removeFromWatchlist,
+    } = useWatchlist();
 
-            const data = await response.json();
-            setWatchlist(data);
-        } catch (error) {
-            console.error("Error fetching watchlist:", error);
-            setError("Failed to load watchlist");
-        } finally {
-            setLoading(false);
-        }
-    }
+    // sorting hook
+    const {
+        sortedWatchlist,
+        sortBy,
+        setSortBy,
+        getSortLabel
+    } = useSortedWatchlist(watchlist);
 
-    async function addToWatchlist() {
-        if (!newSymbol.trim()) return;
-        
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-            setError("Please log in to add stocks to your watchlist");
+    // --- event handlers ---
+
+    const fetchStockData = useCallback(async (symbolToFetch: string) => {
+        if (!symbolToFetch) {
             return;
         }
-        
+
+        // reset state for a new search
+        setApiError(null);
+        setPrice(null);
+        setCompanyName('');
+        setSharesOwned(0);
+
         try {
-            setAdding(true);
-            setError(null);
-            
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/trading/watchlist`, {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ symbol: newSymbol.toUpperCase() })
-            });
+            // fetch price and position in parallel
+            const [priceData, positionData] = await Promise.all([
+                apiExecute<StockData>("/stocks/" + symbolToFetch),
+                apiExecute<PositionData>("/trading/positions/" + symbolToFetch).catch(() => ({ quantity: 0 })),
+            ]);
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.detail || "Failed to add stock to watchlist");
+            if (priceData.current_price === 0) {
+                throw new Error('Invalid symbol');
             }
 
-            // Refresh the watchlist to show updated data
-            await fetchWatchlist();
-            setNewSymbol("");
-        } catch (error: any) {
-            console.error("Error adding to watchlist:", error);
-            setError(error.message || "Failed to add stock to watchlist");
-        } finally {
-            setAdding(false);
+            setPrice(priceData.current_price);
+            setCompanyName(priceData.company_name || symbolToFetch);
+            setSharesOwned(positionData?.quantity || 0);
+            setSearchQuery(symbolToFetch);
+
+        } catch (err: any) {
+            setApiError(err.message);
+            setSearchQuery('');
         }
-    }
+    }, [apiExecute, setApiError]);
 
-    async function removeFromWatchlist(symbol: string) {
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-            setError("Please log in to manage your watchlist");
-            return;
+    const handleSymbolInputChange = (newValue: string) => {
+        setSymbolInput(newValue);
+
+        if (newValue === '') {
+            setSearchQuery('');
+            setPrice(null);
+            setCompanyName('');
+            setSharesOwned(0);
+            setApiError(null);
         }
-        
-        try {
-            setError(null);
-            
-            // Start hiding animation
-            setHidingSymbols(prev => new Set(prev).add(symbol));
-            
-            // Wait for animation to complete before removing from state
-            setTimeout(async () => {
-                try {
-                    const response = await fetch(`${import.meta.env.VITE_API_URL}/trading/watchlist/${symbol}`, {
-                        method: "DELETE",
-                        headers: {
-                            "Authorization": `Bearer ${token}`,
-                            "Content-Type": "application/json"
-                        }
-                    });
+    };
 
-                    if (!response.ok) {
-                        const data = await response.json();
-                        throw new Error(data.detail || "Failed to remove stock from watchlist");
-                    }
+    const handleSearch = () => {
+        fetchStockData(symbolInput);
+    };
 
-                    // Update local state after API success
-                    setWatchlist(watchlist.filter(stock => stock.symbol !== symbol));
-                    setHidingSymbols(prev => {
-                        const next = new Set(prev);
-                        next.delete(symbol);
-                        return next;
-                    });
-                } catch (error: any) {
-                    console.error("Error removing from watchlist:", error);
-                    setError(error.message || "Failed to remove stock from watchlist");
-                    // Reset hiding state on error
-                    setHidingSymbols(prev => {
-                        const next = new Set(prev);
-                        next.delete(symbol);
-                        return next;
-                    });
-                }
-            }, 200); // Match animation duration
-            
-        } catch (error: any) {
-            console.error("Error removing from watchlist:", error);
-            setError(error.message || "Failed to remove stock from watchlist");
-        }
-    }
+    // handler for navigating to the trade page
+    const handleTrade = (symbol: string) => {
+        navigate("/trade/" + symbol);
+    };
 
-    function handleTrade(symbol: string) {
-        navigate(`/trade?symbol=${symbol}`);
-    }
+    // handler for sort dropdown
+    const handleSortChange = (value: string) => {
+        setSortBy(value as WatchlistSortKey);
+    };
+
+    // handler for removing a stock
+    const handleRemove = (symbol: string) => {
+        removeFromWatchlist(symbol);
+    };
+
+    // check if symbol is in watchlist
+    const isInWatchlist = (symbol: string) => {
+        return watchlist.some(stock => stock.symbol === symbol);
+    };
+
+    // --- render logic ---
 
     if (loading) {
         return (
@@ -180,94 +149,53 @@ export default function WatchlistPage() {
         );
     }
 
+    const showStockInfo = searchQuery && price && !apiError;
+
     return (
         <PageLayout title="Watchlist">
-                {/* Add Stock Section */}
-                <PopInOutEffect isVisible={!loading} delay={50}>
-                    <div>
-                        <Title2>Add Stock</Title2>
-                        <div className="flex gap-4">
-                            <TextField
-                                placeholder="Enter symbol (e.g., AAPL)"
-                                value={newSymbol}
-                                uppercase
-                                onChange={(e) => {
-                                    const value = e.target.value.toUpperCase();
-                                    setNewSymbol(value);
-                                    if (!value) {
-                                        setError(null);
-                                    }
-                                }}
-                                className="flex-1"
-                                onKeyDown={(e) => e.key === "Enter" && !adding && addToWatchlist()}
-                                disabled={adding}
-                            />
-                            <Button2 onClick={addToWatchlist} disabled={adding || !newSymbol.trim()}>
-                                <Plus />
-                                {adding ? "Adding..." : "Add"}
-                            </Button2>
-                        </div>
-                        <ErrorTile description={error} className="mt-4" />
-                    </div>
-                </PopInOutEffect>
 
-                {/* Watchlist */}
-                <PopInOutEffect isVisible={!loading} delay={100}>
-                    <div>
-                        <Title2>Watchlist</Title2>
-                        <div className="flex flex-col mb-4 w-full sm:w-fit">
-                            <CustomDropdown
-                                label="Sort By"
-                                value={sortBy === "symbol" ? "Symbol" : sortBy === "price" ? "Current Price" : sortBy === "change" ? "Change (Daily)" : "Market Capitalization"}
-                                options={[
-                                    { value: "symbol", label: "Symbol" },
-                                    { value: "price", label: "Current Price" },
-                                    { value: "change", label: "Change (Daily)" },
-                                    { value: "marketcapitalization", label: "Market Capitalization" },
-                                ]}
-                                onValueChange={setSortBy}
-                            />
-                        </div>
-                        <div className="space-y-4">
-                            {watchlist.length === 0 ? (
-                                <div className="text-center">
-                                    <Text4>Nothing here yet.</Text4>
-                                </div>
-                            ) : (
-                                watchlist
-                                    .sort((a, b) => {
-                                        switch (sortBy) {
-                                            case "symbol":
-                                                return a.symbol.localeCompare(b.symbol);
-                                            case "price":
-                                                return b.current_price - a.current_price;
-                                            case "change":
-                                                return b.change - a.change;
-                                            case "marketcapitalization":
-                                                return a.market_cap.localeCompare(b.market_cap);
-                                            default:
-                                                return 0;
-                                        }
-                                    })
-                                    .map((stock, index) => (
-                                        <PopInOutEffect key={stock.symbol} isVisible={!hidingSymbols.has(stock.symbol)} delay={adding ? 0 : 150 + (index * 50)}>
-                                            <WatchlistTile 
-                                                stock={{
-                                                    symbol: stock.symbol,
-                                                    name: stock.name,
-                                                    current_price: stock.current_price,
-                                                    previous_price: stock.previous_close,
-                                                    market_capitalization: stock.market_cap
-                                                }}
-                                                onTrade={handleTrade}
-                                                onRemove={removeFromWatchlist}
-                                            />
-                                        </PopInOutEffect>
-                                    ))
-                            )}
-                        </div>
-                    </div>
-                </PopInOutEffect>
+            {/* section 1: stock search */}
+            <PopInOutEffect isVisible={!loading} delay={50}>
+                <StockSearchForm
+                    symbol={symbolInput}
+                    onSymbolChange={handleSymbolInputChange}
+                    onSearch={handleSearch}
+                    isLoading={isApiLoading}
+                />
+            </PopInOutEffect>
+
+            <ErrorTile
+                description={apiError}
+                className="mt-4"
+            />
+
+            {/* section 2: stock price display */}
+            <PopInOutEffect isVisible={showStockInfo}>
+                <StockPriceDisplay
+                    symbol={searchQuery}
+                    price={price}
+                    companyName={companyName}
+                    sharesOwned={sharesOwned}
+                    isMarketOpen={isMarketOpen}
+                    error={apiError}
+                    onAddToWatchlist={addToWatchlist}
+                    onRemoveFromWatchlist={removeFromWatchlist}
+                    isInWatchlist={isInWatchlist(searchQuery)}
+                />
+            </PopInOutEffect>
+
+            {/* section 3: watchlist display */}
+            <WatchlistDisplay
+                stocks={sortedWatchlist}
+                sortBy={sortBy}
+                getSortLabel={getSortLabel}
+                onSortChange={handleSortChange}
+                hidingSymbols={hidingSymbols}
+                onRemove={handleRemove}
+                onTrade={handleTrade}
+                onAddToWatchlist={addToWatchlist}
+            />
+
         </PageLayout>
     );
 }

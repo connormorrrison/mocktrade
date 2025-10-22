@@ -1,6 +1,7 @@
 import { Text4 } from "@/components/text-4";
 import { Text5 } from "@/components/text-5";
 import { formatMoney } from "@/lib/format-money";
+import { formatShares } from "@/lib/format-shares";
 import { CustomSkeleton } from "@/components/custom-skeleton";
 
 interface Activity {
@@ -69,7 +70,7 @@ export const ActivityTable = ({ activities, isLoading = false }: ActivityTablePr
                   </td>
                   <td className="px-4 py-2 whitespace-nowrap"><Text5>{tx.symbol}</Text5></td>
                   <td className="px-4 py-2 whitespace-nowrap">
-                    <Text5>{tx.quantity?.toLocaleString() || 'N/A'}</Text5>
+                    <Text5>{tx.quantity ? formatShares(tx.quantity) : 'N/A'}</Text5>
                   </td>
                   <td className="px-4 py-2 whitespace-nowrap">
                     <Text5>{formatMoney(tx.price)}</Text5>

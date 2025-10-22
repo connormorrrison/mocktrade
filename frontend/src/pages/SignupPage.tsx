@@ -113,6 +113,7 @@ export default function SignupPage() {
                   value={formData.firstName}
                   onChange={handleChange}
                   required
+                  autoFocus
                 />
                 <TextField 
                   label="Last Name" 

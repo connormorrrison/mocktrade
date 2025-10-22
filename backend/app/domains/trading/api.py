@@ -72,35 +72,50 @@ async def get_position_by_symbol(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Get specific position by symbol with current price data"""
+    """Get specific position by symbol with current price data
+
+    Returns a position with quantity=0 if the user doesn't own this stock,
+    rather than returning a 404 error. This provides a better UX and cleaner API semantics.
+    """
     try:
         trading_service = TradingService(db)
         symbol_upper = symbol.upper()
-        
+
         # Debug logging
         logger.info(f"Looking for position: user_id={current_user.id}, symbol={symbol_upper}")
-        
-        # Also check all positions for this user for debugging
-        all_positions = trading_service.get_user_positions(current_user.id)
-        logger.info(f"User has {len(all_positions)} total positions: {[p.symbol for p in all_positions]}")
-        
+
         position = trading_service.get_position_by_symbol(current_user.id, symbol_upper)
-        
+
         if not position:
-            logger.warning(f"No position found for user {current_user.id} and symbol {symbol_upper}")
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No position found for {symbol}")
-        
+            # Return empty position instead of 404
+            logger.info(f"No position found for user {current_user.id} and symbol {symbol_upper}, returning empty position")
+            from datetime import datetime
+            return {
+                "id": None,
+                "user_id": current_user.id,
+                "symbol": symbol_upper,
+                "quantity": 0,
+                "average_price": 0.0,
+                "current_price": 0.0,
+                "current_value": 0.0,
+                "unrealized_gain_loss": 0.0,
+                "unrealized_gain_loss_percent": 0.0,
+                "company_name": symbol_upper,
+                "created_at": datetime.now(),
+                "updated_at": datetime.now()
+            }
+
         # Enrich position with current stock data
         from app.domains.stocks.services import StockService
         stock_service = StockService()
-        
+
         try:
             stock_data = await stock_service.get_current_price(position.symbol)
             current_price = stock_data["current_price"]
             current_value = position.quantity * current_price
             unrealized_gain_loss = current_value - (position.quantity * position.average_price)
             unrealized_gain_loss_percent = (unrealized_gain_loss / (position.quantity * position.average_price)) * 100 if position.average_price > 0 else 0
-            
+
             # Create enriched response
             position_data = {
                 "id": position.id,
@@ -116,14 +131,14 @@ async def get_position_by_symbol(
                 "created_at": position.created_at,
                 "updated_at": position.updated_at
             }
-            
+
             return position_data
-            
+
         except Exception as e:
             logger.warning(f"Could not get current price for {position.symbol}: {e}")
             # Return position without current price data
             return position
-        
+
     except HTTPException:
         raise
     except Exception as e:

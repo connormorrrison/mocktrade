@@ -1,245 +1,298 @@
-import { useState, useEffect } from "react";
+// react and router
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { Search, CheckCircle } from "lucide-react";
+
+// layout and ui components
 import { Button1 } from "@/components/button-1";
-import { Button2 } from "@/components/button-2";
-import { MarketStatus, useMarketStatus } from "@/components/market-status";
 import { PageLayout } from "@/components/page-layout";
-import { Text2 } from "@/components/text-2";
-import { Text3 } from "@/components/text-3";
-import { Text4 } from "@/components/text-4";
-import { Text5 } from "@/components/text-5";
-import { TextField } from "@/components/text-field";
-import { Tile } from "@/components/tile";
-import { Title2 } from "@/components/title-2";
-import { formatMoney } from "@/lib/format-money";
 import { ErrorTile } from "@/components/error-tile";
 import { TradeConfirm } from "@/components/trade-confirm-dialog";
 import { StockPriceDisplay } from "@/components/stock-price-display";
 import { CustomSkeleton } from "@/components/custom-skeleton";
 import { PopInOutEffect } from "@/components/pop-in-out-effect";
 
+// trade-specific components
+import { StockSearchForm } from "@/components/trade/StockSearchForm";
+import { TradeActionSelector } from "@/components/trade/TradeActionSelector";
+import { TradeQuantityInput } from "@/components/trade/TradeQuantityInput";
+import { OrderPreview } from "@/components/trade/OrderPreview";
+
+// hooks
+import { useMarketStatus } from "@/components/market-status";
+import { useApi } from "@/lib/hooks/useApi";
+import { useTradeForm } from "@/lib/hooks/useTradeForm";
+import { useWatchlist } from "@/lib/hooks/useWatchlist";
+
+// types
+interface PortfolioSummary {
+  cash_balance: number;
+}
+
+interface StockData {
+  current_price: number;
+  company_name: string;
+}
+
+interface PositionData {
+  quantity: number;
+}
+
 export default function TradePage() {
-  // Loading state first
-  const [pageLoading, setPageLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  // Other state
+  // core hooks
+  const { symbol: urlSymbol } = useParams<{ symbol?: string }>();
+  const {
+    execute: apiExecute,
+    isLoading: isApiLoading,
+    error: apiError,
+    setError: setApiError
+  } = useApi();
   const isMarketOpen = useMarketStatus();
-  const [symbol, setSymbol] = useState('');
-  const [action, setAction] = useState<"buy" | "sell" | null>(null);
-  const [quantity, setQuantity] = useState('');
-  const [dollarAmount, setDollarAmount] = useState('');
-  const [inputMode, setInputMode] = useState<'quantity' | 'dollars'>('quantity');
-  const [price, setPrice] = useState<number | null>(null);
-  const [companyName, setCompanyName] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(false);
+  const {
+    watchlist: watchlistData,
+    addToWatchlist,
+    removeFromWatchlist
+  } = useWatchlist();
+
+  // determine initial state from url
+  let initialSymbol: string;
+  if (urlSymbol) {
+    initialSymbol = urlSymbol.toUpperCase();
+  } else {
+    initialSymbol = '';
+  }
+
+  // page state
+  const [symbolInput, setSymbolInput] = useState(initialSymbol);
+  const [searchQuery, setSearchQuery] = useState(initialSymbol);
+  const [pageLoading, setPageLoading] = useState(true);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-  const [displaySymbol, setDisplaySymbol] = useState('');
+
+  // data state (fetched from api)
   const [availableCash, setAvailableCash] = useState<number | null>(null);
+  const [price, setPrice] = useState<number | null>(null);
+  const [companyName, setCompanyName] = useState('');
   const [sharesOwned, setSharesOwned] = useState(0);
 
-  const { symbol: urlSymbol } = useParams<{ symbol?: string }>();
-  // Portfolio data
-  useEffect(() => {
-    let mounted = true;
-    
-    const loadPortfolioData = async () => {
-      try {
-        await fetchPortfolioData();
-      } catch (err: any) {
-        if (mounted) {
-          console.error('Failed to load portfolio:', err);
-        }
-      }
-    };
+  // form logic hook
+  const {
+    action,
+    quantity,
+    dollarAmount,
+    inputMode,
+    handleActionChange,
+    handleInputModeChange,
+    handleQuantityChange,
+    handleDollarAmountChange,
+    resetForm,
+    numericQuantity,
+    totalValue,
+    validationError,
+    isSubmittable,
+  } = useTradeForm(price, sharesOwned, availableCash);
 
-    loadPortfolioData();
 
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  // URL Symbol handler with simulated Enter keypress
-  useEffect(() => {
-    if (urlSymbol) {
-      setSymbol(urlSymbol.toUpperCase());
-      // Simulate Enter keypress
-      setTimeout(() => {
-        fetchStockPrice();
-      }, 100);
-    }
-  }, [urlSymbol]);
-
-  useEffect(() => {
-    if (!symbol) {
-      setPrice(null);
-      setCompanyName('');
-      setDisplaySymbol('');
-      setError(null);
-      setAction(null);
-      setQuantity('');
-      setSharesOwned(0);
-    }
-  }, [symbol]);
-
-  const fetchPortfolioData = async () => {
+  // data fetching functions
+  const fetchPortfolioSummary = useCallback(async () => {
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/portfolio/summary`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
+      const data = await apiExecute<PortfolioSummary>('/portfolio/summary');
+      if (data) {
         setAvailableCash(data.cash_balance);
       }
-    } catch (err: any) {
-      console.error('Error fetching portfolio:', err);
+    } catch (err) {
+      console.error('failed to load portfolio summary:', err);
     } finally {
       setPageLoading(false);
     }
-  };
+  }, [apiExecute]);
 
-  const fetchStockPrice = async () => {
-    if (!symbol) {
-      setError('Please enter a stock symbol');
+  const fetchStockData = useCallback(async (symbolToFetch: string) => {
+    if (!symbolToFetch) {
       return;
     }
-  
-    setIsLoading(true);
-    setError(null);
-  
+
+    // reset state for a new search
+    setApiError(null);
+    setPrice(null); 
+    setCompanyName('');
+    setSharesOwned(0);
+    resetForm();
+
     try {
-      const token = localStorage.getItem('access_token');
-      
-      // Fetch stock data (includes company name)
-      const priceResponse = await fetch(`${import.meta.env.VITE_API_URL}/stocks/${symbol.toUpperCase()}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-  
-      if (!priceResponse.ok) {
-        throw new Error('Invalid symbol');
-      }
-  
-      const priceData = await priceResponse.json();
-      
-      // Check if price is 0 and treat it as invalid
+      // fetch price and position in parallel
+      const [priceData, positionData] = await Promise.all([
+        apiExecute<StockData>("/stocks/" + symbolToFetch),
+        apiExecute<PositionData>("/trading/positions/" + symbolToFetch).catch(() => ({ quantity: 0 })),
+      ]);
+
       if (priceData.current_price === 0) {
         throw new Error('Invalid symbol');
       }
-      
+
+      // set new state
       setPrice(priceData.current_price);
-      setCompanyName(priceData.company_name || symbol.toUpperCase());
-      setDisplaySymbol(symbol.toUpperCase());
-  
-      // Fetch portfolio data separately and handle 404 gracefully
-      try {
-        const portfolioResponse = await fetch(`${import.meta.env.VITE_API_URL}/trading/positions/${symbol.toUpperCase()}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        
-        if (portfolioResponse.ok) {
-          const portfolioData = await portfolioResponse.json();
-          setSharesOwned(portfolioData.quantity || 0);
-        } else {
-          // 404 is expected when user doesn't own this stock
-          setSharesOwned(0);
-        }
-      } catch (portfolioError) {
-        // Silently handle any portfolio fetch errors
-        setSharesOwned(0);
+      
+      let newCompanyName: string;
+      if (priceData.company_name) {
+        newCompanyName = priceData.company_name;
+      } else {
+        newCompanyName = symbolToFetch;
       }
+      setCompanyName(newCompanyName);
+      
+      let newSharesOwned: number;
+      if (positionData) {
+        newSharesOwned = positionData.quantity;
+      } else {
+        newSharesOwned = 0;
+      }
+      setSharesOwned(newSharesOwned);
+      
+      setSearchQuery(symbolToFetch);
+      
     } catch (err: any) {
-      setError(err.message || 'Unable to fetch stock price');
+      setApiError(err.message);
+      setSearchQuery('');
+    }
+  }, [apiExecute, setApiError, resetForm]);
+
+
+  // initial page load effect
+  useEffect(() => {
+    fetchPortfolioSummary();
+    if (urlSymbol) {
+      fetchStockData(urlSymbol.toUpperCase());
+    }
+  }, [urlSymbol, fetchPortfolioSummary, fetchStockData]);
+
+
+  // event handlers
+  const handleSymbolInputChange = (newValue: string) => {
+    setSymbolInput(newValue); // always update the text field
+    
+    // if the user clears the input, reset all search/data state
+    if (newValue === '') {
+      setSearchQuery('');
       setPrice(null);
       setCompanyName('');
       setSharesOwned(0);
-      setQuantity('');
-      setAction(null);
-    } finally {
-      setIsLoading(false);
+      setApiError(null); // clear any "invalid symbol" errors
+      resetForm(); // reset the trade form (buy/sell, quantity)
     }
   };
 
-  const handleSubmitOrder = async () => {
-    // Safely handle null checks
-    const currentPrice = price ?? 0;
-    const currentCash = availableCash ?? 0;
-    const totalValue = currentPrice * Number(quantity);
+  const handleSearch = () => {
+    fetchStockData(symbolInput);
+  };
 
-    if (action === 'buy' && totalValue > currentCash) {
-      setError('Insufficient cash to complete the trade');
+  const handleSubmitOrder = () => {
+    if (!isSubmittable) {
+      let errorMsg: string;
+      if (validationError) {
+        errorMsg = validationError;
+      } else {
+        errorMsg = "order cannot be submitted";
+      }
+      setApiError(errorMsg);
       return;
     }
-   
-    // Refresh shares owned before validating sell order
-    if (action === 'sell') {
-      try {
-        const token = localStorage.getItem('access_token');
-        const portfolioResponse = await fetch(`${import.meta.env.VITE_API_URL}/trading/positions/${symbol.toUpperCase()}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        
-        if (portfolioResponse.ok) {
-          const portfolioData = await portfolioResponse.json();
-          const currentShares = portfolioData.shares || 0;
-          setSharesOwned(currentShares);
-          
-          if (Number(quantity) > currentShares) {
-            setError('Insufficient shares to complete the sale');
-            return;
-          }
-        }
-      } catch (err: any) {
-        setError('Unable to verify current share balance');
-        return;
-      }
-    }
-   
-    setError(null);
+    
+    setApiError(null);
     setIsConfirmDialogOpen(true);
   };
 
   const confirmOrder = async () => {
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/trading/orders`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          symbol: symbol.toUpperCase(),
-          quantity: Number(quantity),
-          action: action ? action.toLowerCase() : ''
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Trade failed');
+      let actionPayload: string;
+      if (action) {
+        actionPayload = action.toLowerCase();
+      } else {
+        actionPayload = '';
       }
 
-      // Refresh portfolio data to get updated cash balance
-      await fetchPortfolioData();
-      
-      // Reset form
-      setSymbol('');
-      setQuantity('');
+      await apiExecute('/trading/orders', {
+        method: 'POST',
+        body: JSON.stringify({
+          symbol: searchQuery,
+          quantity: numericQuantity,
+          action: actionPayload,
+        }),
+      });
+
+      // success: reset all state
+      setIsConfirmDialogOpen(false);
+      setSymbolInput('');
+      setSearchQuery('');
       setPrice(null);
       setCompanyName('');
-      setAction(null);
+      setSharesOwned(0);
+      resetForm();
+      await fetchPortfolioSummary(); // refresh cash
+      
+    } catch (err) {
+      // error is automatically set by the useApi hook
       setIsConfirmDialogOpen(false);
-
-    } catch (err: any) {
-      setError(err.message || 'Failed to execute trade');
     }
   };
 
-  // Loading check first
+
+  // derived state for rendering
+  let pageError: string | null;
+  if (apiError) {
+    pageError = apiError;
+  } else {
+    pageError = validationError;
+  }
+
+  let showStockInfo: boolean;
+  if (searchQuery && price && !apiError) {
+    showStockInfo = true;
+  } else {
+    showStockInfo = false;
+  }
+
+  const showActions = showStockInfo;
+
+  let showQuantity: boolean;
+  if (showActions && action) {
+    showQuantity = true;
+  } else {
+    showQuantity = false;
+  }
+
+  const showPreview = showQuantity;
+
+  let submitButtonText: string;
+  if (isApiLoading) {
+    submitButtonText = 'Submitting...';
+  } else {
+    submitButtonText = 'Submit Order';
+  }
+
+  let isSubmitButtonDisabled: boolean;
+  if (isApiLoading) {
+    isSubmitButtonDisabled = true;
+  } else if (!isSubmittable) {
+    isSubmitButtonDisabled = true;
+  } else {
+    isSubmitButtonDisabled = false;
+  }
+
+  let confirmDialogAction: string;
+  if (action) {
+    confirmDialogAction = action;
+  } else {
+    confirmDialogAction = '';
+  }
+  
+  let confirmDialogPrice: number;
+  if (price !== null) {
+    confirmDialogPrice = price;
+  } else {
+    confirmDialogPrice = 0;
+  }
+
+
+  // render logic
   if (pageLoading) {
     return (
       <PageLayout title="Trade">
@@ -250,229 +303,85 @@ export default function TradePage() {
 
   return (
     <PageLayout title="Trade">
-            {/* Search Section */}
-            <div>
-              <Title2>Search</Title2>
-              <div className="flex sm:flex-row gap-4">
-                <TextField
-                  className="flex-1"
-                  placeholder="Enter symbol (e.g., AAPL)"
-                  value={symbol}
-                  uppercase
-                  onChange={(e) => {
-                    const newValue = e.target.value.toUpperCase();
-                    setSymbol(newValue);
-                    if (!newValue) {
-                      setPrice(null);
-                      setCompanyName('');
-                      setDisplaySymbol('');
-                      setError(null);
-                      setAction(null);
-                      setQuantity('');
-                      setSharesOwned(0);
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      fetchStockPrice();
-                    }
-                  }}
-                />
-                <Button2 onClick={fetchStockPrice} disabled={isLoading}>
-                  <Search />
-                  {isLoading ? 'Searching...' : 'Search'}
-                </Button2>
-              </div>
-            </div>
 
-            {/* Error Handling */}
-            <ErrorTile description={error} className="mt-4" />
+      <PopInOutEffect isVisible={!pageLoading} delay={50}>
+        <StockSearchForm
+          symbol={symbolInput}
+          onSymbolChange={handleSymbolInputChange}
+          onSearch={handleSearch}
+          isLoading={isApiLoading}
+        />
+      </PopInOutEffect>
 
-            {/* Stock Price Display */}
-            <PopInOutEffect isVisible={!!symbol && !!price && !error}>
-              <StockPriceDisplay
-                symbol={displaySymbol}
-                price={price}
-                companyName={companyName}
-                sharesOwned={sharesOwned}
-                isMarketOpen={isMarketOpen}
-                error={error}
-              />
-            </PopInOutEffect>
+      <ErrorTile 
+        description={pageError} 
+        className="mt-4" 
+      />
 
-            {/* Action Section */}
-            <PopInOutEffect isVisible={!!symbol && !!price && !error}>
-              <div>
-                <Title2>Action</Title2>
-                <div className="flex sm:flex-row gap-4">
-                  <Button1 
-                    onClick={() => setAction('buy')}
-                    className="flex-1"
-                    variant={action === 'buy' ? 'primary' : 'secondary'}
-                  >
-                    Buy
-                  </Button1>
-                  <Button1 
-                    onClick={() => setAction('sell')}
-                    className="flex-1"
-                    variant={action === 'sell' ? 'primary' : 'secondary'}
-                    disabled={sharesOwned <= 0}
-                  >
-                    Sell
-                  </Button1>
-                </div>
-              </div>
-            </PopInOutEffect>
+      <PopInOutEffect isVisible={showStockInfo}>
+        <StockPriceDisplay
+          symbol={searchQuery}
+          price={price}
+          companyName={companyName}
+          sharesOwned={sharesOwned}
+          isMarketOpen={isMarketOpen}
+          error={pageError}
+          onAddToWatchlist={addToWatchlist}
+          onRemoveFromWatchlist={removeFromWatchlist}
+          isInWatchlist={watchlistData.some(stock => stock.symbol === searchQuery)}
+        />
+      </PopInOutEffect>
 
-            {/* Quantity Section */}
-            <PopInOutEffect isVisible={!!action}>
-              <div>
-                <Title2>Quantity</Title2>
-                <div className="flex sm:flex-row gap-4 mb-4">
-                  <Button1
-                    onClick={() => {
-                      setInputMode('quantity');
-                      setDollarAmount('');
-                      setError(null);
-                    }}
-                    className="flex-1"
-                    variant={inputMode === 'quantity' ? 'primary' : 'secondary'}
-                  >
-                    Shares
-                  </Button1>
-                  <Button1
-                    onClick={() => {
-                      setInputMode('dollars');
-                      setQuantity('');
-                      setError(null);
-                    }}
-                    className="flex-1"
-                    variant={inputMode === 'dollars' ? 'primary' : 'secondary'}
-                  >
-                    Dollar Amount
-                  </Button1>
-                </div>
-                
-                <TextField
-                  type="number"
-                  formatType={inputMode === 'dollars' ? 'currency' : 'number'}
-                  value={inputMode === 'quantity' ? (quantity || '') : (dollarAmount || '')}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (value === '' || (!isNaN(Number(value)) && Number(value) >= 0)) {
-                      if (inputMode === 'quantity') {
-                        setQuantity(value);
-                        setDollarAmount('');
-                      } else {
-                        setDollarAmount(value);
-                        // Calculate equivalent shares
-                        if (price && Number(value) > 0) {
-                          const calculatedShares = Number(value) / price;
-                          setQuantity(calculatedShares.toString());
-                        }
-                      }
-                    }
-                    setError(null);
-                  }}
-                  step={inputMode === 'quantity' ? "0.001" : "0.01"}
-                  min={inputMode === 'quantity' ? "0.001" : "0.01"}
-                  placeholder={inputMode === 'quantity' ? "Enter number of shares" : "Enter dollar amount"}
-                />
-              </div>
-            </PopInOutEffect>
+      <PopInOutEffect isVisible={showActions}>
+        <TradeActionSelector
+          action={action}
+          onActionChange={handleActionChange}
+          sharesOwned={sharesOwned}
+        />
+      </PopInOutEffect>
 
-            {/* Error Messages */}
-            {action && (
-              <div>
-                {action === 'buy' &&
-                  price != null &&
-                  quantity &&
-                  price * Number(quantity) > (availableCash ?? 0) && (
-                    <ErrorTile 
-                      description="Insufficient cash available to complete trade"
-                      className="mt-4"
-                    />
-                  )}
-                {action === 'sell' &&
-                  quantity &&
-                  Number(quantity) > sharesOwned && (
-                    <ErrorTile 
-                      description={`You can sell up to ${sharesOwned} shares`}
-                      className="mt-4"
-                    />
-                  )}
-              </div>
-            )}
+      <PopInOutEffect isVisible={showQuantity}>
+        <TradeQuantityInput
+          inputMode={inputMode}
+          quantity={quantity}
+          dollarAmount={dollarAmount}
+          onInputModeChange={handleInputModeChange}
+          onQuantityChange={handleQuantityChange}
+          onDollarAmountChange={handleDollarAmountChange}
+        />
+      </PopInOutEffect>
 
-            {/* Order Summary */}
-            <PopInOutEffect isVisible={!!action}>
-              <div>
-                <Title2>Order Preview</Title2>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <Text4>Order</Text4>
-                    <Text5>
-                      {action && symbol && ((inputMode === 'quantity' && quantity && Number(quantity) > 0) || (inputMode === 'dollars' && dollarAmount && Number(dollarAmount) > 0))
-                        ? inputMode === 'quantity' 
-                          ? `${action.charAt(0).toUpperCase() + action.slice(1)} 
-                            ${Number(quantity)} 
-                            ${Number(quantity) === 1 ? 'share' : 'shares'} at Market`
-                          : `${action.charAt(0).toUpperCase() + action.slice(1)} 
-                            $${Number(dollarAmount).toFixed(2)} worth 
-                            (≈${Number(quantity).toFixed(3)} shares) at Market`
-                        : 'N/A'}
-                    </Text5>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <Text4>Price per Share</Text4>
-                    <Text5>{price != null ? formatMoney(price) : formatMoney(0)}</Text5>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <Text4>Cash Available</Text4>
-                    <Text5>{formatMoney(availableCash ?? 0)}</Text5>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <Text4>Total Value</Text4>
-                    <Text3>
-                      {price != null && quantity && Number(quantity) > 0
-                        ? formatMoney(price * Number(quantity))
-                        : formatMoney(0)}
-                    </Text3>
-                  </div>
-                </div>
-              </div>
-            </PopInOutEffect>
+      <PopInOutEffect isVisible={showPreview}>
+        <OrderPreview
+          action={action}
+          inputMode={inputMode}
+          numericQuantity={numericQuantity}
+          dollarAmount={dollarAmount}
+          price={price}
+          availableCash={availableCash}
+          totalValue={totalValue}
+        />
+      </PopInOutEffect>
 
-            {/* Submit Order Button */}
-            <PopInOutEffect isVisible={!!action}>
-              <Button1 
-                className="w-full" 
-                onClick={handleSubmitOrder}
-                disabled={
-                  !symbol ||
-                  price == null ||
-                  (inputMode === 'quantity' && (!quantity || Number(quantity) < 0.001)) ||
-                  (inputMode === 'dollars' && (!dollarAmount || Number(dollarAmount) < 0.01)) ||
-                  !quantity || Number(quantity) < 0.001 ||
-                  (action === 'buy' &&
-                    price * Number(quantity) > (availableCash ?? 0)) ||
-                  (action === 'sell' && Number(quantity) > sharesOwned)
-                }
-              >
-                Submit Order
-              </Button1>
-            </PopInOutEffect>
+      <PopInOutEffect isVisible={showPreview}>
+        <Button1
+          className="w-full"
+          onClick={handleSubmitOrder}
+          disabled={isSubmitButtonDisabled}
+        >
+          {submitButtonText}
+        </Button1>
+      </PopInOutEffect>
 
-            {/* Confirmation Dialog */}
-            <TradeConfirm
-              isOpen={isConfirmDialogOpen}
-              onClose={() => setIsConfirmDialogOpen(false)}
-              onConfirm={confirmOrder}
-              symbol={symbol}
-              action={action || ''}
-              quantity={Number(quantity)}
-              price={price ?? 0}
-            />
+      <TradeConfirm
+        isOpen={isConfirmDialogOpen}
+        onClose={() => setIsConfirmDialogOpen(false)}
+        onConfirm={confirmOrder}
+        symbol={searchQuery}
+        action={confirmDialogAction}
+        quantity={numericQuantity}
+        price={confirmDialogPrice}
+      />
 
     </PageLayout>
   );

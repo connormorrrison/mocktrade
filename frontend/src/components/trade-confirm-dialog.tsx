@@ -3,6 +3,8 @@ import { Text3 } from "@/components/text-3";
 import { Text5 } from "@/components/text-5";
 import { Check } from "lucide-react";
 import confetti from "canvas-confetti";
+import { formatMoney } from "@/lib/format-money";
+import { formatShares } from "@/lib/format-shares";
 
 interface TradeConfirmProps {
   isOpen: boolean;
@@ -57,15 +59,15 @@ export const TradeConfirm = ({
         </div>
         <div className="flex justify-between">
           <Text5 variant="white">Quantity:</Text5>
-          <Text5 variant="white">{quantity}</Text5>
+          <Text5 variant="white">{formatShares(quantity)}</Text5>
         </div>
         <div className="flex justify-between">
           <Text5 variant="white">Price per Share:</Text5>
-          <Text5 variant="white">${price.toFixed(2)}</Text5>
+          <Text5 variant="white">{formatMoney(price)}</Text5>
         </div>
         <div className="flex justify-between">
           <Text5 variant="white">Total Value:</Text5>
-          <Text3>${totalValue.toFixed(2)}</Text3>
+          <Text3>{formatMoney(totalValue)}</Text3>
         </div>
       </div>
 

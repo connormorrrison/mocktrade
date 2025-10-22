@@ -1,11 +1,12 @@
-import { TrendingUp, Plus, X } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { Button1 } from "@/components/button-1";
-import { Button2 } from "@/components/button-2";
+import { WatchlistButton } from "@/components/watchlist-button";
 import { Text4 } from "@/components/text-4";
 import { Text5 } from "@/components/text-5";
 import { Text6 } from "@/components/text-6";
 import { Tile } from "@/components/tile";
 import { formatMoney } from "@/lib/format-money";
+import { formatShares } from "@/lib/format-shares";
 import { PopInOutEffect } from "@/components/pop-in-out-effect";
 
 interface PortfolioPosition {
@@ -60,7 +61,7 @@ export function PositionTile({
           {/* Quantity */}
           <div className="text-left">
             <Text4>Quantity</Text4>
-            <Text5 className="break-words">{position.shares}</Text5>
+            <Text5 className="break-words">{formatShares(position.shares)}</Text5>
           </div>
 
           {/* Average Price */}
@@ -101,18 +102,13 @@ export function PositionTile({
               <TrendingUp />
               Trade
             </Button1>
-            {showWatchlistButton && (
-              isInWatchlist ? (
-                <Button2 onClick={() => onRemoveFromWatchlist?.(position.symbol)} className="!w-32">
-                  <X />
-                  Remove
-                </Button2>
-              ) : (
-                <Button2 onClick={() => onAddToWatchlist?.(position.symbol)} className="!w-32">
-                  <Plus />
-                  Add
-                </Button2>
-              )
+            {showWatchlistButton && onAddToWatchlist && onRemoveFromWatchlist && (
+              <WatchlistButton
+                symbol={position.symbol}
+                isInWatchlist={isInWatchlist}
+                onAddToWatchlist={onAddToWatchlist}
+                onRemoveFromWatchlist={onRemoveFromWatchlist}
+              />
             )}
           </div>
         </div>

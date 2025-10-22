@@ -11,7 +11,7 @@ export default function Profile() {
   const [expandedWidth, setExpandedWidth] = useState(192); // fallback width
   const contentRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const { userData, isLoading } = useUser();
+  const { userData } = useUser();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,12 +46,7 @@ export default function Profile() {
     };
     
     setTimeout(measureWidth, 10);
-  }, []);
-
-  // Don't render until we have user data initially
-  if (isLoading && !userData) {
-    return null;
-  }
+  }, [userData]);
 
   return (
     <div className="fixed top-8 right-8 h-16 z-50">
@@ -59,15 +54,15 @@ export default function Profile() {
         className={`h-full transition-[width] duration-300 ${isScrolled ? 'group' : ''}`}
         style={{ 
           transitionTimingFunction: 'cubic-bezier(0.1, 0.9, 0.3, 1)',
-          width: isScrolled ? '64px' : `${expandedWidth}px`
+          width: userData ? (isScrolled ? '64px' : `${expandedWidth}px`) : '64px'
         }}
         onMouseEnter={(e) => {
-          if (isScrolled) {
+          if (userData && isScrolled) {
             (e.currentTarget as HTMLElement).style.width = `${expandedWidth}px`;
           }
         }}
         onMouseLeave={(e) => {
-          if (isScrolled) {
+          if (userData && isScrolled) {
             (e.currentTarget as HTMLElement).style.width = '64px';
           }
         }}
@@ -79,18 +74,20 @@ export default function Profile() {
           <Tile className="h-full w-full overflow-hidden flex items-center justify-center p-0 px-4 py-4 !bg-zinc-800/55 hover:!bg-zinc-700">
           <div ref={contentRef} className="flex items-center">
             <ProfilePicture size="md" className="flex-shrink-0" />
-            <div 
-              className={`text-content flex flex-col overflow-hidden transition-all duration-200 ease-out ${
-                isScrolled ? 'w-0 opacity-0 ml-0 scale-95 group-hover:w-auto group-hover:opacity-100 group-hover:ml-3 group-hover:scale-100' : 'w-auto opacity-100 ml-3 scale-100'
-              }`}
-            >
-              <Text5 className="whitespace-nowrap">
-                {userData ? `${userData.first_name} ${userData.last_name}` : 'User'}
-              </Text5>
-              <Text4 className="whitespace-nowrap">
-                {userData ? `@${userData.username}` : '@user'}
-              </Text4>
-            </div>
+            {userData && (
+              <div 
+                className={`text-content flex flex-col overflow-hidden transition-all duration-200 ease-out ${
+                  isScrolled ? 'w-0 opacity-0 ml-0 scale-95 group-hover:w-auto group-hover:opacity-100 group-hover:ml-3 group-hover:scale-100' : 'w-auto opacity-100 ml-3 scale-100'
+                }`}
+              >
+                <Text5 className="whitespace-nowrap">
+                  {`${userData.first_name} ${userData.last_name}`}
+                </Text5>
+                <Text4 className="whitespace-nowrap">
+                  {`@${userData.username}`}
+                </Text4>
+              </div>
+            )}
           </div>
           </Tile>
         </div>

@@ -1,96 +1,32 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PageLayout } from "@/components/page-layout";
-import { Button1 } from "@/components/button-1";
 import { Countdown } from "@/components/countdown";
-import { Leaderboard } from "@/components/leaderboard";
-import { formatMoney } from "@/lib/format-money";
 import { CustomSkeleton } from "@/components/custom-skeleton";
+import { useUser } from "@/contexts/UserContext";
+import { PopInOutEffect } from "@/components/pop-in-out-effect";
+import type { Timeframe } from "@/lib/types/leaderboard";
 
-interface LeaderboardUser {
-  rank: number;
-  first_name?: string;
-  last_name?: string;
-  username: string;
-  total_value: number;
-  return_amount: number;
-  return_percentage: number;
-}
+// import new hooks
+import { useLeaderboardData } from "@/lib/hooks/useLeaderboardData";
+import { useSortedLeaderboards } from "@/lib/hooks/useSortedLeaderboards";
+
+// import new components
+import { TimeframeSelector } from "@/components/leaderboard/TimeframeSelector";
+import { LeaderboardDisplay } from "@/components/leaderboard/LeaderboardDisplay";
 
 export default function LeaderboardPage() {
-  // Loading state first
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  // Other state
-  const [timeframe, setTimeframe] = useState<"Day" | "Week" | "Month" | "All">("Day");
-  const [leaderboardData, setLeaderboardData] = useState<LeaderboardUser[]>([]);
+  // --- state ---
+  const { userData } = useUser();
+  // this is the only state this page is responsible for
+  const [timeframe, setTimeframe] = useState<Timeframe>("Day");
 
-  const mapTimeframeToAPI = (timeframe: string) => {
-    switch (timeframe) {
-      case "Day": return "day";
-      case "Week": return "week";
-      case "Month": return "month";
-      case "All": return "all";
-      default: return "all";
-    }
-  };
+  // --- data hooks ---
+  // data fetching logic
+  const { leaderboardData, loading, error } = useLeaderboardData(timeframe);
+  // data transformation logic
+  const { profitLeaderboard, returnLeaderboard } = useSortedLeaderboards(leaderboardData);
 
-  const fetchLeaderboardData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const token = localStorage.getItem('access_token');
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/portfolio/leaderboard?timeframe=${mapTimeframeToAPI(timeframe)}`, {
-        headers
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch leaderboard data');
-      }
-
-      const data = await response.json();
-      setLeaderboardData(data);
-    } catch (err) {
-      console.error('Error fetching leaderboard:', err);
-      setError('Failed to load leaderboard data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchLeaderboardData();
-  }, [timeframe]);
-
-  // Transform API data for display
-  const transformedUsers = leaderboardData.map(user => ({
-    rank: user.rank,
-    first_name: user.first_name,
-    last_name: user.last_name,
-    username: user.username,
-    return: user.return_percentage,
-    profit: user.return_amount
-  }));
-
-  // Sort users by return for Return leaderboard
-  const returnLeaderboard = [...transformedUsers].sort((a, b) => b.return - a.return);
-
-  // Sort users by profit for Profit leaderboard  
-  const profitLeaderboard = [...transformedUsers].sort((a, b) => b.profit - a.profit);
-
-
-  const formatReturn = (value: number) => `+${value.toFixed(2)}%`;
-  const formatProfit = (value: number) => `+${formatMoney(value)}`;
-
+  // --- render loading ---
   if (loading) {
     return (
       <PageLayout title="Leaderboard">
@@ -99,7 +35,8 @@ export default function LeaderboardPage() {
     );
   }
 
-  if (error) {
+  // --- render error ---
+  if (error && userData) {
     return (
       <PageLayout title="Leaderboard">
         <div className="flex justify-center items-center py-12">
@@ -109,55 +46,31 @@ export default function LeaderboardPage() {
     );
   }
 
+  // --- render success ---
   return (
     <PageLayout title="Leaderboard">
-        <div className="flex flex-wrap gap-4 justify-center">
-          <Button1 
-            variant={timeframe === "Day" ? "primary" : "secondary"}
-            onClick={() => setTimeframe("Day")}
-          >
-            Day
-          </Button1>
-          <Button1 
-            variant={timeframe === "Week" ? "primary" : "secondary"}
-            onClick={() => setTimeframe("Week")}
-          >
-            Week
-          </Button1>
-          <Button1 
-            variant={timeframe === "Month" ? "primary" : "secondary"}
-            onClick={() => setTimeframe("Month")}
-          >
-            Month
-          </Button1>
-          <Button1 
-            variant={timeframe === "All" ? "primary" : "secondary"}
-            onClick={() => setTimeframe("All")}
-          >
-            All
-          </Button1>
-        </div>
         
-        {/* Countdown Timer */}
-        <div className="flex justify-center">
-          <Countdown timeframe={timeframe} />
-        </div>
+        {/* section 1: timeframe buttons */}
+        <TimeframeSelector
+            timeframe={timeframe}
+            setTimeframe={setTimeframe}
+            isVisible={!loading}
+        />
+        
+        {/* section 2: countdown */}
+        <PopInOutEffect isVisible={!loading} delay={100}>
+          <div className="flex justify-center">
+            <Countdown timeframe={timeframe} />
+          </div>
+        </PopInOutEffect>
 
-        {/* Return and Profit Leaderboards */}
-        <div className="flex flex-col lg:flex-row gap-4 justify-center items-start">
-          <Leaderboard
-            title="Profit/Loss"
-            users={profitLeaderboard}
-            type="profit"
-            formatValue={formatProfit}
-          />
-          <Leaderboard
-            title="Return"
-            users={returnLeaderboard}
-            type="return"
-            formatValue={formatReturn}
-          />
-        </div>
+        {/* section 3: leaderboards */}
+        <LeaderboardDisplay
+            profitLeaderboard={profitLeaderboard}
+            returnLeaderboard={returnLeaderboard}
+            isVisible={!loading}
+        />
+        
     </PageLayout>
   );
 }

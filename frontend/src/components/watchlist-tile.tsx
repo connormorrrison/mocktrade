@@ -1,6 +1,6 @@
-import { TrendingUp, X } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { Button1 } from "@/components/button-1";
-import { Button2 } from "@/components/button-2";
+import { WatchlistButton } from "@/components/watchlist-button";
 import { Text4 } from "@/components/text-4";
 import { Text5 } from "@/components/text-5";
 import { Text6 } from "@/components/text-6";
@@ -19,9 +19,10 @@ interface WatchlistTileProps {
   stock: WatchlistStock;
   onTrade?: (symbol: string) => void;
   onRemove?: (symbol: string) => void;
+  onAddToWatchlist?: (symbol: string) => void;
 }
 
-export function WatchlistTile({ stock, onTrade, onRemove }: WatchlistTileProps) {
+export function WatchlistTile({ stock, onTrade, onRemove, onAddToWatchlist }: WatchlistTileProps) {
 
   const dailyChange = stock.current_price - stock.previous_price;
   const dailyPercent = stock.previous_price > 0 
@@ -71,10 +72,14 @@ export function WatchlistTile({ stock, onTrade, onRemove }: WatchlistTileProps) 
             <TrendingUp />
             Trade
           </Button1>
-          <Button2 onClick={() => onRemove?.(stock.symbol)}>
-            <X />
-            Remove
-          </Button2>
+          {onRemove && onAddToWatchlist && (
+            <WatchlistButton
+              symbol={stock.symbol}
+              isInWatchlist={true}
+              onAddToWatchlist={onAddToWatchlist}
+              onRemoveFromWatchlist={onRemove}
+            />
+          )}
         </div>
       </div>
     </Tile>

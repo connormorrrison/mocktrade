@@ -57,7 +57,7 @@ class WatchlistCreate(BaseModel):
 
 # Response schemas
 class Position(BaseModel):
-    id: int
+    id: Optional[int] = None  # None for empty positions (user doesn't own this stock)
     user_id: int
     symbol: str
     quantity: float
