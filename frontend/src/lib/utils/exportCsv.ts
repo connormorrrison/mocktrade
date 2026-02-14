@@ -1,5 +1,5 @@
 import type { Activity } from "@/lib/types/activity";
-import { formatMoney } from "@/lib/formatMoney";
+
 import { formatShares } from "@/lib/formatShares";
 
 /**
@@ -32,8 +32,8 @@ export const exportActivitiesToCsv = (activities: Activity[], filename = 'activi
         tx.action,
         tx.symbol,
         formatShares(tx.quantity), // format quantity to 3 decimal places for fractional shares
-        escapeCsvField(formatMoney(tx.price)), // format price as currency and escape (contains $ and commas)
-        escapeCsvField(formatMoney(tx.total_amount)), // format total as currency and escape (contains $ and commas)
+        tx.price.toFixed(2),
+        tx.total_amount.toFixed(2),
       ];
       csvRows.push(row.join(','));
     });

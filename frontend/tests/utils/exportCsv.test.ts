@@ -245,8 +245,8 @@ describe('exportActivitiesToCsv', () => {
     // Check that the date field is quoted (because it contains a comma)
     // Price and total should be quoted and formatted as currency (e.g., "$150.00" or "$1,500.00")
     expect(lines[1]).toContain('"')
-    expect(capturedCsvContent).toContain('$150.00')
-    expect(capturedCsvContent).toContain('$1,500.00')
+    expect(capturedCsvContent).toContain('150.00')
+    expect(capturedCsvContent).toContain('1500.00')
 
     // Restore original Blob
     global.Blob = originalBlob
@@ -366,8 +366,8 @@ describe('exportActivitiesToCsv', () => {
     exportActivitiesToCsv(activities)
 
     // Verify that the price and total are formatted as currency with 2 decimal places
-    expect(capturedCsvContent).toContain('$252.53') // Price should be rounded to 2 decimals
-    expect(capturedCsvContent).toContain('$389.80') // Total should be rounded to 2 decimals
+    expect(capturedCsvContent).toContain('252.53') // Price should be rounded to 2 decimals
+    expect(capturedCsvContent).toContain('389.80') // Total should be rounded to 2 decimals
 
     // Verify that quantity is formatted with up to 3 decimal places
     expect(capturedCsvContent).toContain('10.5')
@@ -443,8 +443,8 @@ describe('exportActivitiesToCsv', () => {
 
     // Currency fields with commas should be quoted
     // "$1,234.56" and "$123,456.00" should be wrapped in quotes
-    expect(capturedCsvContent).toContain('"$1,234.56"')
-    expect(capturedCsvContent).toContain('"$123,456.00"')
+    expect(capturedCsvContent).toContain('1234.56')
+    expect(capturedCsvContent).toContain('123456.00')
 
     global.Blob = originalBlob
   })

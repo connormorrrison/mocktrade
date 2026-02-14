@@ -7,8 +7,6 @@ import { Text6 } from "@/components/Text6";
 import { Tile } from "@/components/Tile";
 import { formatMoney } from "@/lib/formatMoney";
 import { formatShares } from "@/lib/formatShares";
-import { PopInOutEffect } from "@/components/PopInOutEffect";
-
 interface PortfolioPosition {
   symbol: string;
   shares: number;
@@ -27,7 +25,6 @@ interface PositionTileProps {
   isInWatchlist?: boolean;
   showWatchlistButton?: boolean;
   totalPortfolioValue?: number;
-  isVisible?: boolean;
 }
 
 export function PositionTile({
@@ -38,7 +35,6 @@ export function PositionTile({
   isInWatchlist = false,
   showWatchlistButton = false,
   totalPortfolioValue,
-  isVisible = true
 }: PositionTileProps) {
 
   const marketValue = position.shares * position.current_price;
@@ -47,7 +43,6 @@ export function PositionTile({
     : 0;
 
   return (
-    <PopInOutEffect isVisible={isVisible}>
       <Tile>
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_auto] lg:items-center gap-4 w-full text-left">
           {/* Symbol & Company Name */}
@@ -113,6 +108,5 @@ export function PositionTile({
           </div>
         </div>
       </Tile>
-    </PopInOutEffect>
   );
 }
