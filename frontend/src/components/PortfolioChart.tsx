@@ -85,7 +85,7 @@ export function PortfolioChart({ timeframe = "1mo" }: PortfolioChartProps) {
     return (
       <div className="py-2 w-full flex items-center justify-center">
         <Text4>
-          
+          No portfolio history yet
         </Text4>
       </div>
     );

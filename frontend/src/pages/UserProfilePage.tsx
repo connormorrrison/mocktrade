@@ -282,7 +282,7 @@ export default function UserProfilePage() {
             />
           </div>
           <Tile>
-            <PortfolioChart />
+            <PortfolioChart timeframe={selectedFilter} />
           </Tile>
         </div>
       </PopInOutEffect>

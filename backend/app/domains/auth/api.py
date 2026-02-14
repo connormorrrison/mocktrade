@@ -36,7 +36,7 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
         try:
             from app.domains.portfolio.services import PortfolioService
             portfolio_service = PortfolioService(db)
-            await portfolio_service.create_snapshot(user.id)
+            await portfolio_service.create_portfolio_snapshot(user.id)
             logger.info(f"Created initial portfolio snapshot for user: {user.email}")
         except Exception as e:
             logger.warning(f"Failed to create initial portfolio snapshot: {e}")
@@ -89,7 +89,7 @@ async def google_login(body: GoogleLoginRequest, db: Session = Depends(get_db)):
             try:
                 from app.domains.portfolio.services import PortfolioService
                 portfolio_service = PortfolioService(db)
-                await portfolio_service.create_snapshot(user.id)
+                await portfolio_service.create_portfolio_snapshot(user.id)
                 logger.info(f"Created initial portfolio snapshot for Google user: {user.email}")
             except Exception as e:
                 logger.warning(f"Failed to create initial portfolio snapshot: {e}")
