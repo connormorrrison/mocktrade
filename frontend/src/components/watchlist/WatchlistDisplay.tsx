@@ -1,9 +1,9 @@
 import React from 'react';
-import { Title2 } from "@/components/title-2";
-import { Text4 } from "@/components/text-4";
-import { CustomDropdown } from "@/components/custom-dropdown";
-import { WatchlistTile } from "@/components/watchlist-tile";
-import { PopInOutEffect } from "@/components/pop-in-out-effect";
+import { Title2 } from "@/components/Title2";
+import { Text4 } from "@/components/Text4";
+import { CustomDropdown } from "@/components/CustomDropdown";
+import { WatchlistTile } from "@/components/WatchlistTile";
+import { PopInOutEffect } from "@/components/PopInOutEffect";
 import type { WatchlistStock } from "@/lib/types/watchlist";
 import type { WatchlistSortKey } from "@/lib/hooks/useSortedWatchlist";
 

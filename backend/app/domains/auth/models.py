@@ -13,7 +13,8 @@ class User(Base):
     last_name = Column(String)
     email = Column(String, unique=True, index=True)
     username = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
+    hashed_password = Column(String, nullable=True)
+    auth_provider = Column(String, default="local")
     cash_balance = Column(Float, default=100000.0)  # Start with $100k
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     is_active = Column(Boolean, default=True)

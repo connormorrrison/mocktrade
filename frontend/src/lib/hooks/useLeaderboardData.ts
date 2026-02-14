@@ -66,5 +66,5 @@ export const useLeaderboardData = (timeframe: Timeframe) => {
         fetchLeaderboardData();
     }, [fetchLeaderboardData]);
 
-    return { leaderboardData, loading, error };
+    return { leaderboardData, loading, error, refetch: fetchLeaderboardData };
 };

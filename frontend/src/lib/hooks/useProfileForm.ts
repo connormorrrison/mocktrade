@@ -109,6 +109,7 @@ export const useProfileForm = () => {
         isEditing,
         isLoading,
         error,
+        clearError: () => setError(null),
         handleEdit,
         handleCancel,
         handleSave,

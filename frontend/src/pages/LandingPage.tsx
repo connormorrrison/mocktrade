@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import { PublicLayout } from "@/components/public-layout";
-import { Button1 } from "@/components/button-1";
-import { StockChartAnimation } from "@/components/stock-chart-animation";
-import { Text1 } from "@/components/text-1";
-import { Text6 } from "@/components/text-6";
+import { PublicLayout } from "@/components/PublicLayout";
+import { Button1 } from "@/components/Button1";
+import { StockChartAnimation } from "@/components/StockChartAnimation";
+import { Text1 } from "@/components/Text1";
+import { Text6 } from "@/components/Text6";
 
 export default function LandingPage() {
   return (

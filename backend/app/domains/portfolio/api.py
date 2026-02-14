@@ -7,7 +7,7 @@ import logging
 from app.core.dependencies import get_db, get_current_user
 from app.domains.auth.models import User
 from app.domains.portfolio.services import PortfolioService, PortfolioError
-from app.domains.portfolio.schemas import PortfolioSummary, PortfolioHistory
+from app.domains.portfolio.schemas import PortfolioSummary, PortfolioHistory, PortfolioSnapshotCreate
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -21,10 +21,30 @@ async def get_portfolio_summary(
     try:
         portfolio_service = PortfolioService(db)
         summary = await portfolio_service.get_portfolio_summary(current_user.id)
-        
+
+        # Auto-snapshot: create/update today's snapshot using already-computed values
+        try:
+            from datetime import date
+            from app.domains.portfolio.repositories import PortfolioRepository
+            portfolio_repo = PortfolioRepository(db)
+            today = date.today()
+            existing = portfolio_repo.get_snapshot_by_date(current_user.id, today)
+            if existing:
+                portfolio_repo.update_snapshot(existing, summary.portfolio_value, summary.positions_value, summary.cash_balance)
+            else:
+                portfolio_repo.create_snapshot(PortfolioSnapshotCreate(
+                    user_id=current_user.id,
+                    snapshot_date=today,
+                    portfolio_value=summary.portfolio_value,
+                    positions_value=summary.positions_value,
+                    cash_balance=summary.cash_balance
+                ))
+        except Exception as snap_err:
+            logger.warning(f"Auto-snapshot failed for user {current_user.id}: {snap_err}")
+
         logger.info(f"Successfully fetched portfolio summary for user {current_user.username}")
         return summary
-        
+
     except PortfolioError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
@@ -83,6 +103,8 @@ async def get_leaderboard(
 async def get_user_profile(
     username: str,
     include_activities: bool = Query(default=False),
+    activities_limit: int = Query(default=10),
+    activities_offset: int = Query(default=0),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -107,6 +129,7 @@ async def get_user_profile(
         user_profile = {
             "first_name": target_user.first_name,
             "last_name": target_user.last_name,
+            "created_at": target_user.created_at.isoformat() if target_user.created_at else None,
             "portfolio_value": summary.portfolio_value,
             "positions_value": summary.positions_value,
             "cash_balance": summary.cash_balance,
@@ -121,8 +144,11 @@ async def get_user_profile(
         if include_activities:
             from app.domains.trading.repositories import ActivityRepository
             activity_repo = ActivityRepository(db)
-            activities = activity_repo.get_by_user(target_user.id)
-            user_profile["activity_count"] = len(activities)
+            # Get total count efficiently
+            user_profile["activity_count"] = activity_repo.count_by_user(target_user.id)
+
+            # Get paginated activities
+            activities = activity_repo.get_by_user(target_user.id, activities_limit, activities_offset)
             user_profile["activities"] = [
                 {
                     "id": activity.id,

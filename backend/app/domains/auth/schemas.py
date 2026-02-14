@@ -54,6 +54,9 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class GoogleLoginRequest(BaseModel):
+    credential: str
+
 class UserUpdate(BaseModel):
     first_name: Optional[str] = Field(None, min_length=1, max_length=50)
     last_name: Optional[str] = Field(None, min_length=1, max_length=50)
@@ -107,6 +110,7 @@ class User(BaseModel):
     cash_balance: float
     created_at: datetime
     is_active: bool
+    auth_provider: str = "local"
 
     class Config:
         from_attributes = True

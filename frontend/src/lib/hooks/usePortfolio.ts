@@ -11,24 +11,6 @@ export const usePortfolio = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const fetchActivityCount = useCallback(async (token: string) => {
-    try {
-      const response = await fetch(import.meta.env.VITE_API_URL + "/trading/activities", {
-        headers: { 'Authorization': "Bearer " + token },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          setActivityCount(data.length);
-        }
-      }
-    } catch (error) {
-      console.error('error fetching activity count:', error);
-      // silently fail, keep default 0
-    }
-  }, []);
-
   const fetchPortfolioData = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -55,12 +37,10 @@ export const usePortfolio = () => {
       if (response.ok) {
         const data: PortfolioData = await response.json();
         setPortfolioData(data);
-        
-        // set activity count from data or fetch separately
+
+        // set activity count from portfolio summary response
         if (data.activity_count !== undefined) {
           setActivityCount(data.activity_count);
-        } else {
-          fetchActivityCount(token);
         }
       } else {
         throw new Error('failed to fetch portfolio data');
@@ -74,11 +54,13 @@ export const usePortfolio = () => {
     } finally {
       setLoading(false);
     }
-  }, [fetchActivityCount]);
+  }, []);
 
   useEffect(() => {
     fetchPortfolioData();
   }, [fetchPortfolioData]);
 
-  return { portfolioData, activityCount, loading, error };
+  const clearError = useCallback(() => setError(""), []);
+
+  return { portfolioData, activityCount, loading, error, clearError };
 };

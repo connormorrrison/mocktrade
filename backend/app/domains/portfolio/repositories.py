@@ -52,6 +52,13 @@ class PortfolioRepository:
             PortfolioSnapshot.snapshot_date == snapshot_date
         ).first()
 
+    def get_snapshot_on_or_before(self, user_id: int, target_date: date) -> Optional[PortfolioSnapshot]:
+        """Get the most recent snapshot on or before a given date"""
+        return self.db.query(PortfolioSnapshot).filter(
+            PortfolioSnapshot.user_id == user_id,
+            PortfolioSnapshot.snapshot_date <= target_date
+        ).order_by(PortfolioSnapshot.snapshot_date.desc()).first()
+
     def update_snapshot(self, snapshot: PortfolioSnapshot, portfolio_value: float, 
                        positions_value: float, cash_balance: float) -> PortfolioSnapshot:
         """Update an existing portfolio snapshot"""

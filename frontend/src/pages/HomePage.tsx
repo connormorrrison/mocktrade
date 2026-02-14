@@ -2,14 +2,14 @@
 import { useUser } from "@/contexts/UserContext";
 
 // layout and ui components
-import { Button1 } from "@/components/button-1";
-import { PageLayout } from "@/components/page-layout";
-import { CustomSkeleton } from "@/components/custom-skeleton";
-import { PopInOutEffect } from "@/components/pop-in-out-effect";
-import { Text3 } from "@/components/text-3";
+import { Button1 } from "@/components/Button1";
+import { PageLayout } from "@/components/PageLayout";
+import { CustomSkeleton } from "@/components/CustomSkeleton";
+import { PopInOutEffect } from "@/components/PopInOutEffect";
+import { Text3 } from "@/components/Text3";
 
 // hooks
-import { useMarketStatus } from "@/components/market-status";
+import { useMarketStatus } from "@/components/MarketStatus";
 import { useMarketData } from "@/lib/hooks/useMarketData";
 
 // home page components
@@ -30,7 +30,7 @@ export default function HomePage() {
     marketGainers, 
     marketLosers,
     retryFetch
-  } = useMarketData(userLoading);
+  } = useMarketData();
 
   // loading state
   let isLoading: boolean;

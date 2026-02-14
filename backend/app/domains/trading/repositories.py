@@ -1,7 +1,9 @@
 # app/domains/trading/repositories.py
 
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List, Optional
+from datetime import date, datetime, timedelta
 from app.domains.trading.models import Position, Activity, Watchlist
 from app.domains.auth.models import User
 
@@ -61,11 +63,22 @@ class ActivityRepository:
         self.db.refresh(activity)
         return activity
 
-    def get_by_user(self, user_id: int, limit: Optional[int] = None) -> List[Activity]:
-        query = self.db.query(Activity).filter(Activity.user_id == user_id).order_by(Activity.created_at.desc())
+    def get_by_user(self, user_id: int, limit: Optional[int] = None, offset: int = 0,
+                    from_date: Optional[date] = None, to_date: Optional[date] = None) -> List[Activity]:
+        query = self.db.query(Activity).filter(Activity.user_id == user_id)
+        if from_date:
+            query = query.filter(Activity.created_at >= datetime.combine(from_date, datetime.min.time()))
+        if to_date:
+            query = query.filter(Activity.created_at <= datetime.combine(to_date + timedelta(days=1), datetime.min.time()))
+        query = query.order_by(Activity.created_at.desc())
+        if offset:
+            query = query.offset(offset)
         if limit:
             query = query.limit(limit)
         return query.all()
+
+    def count_by_user(self, user_id: int) -> int:
+        return self.db.query(func.count(Activity.id)).filter(Activity.user_id == user_id).scalar()
 
     def get_by_user_and_symbol(self, user_id: int, symbol: str) -> List[Activity]:
         return self.db.query(Activity).filter(

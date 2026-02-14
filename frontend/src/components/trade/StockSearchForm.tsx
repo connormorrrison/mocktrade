@@ -1,8 +1,8 @@
 import React from 'react';
 import { Search } from "lucide-react";
-import { Button2 } from "@/components/button-2";
-import { TextField } from "@/components/text-field";
-import { Title2 } from "@/components/title-2";
+import { Button2 } from "@/components/Button2";
+import { TextField } from "@/components/TextField";
+import { Title2 } from "@/components/Title2";
 
 // component prop types
 interface StockSearchFormProps {

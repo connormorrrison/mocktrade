@@ -1,10 +1,10 @@
 import React from 'react';
 import { Plus } from "lucide-react";
-import { Button2 } from "@/components/button-2";
-import { TextField } from "@/components/text-field";
-import { Title2 } from "@/components/title-2";
-import { PopInOutEffect } from "@/components/pop-in-out-effect";
-import { ErrorTile } from "@/components/error-tile";
+import { Button2 } from "@/components/Button2";
+import { TextField } from "@/components/TextField";
+import { Title2 } from "@/components/Title2";
+import { PopInOutEffect } from "@/components/PopInOutEffect";
+import { CustomError } from "@/components/CustomError";
 
 interface AddStockFormProps {
     newSymbol: string;
@@ -12,6 +12,7 @@ interface AddStockFormProps {
     onAdd: () => void;
     isAdding: boolean;
     error: string | null;
+    onClearError: () => void;
 }
 
 export const AddStockForm: React.FC<AddStockFormProps> = ({
@@ -20,6 +21,7 @@ export const AddStockForm: React.FC<AddStockFormProps> = ({
     onAdd,
     isAdding,
     error,
+    onClearError,
 }) => {
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -65,7 +67,7 @@ export const AddStockForm: React.FC<AddStockFormProps> = ({
                         {buttonText}
                     </Button2>
                 </div>
-                <ErrorTile description={error} className="mt-4" />
+                <CustomError error={error} onClose={onClearError} />
             </div>
         </PopInOutEffect>
     );

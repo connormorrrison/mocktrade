@@ -1,12 +1,12 @@
 import React from 'react';
 import { ArrowUp, ArrowDown } from "lucide-react";
-import { MarketStatus } from "@/components/market-status";
-import { Text2 } from "@/components/text-2";
-import { Text3 } from "@/components/text-3";
-import { Text5 } from "@/components/text-5";
-import { Tile } from "@/components/tile";
-import { Title2 } from "@/components/title-2";
-import { formatMoney } from "@/lib/format-money";
+import { MarketStatus } from "@/components/MarketStatus";
+import { Text2 } from "@/components/Text2";
+import { Text3 } from "@/components/Text3";
+import { Text5 } from "@/components/Text5";
+import { Tile } from "@/components/Tile";
+import { Title2 } from "@/components/Title2";
+import { formatMoney } from "@/lib/formatMoney";
 // updated import path for types
 import type { MarketIndex } from "@/lib/types/market";
 

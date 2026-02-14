@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { PageLayout } from "@/components/page-layout";
-import { Countdown } from "@/components/countdown";
-import { CustomSkeleton } from "@/components/custom-skeleton";
+import { PageLayout } from "@/components/PageLayout";
+import { Countdown } from "@/components/Countdown";
+import { CustomSkeleton } from "@/components/CustomSkeleton";
+import { CustomError } from "@/components/CustomError";
 import { useUser } from "@/contexts/UserContext";
-import { PopInOutEffect } from "@/components/pop-in-out-effect";
+import { PopInOutEffect } from "@/components/PopInOutEffect";
 import type { Timeframe } from "@/lib/types/leaderboard";
 
 // import new hooks
@@ -22,7 +23,7 @@ export default function LeaderboardPage() {
 
   // --- data hooks ---
   // data fetching logic
-  const { leaderboardData, loading, error } = useLeaderboardData(timeframe);
+  const { leaderboardData, loading, error, refetch } = useLeaderboardData(timeframe);
   // data transformation logic
   const { profitLeaderboard, returnLeaderboard } = useSortedLeaderboards(leaderboardData);
 
@@ -39,9 +40,7 @@ export default function LeaderboardPage() {
   if (error && userData) {
     return (
       <PageLayout title="Leaderboard">
-        <div className="flex justify-center items-center py-12">
-          <div className="text-red-500">{error}</div>
-        </div>
+        <CustomError error={error} onClose={refetch} />
       </PageLayout>
     );
   }
@@ -60,7 +59,7 @@ export default function LeaderboardPage() {
         {/* section 2: countdown */}
         <PopInOutEffect isVisible={!loading} delay={100}>
           <div className="flex justify-center">
-            <Countdown timeframe={timeframe} />
+            <Countdown timeframe={timeframe} onReset={refetch} />
           </div>
         </PopInOutEffect>
 

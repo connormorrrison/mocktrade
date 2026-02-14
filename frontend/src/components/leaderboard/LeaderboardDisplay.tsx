@@ -1,7 +1,7 @@
 import React from 'react';
-import { Leaderboard } from "@/components/leaderboard";
-import { PopInOutEffect } from "@/components/pop-in-out-effect";
-import { formatMoney } from "@/lib/format-money";
+import { Leaderboard } from "@/components/Leaderboard";
+import { PopInOutEffect } from "@/components/PopInOutEffect";
+import { formatMoney } from "@/lib/formatMoney";
 import type { TransformedUser } from "@/lib/types/leaderboard";
 
 interface LeaderboardDisplayProps {

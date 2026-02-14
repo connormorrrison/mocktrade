@@ -1,7 +1,7 @@
 import React from 'react';
-import { StockCarousel } from "@/components/stock-carousel";
-import { Title2 } from "@/components/title-2";
-import { Title3 } from "@/components/title-3";
+import { StockCarousel } from "@/components/StockCarousel";
+import { Title2 } from "@/components/Title2";
+import { Title3 } from "@/components/Title3";
 // updated import path for types
 import type { MarketMover } from "@/lib/types/market";
 

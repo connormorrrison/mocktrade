@@ -98,6 +98,7 @@ export const usePasswordForm = () => {
         isChanging,
         isLoading,
         error,
+        clearError: () => setError(null),
         handleStartChange,
         handleCancel,
         handleSave,

@@ -1,14 +1,14 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageLayout } from "@/components/page-layout";
-import { CustomSkeleton } from "@/components/custom-skeleton";
-import { PopInOutEffect } from "@/components/pop-in-out-effect";
-import { ErrorTile } from "@/components/error-tile";
+import { PageLayout } from "@/components/PageLayout";
+import { CustomSkeleton } from "@/components/CustomSkeleton";
+import { PopInOutEffect } from "@/components/PopInOutEffect";
+import { CustomError } from "@/components/CustomError";
 
 // import the new data hook
 import { useWatchlist } from "@/lib/hooks/useWatchlist";
 import { useApi } from "@/lib/hooks/useApi";
-import { useMarketStatus } from "@/components/market-status";
+import { useMarketStatus } from "@/components/MarketStatus";
 // import the new sorting hook
 import {
     useSortedWatchlist,
@@ -17,7 +17,7 @@ import {
 
 // import the new presentational components
 import { StockSearchForm } from "@/components/trade/StockSearchForm";
-import { StockPriceDisplay } from "@/components/stock-price-display";
+import { StockPriceDisplay } from "@/components/StockPriceDisplay";
 import { WatchlistDisplay } from "@/components/watchlist/WatchlistDisplay";
 
 // types
@@ -89,7 +89,7 @@ export default function WatchlistPage() {
             ]);
 
             if (priceData.current_price === 0) {
-                throw new Error('Invalid symbol');
+                throw new Error(`No results found for "${symbolToFetch}". Please check the symbol and try again.`);
             }
 
             setPrice(priceData.current_price);
@@ -164,10 +164,7 @@ export default function WatchlistPage() {
                 />
             </PopInOutEffect>
 
-            <ErrorTile
-                description={apiError}
-                className="mt-4"
-            />
+            <CustomError error={apiError} onClose={() => setApiError(null)} />
 
             {/* section 2: stock price display */}
             <PopInOutEffect isVisible={showStockInfo}>

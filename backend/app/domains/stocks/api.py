@@ -47,7 +47,7 @@ async def get_stock_data(symbol: str, current_user: User = Depends(get_current_u
         logger.error(f"Error fetching stock data for {symbol}: {e}")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Could not fetch data for symbol {symbol}"
+            detail=f"No results found for \"{symbol.upper()}\". Please check the symbol and try again."
         )
 
 @router.get("/{symbol}/price", response_model=dict)

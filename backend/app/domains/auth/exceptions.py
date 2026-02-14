@@ -29,3 +29,7 @@ class WeakPasswordError(AuthError):
 class UserInactiveError(AuthError):
     """Raised when user account is deactivated"""
     pass
+
+class GoogleAuthError(AuthError):
+    """Raised when Google authentication fails"""
+    pass

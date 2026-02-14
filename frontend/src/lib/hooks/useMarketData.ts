@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useMarketStatus } from "@/components/market-status";
+import { useMarketStatus } from "@/components/MarketStatus";
 // updated import path for types
 import type { MarketIndex, MarketMover } from "@/lib/types/market";
 
@@ -18,7 +18,7 @@ interface MarketMoversResponse {
  * including market indices and top movers.
  * it automatically refreshes the data every 5 minutes.
  */
-export const useMarketData = (userLoading: boolean) => {
+export const useMarketData = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [marketIndices, setMarketIndices] = useState<MarketIndex[]>([]);
@@ -91,19 +91,15 @@ export const useMarketData = (userLoading: boolean) => {
     }
   }, []); // no dependencies, this function is stable
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: We only want this to run when userLoading changes
   useEffect(() => {
-    // wait for user context to finish loading before fetching
-    if (userLoading === false) {
-      fetchMarketData();
+    fetchMarketData();
 
-      // set up the 5-minute refresh interval
-      const interval = setInterval(fetchMarketData, 5 * 60 * 1000);
+    // set up the 5-minute refresh interval
+    const interval = setInterval(fetchMarketData, 5 * 60 * 1000);
 
-      // clean up the interval when the component unmounts
-      return () => clearInterval(interval);
-    }
-  }, [userLoading, isMarketOpen, fetchMarketData]);
+    // clean up the interval when the component unmounts
+    return () => clearInterval(interval);
+  }, [isMarketOpen, fetchMarketData]);
 
   return { 
     isLoading, 

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button1 } from "@/components/button-1";
-import { PopInOutEffect } from "@/components/pop-in-out-effect";
+import { Button1 } from "@/components/Button1";
+import { PopInOutEffect } from "@/components/PopInOutEffect";
 import type { Timeframe } from "@/lib/types/leaderboard";
 
 interface TimeframeSelectorProps {

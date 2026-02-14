@@ -10,10 +10,11 @@ from app.domains.auth.models import User
 from app.domains.auth.schemas import UserCreate, UserUpdate, PasswordChange
 from app.domains.auth.repositories import UserRepository
 from app.domains.auth.exceptions import (
-    InvalidCredentialsError, 
-    UserNotFoundError, 
+    InvalidCredentialsError,
+    UserNotFoundError,
     WeakPasswordError,
-    UserInactiveError
+    UserInactiveError,
+    GoogleAuthError
 )
 
 logger = logging.getLogger(__name__)
@@ -43,13 +44,16 @@ class AuthService:
     def authenticate_user(self, email: str, password: str) -> User:
         """Authenticate user by email and password"""
         user = self.user_repository.get_by_email(email)
-        
+
         if not user:
             raise InvalidCredentialsError("Invalid email or password")
-        
+
         if not user.is_active:
             raise UserInactiveError("Account is deactivated")
-        
+
+        if user.hashed_password is None:
+            raise InvalidCredentialsError("This account uses Google Sign-In. Please log in with Google.")
+
         if not verify_password(password, user.hashed_password):
             raise InvalidCredentialsError("Invalid email or password")
         
@@ -77,10 +81,33 @@ class AuthService:
         logger.info(f"Successfully updated profile for user: {updated_user.email}")
         return updated_user
 
+    def google_login(self, google_id_info: dict) -> tuple[User, bool]:
+        """Find or create a user from Google ID token info. Returns (user, is_new)."""
+        email = google_id_info.get("email")
+        if not email:
+            raise GoogleAuthError("Google token did not contain an email address")
+
+        existing_user = self.user_repository.get_by_email(email)
+        if existing_user:
+            if not existing_user.is_active:
+                raise UserInactiveError("Account is deactivated")
+            logger.info(f"Google login for existing user: {email}")
+            return existing_user, False
+
+        # Create new user from Google info
+        first_name = google_id_info.get("given_name", "")
+        last_name = google_id_info.get("family_name", "")
+        user = self.user_repository.create_google_user(email, first_name, last_name)
+        logger.info(f"Created new Google user: {email}")
+        return user, True
+
     def change_password(self, user: User, passwords: PasswordChange) -> None:
         """Change user password with validation"""
         logger.info(f"Password change requested for user: {user.email}")
-        
+
+        if user.hashed_password is None:
+            raise InvalidCredentialsError("Cannot change password for a Google Sign-In account")
+
         # Verify current password
         if not verify_password(passwords.current_password, user.hashed_password):
             raise InvalidCredentialsError("Current password is incorrect")

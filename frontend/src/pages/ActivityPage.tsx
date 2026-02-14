@@ -1,5 +1,6 @@
-import { PageLayout } from "@/components/page-layout";
-import { CustomSkeleton } from "@/components/custom-skeleton";
+import { useState } from "react";
+import { PageLayout } from "@/components/PageLayout";
+import { CustomSkeleton } from "@/components/CustomSkeleton";
 
 // import the new hooks
 import { useActivities } from "@/lib/hooks/useActivities";
@@ -13,17 +14,17 @@ import { ActivityFilters } from "@/components/activity/ActivityFilters";
 import { ActivityDisplay } from "@/components/activity/ActivityDisplay";
 
 export default function ActivityPage() {
-    // data fetching hook
-    const { activities, isLoading, error } = useActivities();
+    // date state lives here so it can feed both the API hook and the filters UI
+    const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
+    const [toDate, setToDate] = useState<Date | undefined>(undefined);
 
-    // filtering hook
+    // data fetching hook (dates are sent to the server for filtering)
+    const { activities, isLoading, isLoadingMore, error, setError, hasMore, loadMore } = useActivities(fromDate, toDate);
+
+    // client-side type filtering (Buy/Sell/All)
     const {
         selectedFilter,
         setSelectedFilter,
-        fromDate,
-        setFromDate,
-        toDate,
-        setToDate,
         filteredActivities,
     } = useFilteredActivities(activities);
 
@@ -44,7 +45,7 @@ export default function ActivityPage() {
     // --- render success state ---
     return (
         <PageLayout title="Activity">
-            
+
             {/* section 1: filters and export button */}
             <ActivityFilters
                 selectedFilter={selectedFilter}
@@ -59,10 +60,14 @@ export default function ActivityPage() {
             {/* section 2: activity table display */}
             <ActivityDisplay
                 activities={filteredActivities}
-                isLoading={isLoading} // pass down if needed by table
+                isLoading={isLoading}
+                isLoadingMore={isLoadingMore}
                 error={error}
+                onClearError={() => setError(null)}
+                hasMore={hasMore}
+                onLoadMore={loadMore}
             />
-            
+
         </PageLayout>
     );
 }

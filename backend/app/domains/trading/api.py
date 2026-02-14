@@ -1,8 +1,9 @@
 # app/domains/trading/api.py
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
+from datetime import date
 import logging
 
 from app.core.dependencies import get_db, get_current_user
@@ -147,16 +148,19 @@ async def get_position_by_symbol(
 
 @router.get("/activities", response_model=List[Activity])
 async def get_activities(
-    limit: int = 100,
+    limit: int = 10,
+    offset: int = 0,
+    from_date: Optional[date] = Query(None),
+    to_date: Optional[date] = Query(None),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Get user's trading activities/history"""
+    """Get user's trading activities/history with pagination and optional date filtering"""
     try:
         trading_service = TradingService(db)
-        activities = trading_service.get_user_activities(current_user.id, limit)
+        activities = trading_service.get_user_activities(current_user.id, limit, offset, from_date, to_date)
         return activities
-        
+
     except Exception as e:
         logger.error(f"Error getting activities: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to retrieve activities")

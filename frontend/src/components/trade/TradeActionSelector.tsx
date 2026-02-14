@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button1 } from "@/components/button-1";
-import { Title2 } from "@/components/title-2";
+import { Button1 } from "@/components/Button1";
+import { Title2 } from "@/components/Title2";
 
 type Action = "buy" | "sell" | null;
 type ButtonVariant = "primary" | "secondary";

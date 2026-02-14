@@ -1,8 +1,8 @@
-import { PageLayout } from "@/components/page-layout";
-import { UserProfileHeader } from "@/components/user-profile-header";
+import { PageLayout } from "@/components/PageLayout";
+import { UserProfileHeader } from "@/components/UserProfileHeader";
 import { useUser } from "@/contexts/UserContext";
-import { CustomSkeleton } from "@/components/custom-skeleton";
-import { PopInOutEffect } from "@/components/pop-in-out-effect";
+import { CustomSkeleton } from "@/components/CustomSkeleton";
+import { PopInOutEffect } from "@/components/PopInOutEffect";
 
 // import the new presentational components
 import { ProfileForm } from "@/components/profile/ProfileForm";
@@ -72,9 +72,8 @@ export default function ProfilePage() {
         {/* this component now manages its own state and logic */}
         <ProfileForm />
 
-        {/* section 3: security form */}
-        {/* this component also manages its own state and logic */}
-        <PasswordForm />
+        {/* section 3: security form — hidden for Google-only users */}
+        {userData.auth_provider !== "google" && <PasswordForm />}
 
         {/* section 4: account details */}
         <AccountDetails joinedDate={joinedDate} />

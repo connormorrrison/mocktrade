@@ -1,8 +1,8 @@
 import React from 'react';
 import { TrendingUp, Wallet, FileText, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button1 } from "@/components/button-1";
-import { Title2 } from "@/components/title-2";
+import { Button1 } from "@/components/Button1";
+import { Title2 } from "@/components/Title2";
 
 /**
  * displays the "quick actions" navigation buttons on the home page.

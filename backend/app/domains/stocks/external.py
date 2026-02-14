@@ -1,6 +1,7 @@
 # app/domains/stocks/external.py
 
 import yfinance as yf
+import asyncio
 import logging
 from typing import Dict, List, Optional
 from datetime import datetime
@@ -57,34 +58,36 @@ class YFinanceClient:
             return None
     
     async def get_market_indices(self) -> List[MarketIndex]:
-        """Get market indices - use predefined names, just fetch prices"""
-        indices = []
-        
-        for symbol, name in self.INDICES.items():
+        """Get market indices - use predefined names, just fetch prices in parallel"""
+
+        async def _fetch_index(symbol: str, name: str):
             try:
                 hist = yf.Ticker(symbol).history(period="2d")
-                
+
                 if hist.empty:
-                    continue
-                
+                    return None
+
                 current = hist['Close'].iloc[-1]
                 previous = hist['Close'].iloc[-2] if len(hist) > 1 else current
                 change = current - previous
                 percent = (change / previous) * 100 if previous != 0 else 0
-                
-                indices.append(MarketIndex(
+
+                return MarketIndex(
                     symbol=name,
                     ticker=symbol,
                     value=float(current),
                     change=float(change),
                     percent=float(percent)
-                ))
-                
+                )
             except Exception as e:
                 logger.error(f"Error fetching index {symbol}: {e}")
-                continue
-        
-        return indices
+                return None
+
+        results = await asyncio.gather(*[
+            _fetch_index(symbol, name) for symbol, name in self.INDICES.items()
+        ])
+
+        return [r for r in results if r is not None]
     
     async def get_market_movers(self) -> Dict[str, List[MarketMover]]:
         """Get top gainers and losers with company names"""

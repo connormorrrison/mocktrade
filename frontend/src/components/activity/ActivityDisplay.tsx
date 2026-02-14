@@ -1,31 +1,50 @@
 import React from 'react';
-import { ActivityTable } from "@/components/activity-table";
-import { ErrorTile } from "@/components/error-tile";
+import { ActivityTable } from "@/components/ActivityTable";
+import { CustomError } from "@/components/CustomError";
+import { Button2 } from "@/components/Button2";
 import type { Activity } from "@/lib/types/activity";
 
 interface ActivityDisplayProps {
     activities: Activity[];
-    isLoading: boolean; // keep this prop if ActivityTable needs it
+    isLoading: boolean;
+    isLoadingMore?: boolean;
     error: string | null;
+    onClearError: () => void;
+    hasMore?: boolean;
+    onLoadMore?: () => void;
 }
 
 export const ActivityDisplay: React.FC<ActivityDisplayProps> = ({
     activities,
     isLoading,
+    isLoadingMore = false,
     error,
+    onClearError,
+    hasMore = false,
+    onLoadMore,
 }) => {
     return (
-        <div className="overflow-hidden"> 
+        <div className="overflow-hidden">
             {/* display error if present */}
-            {error && (
-              <ErrorTile description={error} className="mb-4" />
-            )}
+            <CustomError error={error} onClose={onClearError} />
 
             {/* activity table */}
-            <ActivityTable 
-              activities={activities} 
-              isLoading={isLoading} // pass loading state down
+            <ActivityTable
+              activities={activities}
+              isLoading={isLoading}
             />
+
+            {/* load more button */}
+            {!isLoading && hasMore && onLoadMore && (
+              <div className="flex justify-center mt-4">
+                <Button2
+                  onClick={onLoadMore}
+                  disabled={isLoadingMore}
+                >
+                  {isLoadingMore ? "Loading..." : "Load More"}
+                </Button2>
+              </div>
+            )}
         </div>
     );
 };

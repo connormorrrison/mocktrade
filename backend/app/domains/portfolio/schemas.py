@@ -40,6 +40,7 @@ class PortfolioSummary(BaseModel):
     positions_value: float
     cash_balance: float
     positions_count: int
+    activity_count: int = 0
     day_change: Optional[float] = None
     day_change_percent: Optional[float] = None
     positions: List[PortfolioPosition] = []

@@ -43,6 +43,43 @@ class UserRepository:
         self.db.refresh(db_user)
         return db_user
 
+    def create_google_user(self, email: str, first_name: str, last_name: str) -> User:
+        """Create a user from Google Sign-In (no password)."""
+        if self.get_by_email(email):
+            raise EmailAlreadyExistsError(f"Email {email} already registered")
+
+        # Auto-generate username from email prefix
+        base_username = email.split("@")[0].lower()
+        # Keep only valid username chars
+        base_username = "".join(c for c in base_username if c.isalnum() or c in "_.")
+        # Strip leading/trailing dots
+        base_username = base_username.strip(".")
+        # Ensure minimum length
+        if len(base_username) < 3:
+            base_username = "user"
+
+        username = base_username
+        suffix = 1
+        while self.get_by_username(username):
+            username = f"{base_username}{suffix}"
+            suffix += 1
+
+        db_user = User(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            username=username,
+            hashed_password=None,
+            auth_provider="google",
+            cash_balance=100000.0,
+            is_active=True,
+        )
+
+        self.db.add(db_user)
+        self.db.commit()
+        self.db.refresh(db_user)
+        return db_user
+
     def update(self, user: User, user_data: UserUpdate) -> User:
         # Check email uniqueness if being updated
         if user_data.email and user_data.email != user.email:

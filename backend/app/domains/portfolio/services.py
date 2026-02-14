@@ -3,6 +3,7 @@
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import date, datetime, timedelta
+import asyncio
 import logging
 
 from app.domains.portfolio.repositories import PortfolioRepository
@@ -34,97 +35,78 @@ class PortfolioService:
         try:
             # Get user's current positions
             positions = self.position_repo.get_all_by_user(user_id)
-            
+
             # Get user's cash balance
             from app.domains.auth.repositories import UserRepository
             user_repo = UserRepository(self.db)
             user = user_repo.get_by_id(user_id)
-            
+
             if not user:
                 raise PortfolioError(f"User {user_id} not found")
-            
+
             cash_balance = user.cash_balance
-            positions_value = 0.0
-            
-            # Calculate current positions value
-            for position in positions:
+
+            # Fetch all stock data in parallel (get_stock_data returns current_price + company_name)
+            async def _fetch_position_data(position):
                 try:
-                    # Get current price for each position
-                    current_price_data = await self.stock_service.get_current_price(position.symbol)
-                    current_price = current_price_data["current_price"]
-                    positions_value += position.quantity * current_price
+                    stock_data = await self.stock_service.get_stock_data(position.symbol)
+                    return (position, stock_data, None)
                 except Exception as e:
-                    logger.warning(f"Could not get current price for {position.symbol}: {e}")
-                    # Use average price as fallback
-                    positions_value += position.quantity * position.average_price
-            
+                    return (position, None, e)
+
+            results = await asyncio.gather(*[_fetch_position_data(p) for p in positions])
+
+            # Build enriched positions and calculate total value in one pass
+            positions_value = 0.0
+            enriched_positions = []
+            for position, stock_data, err in results:
+                if stock_data:
+                    current_price = stock_data["current_price"]
+                    company_name = stock_data.get("company_name", position.symbol)
+                else:
+                    logger.warning(f"Could not get stock data for {position.symbol}: {err}")
+                    current_price = position.average_price
+                    company_name = position.symbol
+
+                positions_value += position.quantity * current_price
+                enriched_positions.append({
+                    "symbol": position.symbol,
+                    "company_name": company_name,
+                    "shares": position.quantity,
+                    "current_price": current_price,
+                    "average_price": position.average_price,
+                    "current_value": position.quantity * current_price
+                })
+
             portfolio_value = positions_value + cash_balance
-            
+
             # Calculate day change (compare to previous snapshot if available)
             day_change = None
             day_change_percent = None
-            
+
             yesterday = date.today() - timedelta(days=1)
             previous_snapshot = self.portfolio_repo.get_snapshot_by_date(user_id, yesterday)
-            
+
             if previous_snapshot:
                 day_change = portfolio_value - previous_snapshot.portfolio_value
                 day_change_percent = (day_change / previous_snapshot.portfolio_value) * 100 if previous_snapshot.portfolio_value > 0 else 0
-            
-            # Create enriched positions list for frontend
-            enriched_positions = []
-            for position in positions:
-                try:
-                    # Get comprehensive stock data including company name
-                    stock_data = await self.stock_service.get_stock_data(position.symbol)
-                    current_price = stock_data["current_price"]
-                    company_name = stock_data.get("company_name", position.symbol)
-                    
-                    enriched_positions.append({
-                        "symbol": position.symbol,
-                        "company_name": company_name,
-                        "shares": position.quantity,  # Using 'shares' to match frontend
-                        "current_price": current_price,
-                        "average_price": position.average_price,
-                        "current_value": position.quantity * current_price
-                    })
-                except Exception as e:
-                    logger.warning(f"Could not get stock data for {position.symbol}: {e}")
-                    # Try just getting the price as fallback
-                    try:
-                        current_price_data = await self.stock_service.get_current_price(position.symbol)
-                        current_price = current_price_data["current_price"]
-                        
-                        enriched_positions.append({
-                            "symbol": position.symbol,
-                            "company_name": position.symbol,  # Fallback to symbol
-                            "shares": position.quantity,
-                            "current_price": current_price,
-                            "average_price": position.average_price,
-                            "current_value": position.quantity * current_price
-                        })
-                    except Exception as e2:
-                        logger.warning(f"Could not get any stock data for {position.symbol}: {e2}")
-                        # Use average price as ultimate fallback
-                        enriched_positions.append({
-                            "symbol": position.symbol,
-                            "company_name": position.symbol,
-                            "shares": position.quantity,
-                            "current_price": position.average_price,
-                            "average_price": position.average_price,
-                            "current_value": position.quantity * position.average_price
-                        })
-            
+
+            # Get activity count efficiently
+            from app.domains.trading.repositories import ActivityRepository
+            activity_repo = ActivityRepository(self.db)
+            activity_count = activity_repo.count_by_user(user_id)
+
             return PortfolioSummary(
                 portfolio_value=portfolio_value,
                 positions_value=positions_value,
                 cash_balance=cash_balance,
                 positions_count=len(positions),
+                activity_count=activity_count,
                 day_change=day_change,
                 day_change_percent=day_change_percent,
                 positions=enriched_positions
             )
-            
+
         except Exception as e:
             logger.error(f"Error getting portfolio summary for user {user_id}: {e}")
             raise PortfolioError(f"Could not get portfolio summary: {str(e)}")
@@ -220,59 +202,69 @@ class PortfolioService:
         try:
             from app.domains.auth.repositories import UserRepository
             user_repo = UserRepository(self.db)
-            
+
             # Get all active users
             all_users = user_repo.get_all_active()
-            leaderboard_data = []
-            
-            for user in all_users:
-                try:
-                    # Get current portfolio summary for each user
+
+            # Pre-compute target_date once (same for all users)
+            today = date.today()
+            target_date = None
+            if timeframe != "all":
+                if timeframe == "day":
+                    target_date = today - timedelta(days=1)
+                elif timeframe == "week":
+                    days_since_sunday = (today.weekday() + 1) % 7
+                    target_date = today - timedelta(days=days_since_sunday + 1)
+                elif timeframe == "month":
+                    first_of_month = today.replace(day=1)
+                    target_date = first_of_month - timedelta(days=1)
+                else:
+                    target_date = today - timedelta(days=1)
+
+            # Fetch all user summaries in parallel with concurrency limit
+            sem = asyncio.Semaphore(10)
+
+            async def _get_user_entry(user):
+                async with sem:
                     summary = await self.get_portfolio_summary(user.id)
-                    
-                    # Calculate returns based on timeframe
-                    start_value = 100000.0  # Default starting value
-                    if timeframe != "all":
-                        # Get snapshot from start of timeframe
-                        if timeframe == "day":
-                            target_date = date.today() - timedelta(days=1)
-                        elif timeframe == "week":
-                            target_date = date.today() - timedelta(weeks=1)
-                        elif timeframe == "month":
-                            target_date = date.today() - timedelta(days=30)
-                        else:
-                            target_date = date.today() - timedelta(days=1)
-                        
-                        snapshot = self.portfolio_repo.get_snapshot_by_date(user.id, target_date)
+
+                    start_value = 100000.0
+                    if target_date is not None:
+                        snapshot = self.portfolio_repo.get_snapshot_on_or_before(user.id, target_date)
                         if snapshot:
                             start_value = snapshot.portfolio_value
-                    
+
                     current_value = summary.portfolio_value
                     return_amount = current_value - start_value
                     return_percentage = (return_amount / start_value * 100) if start_value > 0 else 0
-                    
-                    leaderboard_data.append({
+
+                    return {
                         "username": user.username,
                         "first_name": user.first_name,
                         "last_name": user.last_name,
                         "total_value": current_value,
                         "return_amount": return_amount,
                         "return_percentage": return_percentage
-                    })
-                    
-                except Exception as e:
-                    logger.warning(f"Could not get portfolio data for user {user.id}: {e}")
+                    }
+
+            results = await asyncio.gather(*[_get_user_entry(u) for u in all_users], return_exceptions=True)
+
+            leaderboard_data = []
+            for i, result in enumerate(results):
+                if isinstance(result, Exception):
+                    logger.warning(f"Could not get portfolio data for user {all_users[i].id}: {result}")
                     continue
-            
+                leaderboard_data.append(result)
+
             # Sort by total value descending
             leaderboard_data.sort(key=lambda x: x["total_value"], reverse=True)
-            
+
             # Add rank
             for idx, entry in enumerate(leaderboard_data):
                 entry["rank"] = idx + 1
-            
+
             return leaderboard_data
-            
+
         except Exception as e:
             logger.error(f"Error getting leaderboard: {e}")
             raise PortfolioError(f"Could not get leaderboard: {str(e)}")

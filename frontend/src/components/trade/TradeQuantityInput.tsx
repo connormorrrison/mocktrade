@@ -1,7 +1,7 @@
 import React from 'react';
-import { Button1 } from "@/components/button-1";
-import { TextField } from "@/components/text-field";
-import { Title2 } from "@/components/title-2";
+import { Button1 } from "@/components/Button1";
+import { TextField } from "@/components/TextField";
+import { Title2 } from "@/components/Title2";
 
 type InputMode = "quantity" | "dollars";
 type ButtonVariant = "primary" | "secondary";

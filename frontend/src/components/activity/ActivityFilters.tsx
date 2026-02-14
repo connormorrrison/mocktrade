@@ -1,8 +1,8 @@
 import React from 'react';
 import { Download } from "lucide-react";
-import { Button2 } from "@/components/button-2";
-import { CustomDropdown } from "@/components/custom-dropdown";
-import { CustomDatePicker } from "@/components/custom-date-picker";
+import { Button2 } from "@/components/Button2";
+import { CustomDropdown } from "@/components/CustomDropdown";
+import { CustomDatePicker } from "@/components/CustomDatePicker";
 import type { ActivityFilterType } from "@/lib/types/activity";
 
 interface ActivityFiltersProps {

@@ -29,6 +29,9 @@ class Settings(BaseSettings):
         "https://mocktrade-frontend.vercel.app"
     ]
     
+    # Google OAuth
+    GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
+
     # Cache
     REDIS_URL: str = os.getenv("REDIS_URL", "")
     

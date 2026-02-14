@@ -1,9 +1,9 @@
 import React from 'react';
-import { Title2 } from "@/components/title-2";
-import { CustomDropdown } from "@/components/custom-dropdown";
-import { PositionTile } from "@/components/position-tile";
-import { Text4 } from "@/components/text-4";
-import { PopInOutEffect } from "@/components/pop-in-out-effect";
+import { Title2 } from "@/components/Title2";
+import { CustomDropdown } from "@/components/CustomDropdown";
+import { PositionTile } from "@/components/PositionTile";
+import { Text4 } from "@/components/Text4";
+import { PopInOutEffect } from "@/components/PopInOutEffect";
 import { 
   useSortedPositions, 
   getSortLabel,

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Title2 } from "@/components/title-2";
-import { UserProfileTiles } from "@/components/user-profile-tiles";
-import { PopInOutEffect } from "@/components/pop-in-out-effect";
+import { Title2 } from "@/components/Title2";
+import { UserProfileTiles } from "@/components/UserProfileTiles";
+import { PopInOutEffect } from "@/components/PopInOutEffect";
 
 interface PortfolioOverviewProps {
   totalValue: number;

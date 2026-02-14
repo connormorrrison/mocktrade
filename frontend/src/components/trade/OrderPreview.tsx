@@ -1,9 +1,9 @@
 import React from 'react';
-import { formatMoney } from "@/lib/format-money";
-import { Text3 } from "@/components/text-3";
-import { Text4 } from "@/components/text-4";
-import { Text5 } from "@/components/text-5";
-import { Title2 } from "@/components/title-2";
+import { formatMoney } from "@/lib/formatMoney";
+import { Text3 } from "@/components/Text3";
+import { Text4 } from "@/components/Text4";
+import { Text5 } from "@/components/Text5";
+import { Title2 } from "@/components/Title2";
 
 // component prop types
 interface OrderPreviewProps {

@@ -1,8 +1,8 @@
 import React from 'react';
-import { Text5 } from "@/components/text-5";
-import { Title2 } from "@/components/title-2";
-import { Title3 } from "@/components/title-3";
-import { PopInOutEffect } from "@/components/pop-in-out-effect";
+import { Text5 } from "@/components/Text5";
+import { Title2 } from "@/components/Title2";
+import { Title3 } from "@/components/Title3";
+import { PopInOutEffect } from "@/components/PopInOutEffect";
 
 interface AccountDetailsProps {
     joinedDate: string;

@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 
 interface UserData {
   first_name: string;
@@ -6,6 +7,7 @@ interface UserData {
   email: string;
   username: string;
   created_at?: string;
+  auth_provider?: string;
 }
 
 interface UserContextType {
@@ -49,7 +51,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
           last_name: userData.last_name,
           email: userData.email,
           username: userData.username,
-          created_at: userData.created_at
+          created_at: userData.created_at,
+          auth_provider: userData.auth_provider
         });
       } else {
         // Token is invalid, clear it

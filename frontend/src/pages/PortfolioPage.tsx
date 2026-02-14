@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { PageLayout } from "@/components/page-layout";
-import { CustomSkeleton } from "@/components/custom-skeleton";
+import { PageLayout } from "@/components/PageLayout";
+import { CustomSkeleton } from "@/components/CustomSkeleton";
+import { CustomError } from "@/components/CustomError";
 
 // import the new data hook
 import { usePortfolio } from "@/lib/hooks/usePortfolio";
@@ -16,7 +17,7 @@ export default function PortfolioPage() {
   const navigate = useNavigate();
 
   // call the data hook to get all page data
-  const { portfolioData, activityCount, loading, error } = usePortfolio();
+  const { portfolioData, activityCount, loading, error, clearError } = usePortfolio();
 
   // watchlist hook for add/remove functionality
   const {
@@ -48,7 +49,7 @@ export default function PortfolioPage() {
   if (error && !portfolioData) {
     return (
       <PageLayout title="Portfolio">
-        <div>Error: {error}</div>
+        <CustomError error={error} onClose={clearError} />
       </PageLayout>
     );
   }

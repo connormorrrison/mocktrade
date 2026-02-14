@@ -66,3 +66,35 @@ def get_current_user(
 def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
     """Get current active user (alias for consistency)"""
     return current_user
+
+def get_optional_user(
+    db: Session = Depends(get_db),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False))
+) -> Optional[User]:
+    """Get current user if authenticated, None otherwise (for optional auth endpoints)"""
+    if credentials is None:
+        return None
+
+    try:
+        token = credentials.credentials
+
+        # Verify token
+        payload = verify_token(token)
+        if payload is None:
+            return None
+
+        # Get user email from token
+        email: str = payload.get("sub")
+        if email is None:
+            return None
+
+        # Get user from database
+        user_repo = UserRepository(db)
+        user = user_repo.get_by_email(email)
+
+        if user is None or not user.is_active:
+            return None
+
+        return user
+    except Exception:
+        return None

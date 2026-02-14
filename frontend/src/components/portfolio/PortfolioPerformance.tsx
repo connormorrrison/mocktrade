@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { PortfolioChart } from "@/components/portfolio-chart";
-import { Tile } from "@/components/tile";
-import { Title2 } from "@/components/title-2";
-import { CustomDropdown } from "@/components/custom-dropdown";
-import { PopInOutEffect } from "@/components/pop-in-out-effect";
+import { PortfolioChart } from "@/components/PortfolioChart";
+import { Tile } from "@/components/Tile";
+import { Title2 } from "@/components/Title2";
+import { CustomDropdown } from "@/components/CustomDropdown";
+import { PopInOutEffect } from "@/components/PopInOutEffect";
 
 type ChartFilter = "1mo" | "3mo" | "6mo" | "1y" | "max";
 

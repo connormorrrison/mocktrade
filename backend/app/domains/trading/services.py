@@ -2,6 +2,7 @@
 
 from sqlalchemy.orm import Session
 from typing import List, Optional
+from datetime import date
 import logging
 
 from app.domains.trading.models import Position, Activity, Watchlist
@@ -150,9 +151,10 @@ class TradingService:
         """Get all positions for a user"""
         return self.position_repo.get_all_by_user(user_id)
 
-    def get_user_activities(self, user_id: int, limit: Optional[int] = None) -> List[Activity]:
-        """Get user's trading activities"""
-        return self.activity_repo.get_by_user(user_id, limit)
+    def get_user_activities(self, user_id: int, limit: Optional[int] = None, offset: int = 0,
+                           from_date: Optional[date] = None, to_date: Optional[date] = None) -> List[Activity]:
+        """Get user's trading activities with pagination and optional date filtering"""
+        return self.activity_repo.get_by_user(user_id, limit, offset, from_date, to_date)
 
     def get_position_by_symbol(self, user_id: int, symbol: str) -> Optional[Position]:
         """Get specific position for user and symbol"""

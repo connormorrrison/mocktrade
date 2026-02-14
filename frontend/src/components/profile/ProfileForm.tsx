@@ -1,11 +1,11 @@
 import React from 'react';
 import { Settings2 } from "lucide-react";
-import { Button1 } from "@/components/button-1";
-import { Button2 } from "@/components/button-2";
-import { TextField } from "@/components/text-field";
-import { Title2 } from "@/components/title-2";
-import { ErrorTile } from "@/components/error-tile";
-import { PopInOutEffect } from "@/components/pop-in-out-effect";
+import { Button1 } from "@/components/Button1";
+import { Button2 } from "@/components/Button2";
+import { TextField } from "@/components/TextField";
+import { Title2 } from "@/components/Title2";
+import { CustomError } from "@/components/CustomError";
+import { PopInOutEffect } from "@/components/PopInOutEffect";
 import { useProfileForm } from "@/lib/hooks/useProfileForm";
 
 export const ProfileForm: React.FC = () => {
@@ -18,6 +18,7 @@ export const ProfileForm: React.FC = () => {
         isEditing,
         isLoading,
         error,
+        clearError,
         handleEdit,
         handleCancel,
         handleSave,
@@ -82,8 +83,8 @@ export const ProfileForm: React.FC = () => {
                     />
                 </div>
                 
-                {/* error tile for this section only */}
-                <ErrorTile description={error} className="mt-4" />
+                {/* error dialog for this section only */}
+                <CustomError error={error} onClose={clearError} />
             </div>
         </PopInOutEffect>
     );

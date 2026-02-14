@@ -1,26 +1,27 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { PageLayout } from "@/components/page-layout";
-import { PortfolioChart } from "@/components/portfolio-chart";
-import { ActivityTable } from "@/components/activity-table";
-import { Tile } from "@/components/tile";
-import { Title2 } from "@/components/title-2";
-import { Text4 } from "@/components/text-4";
-import { CustomDropdown } from "@/components/custom-dropdown";
-import { PositionTile } from "@/components/position-tile";
-import { UserProfileHeader } from "@/components/user-profile-header";
-import { UserProfileTiles } from "@/components/user-profile-tiles";
-import { Button2 } from "@/components/button-2";
+import { PageLayout } from "@/components/PageLayout";
+import { PortfolioChart } from "@/components/PortfolioChart";
+import { ActivityTable } from "@/components/ActivityTable";
+import { Tile } from "@/components/Tile";
+import { Title2 } from "@/components/Title2";
+import { Text4 } from "@/components/Text4";
+import { CustomDropdown } from "@/components/CustomDropdown";
+import { PositionTile } from "@/components/PositionTile";
+import { UserProfileHeader } from "@/components/UserProfileHeader";
+import { UserProfileTiles } from "@/components/UserProfileTiles";
+import { Button2 } from "@/components/Button2";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import { CustomSkeleton } from "@/components/custom-skeleton";
+import { CustomSkeleton } from "@/components/CustomSkeleton";
 import { useUser } from "@/contexts/UserContext";
-import { PopInOutEffect } from "@/components/pop-in-out-effect";
+import { PopInOutEffect } from "@/components/PopInOutEffect";
 import { useWatchlist } from "@/lib/hooks/useWatchlist";
 
 interface UserData {
   first_name?: string;
   last_name?: string;
+  created_at?: string;
   portfolio_value: number;
   positions_value: number;
   cash_balance: number;
@@ -60,7 +61,12 @@ export default function UserProfilePage() {
   const [sortBy, setSortBy] = useState("symbol");
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activities, setActivities] = useState<any[]>([]);
-  const [activitiesLoading, setActivitiesLoading] = useState(false);
+  const [totalActivityCount, setTotalActivityCount] = useState(0);
+  const [activitiesOffset, setActivitiesOffset] = useState(0);
+  const [hasMoreActivities, setHasMoreActivities] = useState(true);
+  const [isLoadingMoreActivities, setIsLoadingMoreActivities] = useState(false);
+
+  const ACTIVITIES_LIMIT = 10;
 
   // Watchlist hook for real API integration
   const {
@@ -71,11 +77,11 @@ export default function UserProfilePage() {
 
   const fetchUserData = async () => {
     if (!username) return;
-    
+
     try {
       setLoading(true);
       setError(null);
-      
+
       const token = localStorage.getItem('access_token');
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
@@ -85,9 +91,11 @@ export default function UserProfilePage() {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/portfolio/user/${username}`, {
-        headers
-      });
+      // Single fetch that includes activities
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/portfolio/user/${username}?include_activities=true&activities_limit=${ACTIVITIES_LIMIT}&activities_offset=0`,
+        { headers }
+      );
 
       if (response.status === 404) {
         setError("User not found");
@@ -100,6 +108,29 @@ export default function UserProfilePage() {
 
       const data = await response.json();
       setUserData(data);
+
+      // Set activities from the same response
+      if (data.activity_count !== undefined) {
+        setTotalActivityCount(data.activity_count);
+      }
+
+      if (data.activities) {
+        const validActivities = data.activities.map((tx: any) => ({
+          id: tx.id,
+          symbol: tx.symbol,
+          action: tx.action?.toUpperCase(),
+          quantity: tx.quantity,
+          price: tx.price,
+          total_amount: tx.total_amount,
+          created_at: tx.created_at,
+        }));
+        setActivities(validActivities);
+        setActivitiesOffset(ACTIVITIES_LIMIT);
+        setHasMoreActivities(validActivities.length === ACTIVITIES_LIMIT);
+      } else {
+        setActivities([]);
+        setHasMoreActivities(false);
+      }
     } catch (err) {
       console.error('Error fetching user data:', err);
       setError('Failed to load user data');
@@ -108,19 +139,12 @@ export default function UserProfilePage() {
     }
   };
 
-  const fetchUserActivities = async () => {
-    // Check if activities are included in userData first
-    if (userData?.activities) {
-      setActivities(userData.activities);
-      setActivitiesLoading(false);
-      return;
-    }
-    
-    if (!username) return;
-    
+  const loadMoreActivities = async () => {
+    if (!username || isLoadingMoreActivities || !hasMoreActivities) return;
+
     try {
-      setActivitiesLoading(true);
-      
+      setIsLoadingMoreActivities(true);
+
       const token = localStorage.getItem('access_token');
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
@@ -130,13 +154,14 @@ export default function UserProfilePage() {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      // Check if the user endpoint includes activities
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/portfolio/user/${username}?include_activities=true`, {
-        headers
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/portfolio/user/${username}?include_activities=true&activities_limit=${ACTIVITIES_LIMIT}&activities_offset=${activitiesOffset}`,
+        { headers }
+      );
 
       if (response.ok) {
         const data = await response.json();
+
         if (data.activities) {
           const validActivities = data.activities.map((tx: any) => ({
             id: tx.id,
@@ -147,18 +172,21 @@ export default function UserProfilePage() {
             total_amount: tx.total_amount,
             created_at: tx.created_at,
           }));
-          setActivities(validActivities);
+
+          setActivities(prev => [...prev, ...validActivities]);
+          setActivitiesOffset(prev => prev + ACTIVITIES_LIMIT);
+          setHasMoreActivities(validActivities.length === ACTIVITIES_LIMIT);
         } else {
-          setActivities([]);
+          setHasMoreActivities(false);
         }
       } else {
-        setActivities([]);
+        setHasMoreActivities(false);
       }
     } catch (err) {
-      console.error('Error fetching user activities:', err);
-      setActivities([]);
+      console.error('Error fetching more activities:', err);
+      setHasMoreActivities(false);
     } finally {
-      setActivitiesLoading(false);
+      setIsLoadingMoreActivities(false);
     }
   };
 
@@ -166,15 +194,9 @@ export default function UserProfilePage() {
     fetchUserData();
   }, [username]);
 
-  useEffect(() => {
-    if (userData) {
-      fetchUserActivities();
-    }
-  }, [userData]);
-
 
   // Loading check first - show skeleton if either main data or activities are loading
-  if (loading || activitiesLoading) {
+  if (loading) {
     return (
       <PageLayout title="">
         <CustomSkeleton />
@@ -209,7 +231,7 @@ export default function UserProfilePage() {
     <PageLayout title="">
       <div className="flex flex-col gap-8">
         {/* Back Button */}
-        <PopInOutEffect isVisible={!loading && !activitiesLoading} delay={50}>
+        <PopInOutEffect isVisible={!loading} delay={50}>
           <Link to="/leaderboard">
             <Button2>
               <ChevronLeft />
@@ -219,30 +241,30 @@ export default function UserProfilePage() {
         </PopInOutEffect>
         
         {/* Profile Header */}
-        <PopInOutEffect isVisible={!loading && !activitiesLoading} delay={100}>
-          <UserProfileHeader 
-            firstName={userData?.first_name}
-            lastName={userData?.last_name}
+        <PopInOutEffect isVisible={!loading} delay={100}>
+          <UserProfileHeader
             username={username!}
+            joinedDate={userData?.created_at}
+            variant="public"
           />
         </PopInOutEffect>
 
         {/* Overview Section */}
-        <PopInOutEffect isVisible={!loading && !activitiesLoading} delay={150}>
+        <PopInOutEffect isVisible={!loading} delay={150}>
           <div className="space-y-2">
             <Title2>Overview</Title2>
             <UserProfileTiles
               totalValue={userData?.portfolio_value || 0}
               positionsValue={userData?.positions_value || 0}
               cashBalance={userData?.cash_balance || 0}
-              activityCount={userData?.activity_count || activities.length}
+              activityCount={totalActivityCount || userData?.activity_count || activities.length}
             />
           </div>
         </PopInOutEffect>
       </div>
 
       {/* Portfolio Chart */}
-      <PopInOutEffect isVisible={!loading && !activitiesLoading} delay={200}>
+      <PopInOutEffect isVisible={!loading} delay={200}>
         <div>
           <Title2>Performance</Title2>
           <div className="flex flex-col mb-4 w-full sm:w-fit">
@@ -267,7 +289,7 @@ export default function UserProfilePage() {
 
       {/* Current Positions */}
       <div>
-        <PopInOutEffect isVisible={!loading && !activitiesLoading} delay={250}>
+        <PopInOutEffect isVisible={!loading} delay={250}>
           <Title2>Positions</Title2>
           <div className="flex flex-col mb-4 w-full sm:w-fit">
             <CustomDropdown
@@ -321,7 +343,7 @@ export default function UserProfilePage() {
                 };
                 
                 return (
-                  <PopInOutEffect key={pos.symbol} isVisible={!loading && !activitiesLoading} delay={300 + (index * 50)}>
+                  <PopInOutEffect key={pos.symbol} isVisible={!loading} delay={300 + (index * 50)}>
                     <PositionTile
                       position={transformedPos}
                       totalPortfolioValue={userData?.portfolio_value || 0}
@@ -338,11 +360,23 @@ export default function UserProfilePage() {
       </div>
 
       {/* Activity History */}
-      <PopInOutEffect isVisible={!loading && !activitiesLoading} delay={350}>
+      <PopInOutEffect isVisible={!loading} delay={350}>
         <div>
           <Title2>Activity</Title2>
           <div className="overflow-hidden">
             <ActivityTable activities={activities} />
+
+            {/* load more button */}
+            {hasMoreActivities && (
+              <div className="flex justify-center mt-4">
+                <Button2
+                  onClick={loadMoreActivities}
+                  disabled={isLoadingMoreActivities}
+                >
+                  {isLoadingMoreActivities ? "Loading..." : "Load More"}
+                </Button2>
+              </div>
+            )}
           </div>
         </div>
       </PopInOutEffect>

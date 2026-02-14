@@ -5,16 +5,21 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 import logging
 
+from google.oauth2 import id_token as google_id_token
+from google.auth.transport import requests as google_requests
+
+from app.core.config import settings
 from app.core.dependencies import get_db, get_current_user
 from app.domains.auth.models import User
-from app.domains.auth.schemas import UserCreate, User as UserResponse, Token, UserUpdate, PasswordChange
+from app.domains.auth.schemas import UserCreate, User as UserResponse, Token, UserUpdate, PasswordChange, GoogleLoginRequest
 from app.domains.auth.services import AuthService
 from app.domains.auth.exceptions import (
     InvalidCredentialsError,
     EmailAlreadyExistsError,
     UsernameAlreadyExistsError,
     WeakPasswordError,
-    UserInactiveError
+    UserInactiveError,
+    GoogleAuthError
 )
 
 logger = logging.getLogger(__name__)
@@ -64,6 +69,43 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
     except Exception as e:
         logger.error(f"Unexpected error during login: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Login failed")
+
+@router.post("/google", response_model=Token)
+async def google_login(body: GoogleLoginRequest, db: Session = Depends(get_db)):
+    """Authenticate or register a user via Google Sign-In"""
+    try:
+        # Verify the Google ID token
+        id_info = google_id_token.verify_oauth2_token(
+            body.credential,
+            google_requests.Request(),
+            settings.GOOGLE_CLIENT_ID,
+        )
+
+        auth_service = AuthService(db)
+        user, is_new = auth_service.google_login(id_info)
+
+        # Create initial portfolio snapshot for new users
+        if is_new:
+            try:
+                from app.domains.portfolio.services import PortfolioService
+                portfolio_service = PortfolioService(db)
+                await portfolio_service.create_snapshot(user.id)
+                logger.info(f"Created initial portfolio snapshot for Google user: {user.email}")
+            except Exception as e:
+                logger.warning(f"Failed to create initial portfolio snapshot: {e}")
+
+        access_token = auth_service.create_access_token(user)
+        return {"access_token": access_token, "token_type": "bearer"}
+
+    except ValueError as e:
+        # google-auth raises ValueError for invalid tokens
+        logger.warning(f"Invalid Google token: {e}")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Google token")
+    except (GoogleAuthError, UserInactiveError) as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        logger.error(f"Unexpected error during Google login: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Google login failed")
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_info(current_user: User = Depends(get_current_user)):

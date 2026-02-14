@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
-import { PublicLayout } from "@/components/public-layout";
-import { AuthTile } from "@/components/auth-tile";
-import { ErrorTile } from "@/components/error-tile";
-import { Text2 } from "@/components/text-2";
-import { Text4 } from "@/components/text-4";
-import { Text5 } from "@/components/text-5";
-import { TextField } from "@/components/text-field";
-import { Button1 } from "@/components/button-1";
+import { PublicLayout } from "@/components/PublicLayout";
+import { AuthTile } from "@/components/AuthTile";
+import { CustomError } from "@/components/CustomError";
+import { Text2 } from "@/components/Text2";
+import { Text4 } from "@/components/Text4";
+import { Text5 } from "@/components/Text5";
+import { TextField } from "@/components/TextField";
+import { Button1 } from "@/components/Button1";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import { Link } from "react-router-dom";
 
 export default function LoginPage() {
@@ -18,6 +19,32 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+
+  const handleGoogleSuccess = async (credential: string) => {
+    setError('');
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('access_token', data.access_token);
+        await refreshUserData();
+        navigate('/home');
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Google login failed');
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Google login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,47 +98,19 @@ export default function LoginPage() {
 
   return (
     <PublicLayout showAuthButtons={false}>
-      <AuthTile>
-        <form onSubmit={handleLogin}>
-          <div className="space-y-6">
-            <div className="text-center space-y-2">
-              <Text2>Login</Text2>
-              <Text5>Log in to your MockTrade account</Text5>
-            </div>
-            
-            {error && (
-              <ErrorTile description={error} className="mt-4" />
-            )}
-            
-            <div className="space-y-4">
-              <TextField 
-                label="Email" 
-                placeholder="Email" 
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoFocus
-              />
-              <TextField 
-                label="Password" 
-                placeholder="Password" 
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            
-            <Button1 
-              type="submit" 
-              className="w-full"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Signing in...' : 'Log In'}
-            </Button1>
-            
-            <div className="text-center">
+      <div className="h-screen flex items-center justify-center p-8">
+        <div className="w-full max-w-3xl">
+          <div className="text-center space-y-2 mb-8">
+            <Text2>Login</Text2>
+            <Text5>Log in to your MockTrade account</Text5>
+          </div>
+
+          <CustomError error={error} onClose={() => setError('')} />
+
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-8 items-center">
+            {/* Left pane — Google sign-in */}
+            <div className="flex flex-col items-center justify-center space-y-6">
+              <GoogleSignInButton onSuccess={handleGoogleSuccess} />
               <Text4>
                 Don't have an account?{" "}
                 <Link to="/signup" className="!text-blue-600 hover:!text-blue-700">
@@ -119,9 +118,42 @@ export default function LoginPage() {
                 </Link>
               </Text4>
             </div>
+
+            {/* Vertical divider */}
+            <div className="hidden md:block w-px self-stretch bg-zinc-700" />
+
+            {/* Right pane — email/password form */}
+            <form onSubmit={handleLogin}>
+              <div className="space-y-4">
+                <TextField
+                  label="Email"
+                  placeholder="Email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoFocus
+                />
+                <TextField
+                  label="Password"
+                  placeholder="Password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <Button1
+                  type="submit"
+                  className="w-full"
+                  disabled={isLoading || !email.trim() || !password.trim()}
+                >
+                  {isLoading ? 'Signing in...' : 'Log In'}
+                </Button1>
+              </div>
+            </form>
           </div>
-        </form>
-      </AuthTile>
+        </div>
+      </div>
     </PublicLayout>
   );
 }

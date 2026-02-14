@@ -54,5 +54,5 @@ export const useDeleteAccount = () => {
         }
     };
 
-    return { isLoading, error, handleDelete };
+    return { isLoading, error, clearError: () => setError(null), handleDelete };
 };

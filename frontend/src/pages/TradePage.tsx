@@ -3,13 +3,13 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 
 // layout and ui components
-import { Button1 } from "@/components/button-1";
-import { PageLayout } from "@/components/page-layout";
-import { ErrorTile } from "@/components/error-tile";
-import { TradeConfirm } from "@/components/trade-confirm-dialog";
-import { StockPriceDisplay } from "@/components/stock-price-display";
-import { CustomSkeleton } from "@/components/custom-skeleton";
-import { PopInOutEffect } from "@/components/pop-in-out-effect";
+import { Button1 } from "@/components/Button1";
+import { PageLayout } from "@/components/PageLayout";
+import { CustomError } from "@/components/CustomError";
+import { TradeConfirm } from "@/components/TradeConfirmDialog";
+import { StockPriceDisplay } from "@/components/StockPriceDisplay";
+import { CustomSkeleton } from "@/components/CustomSkeleton";
+import { PopInOutEffect } from "@/components/PopInOutEffect";
 
 // trade-specific components
 import { StockSearchForm } from "@/components/trade/StockSearchForm";
@@ -18,7 +18,7 @@ import { TradeQuantityInput } from "@/components/trade/TradeQuantityInput";
 import { OrderPreview } from "@/components/trade/OrderPreview";
 
 // hooks
-import { useMarketStatus } from "@/components/market-status";
+import { useMarketStatus } from "@/components/MarketStatus";
 import { useApi } from "@/lib/hooks/useApi";
 import { useTradeForm } from "@/lib/hooks/useTradeForm";
 import { useWatchlist } from "@/lib/hooks/useWatchlist";
@@ -64,7 +64,7 @@ export default function TradePage() {
   // page state
   const [symbolInput, setSymbolInput] = useState(initialSymbol);
   const [searchQuery, setSearchQuery] = useState(initialSymbol);
-  const [pageLoading, setPageLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(true); // Default to true
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
   // data state (fetched from api)
@@ -100,8 +100,8 @@ export default function TradePage() {
       }
     } catch (err) {
       console.error('failed to load portfolio summary:', err);
-    } finally {
-      setPageLoading(false);
+      // PERF FIX #2: Removed the `finally` block that set pageLoading(false).
+      // This will now be handled by the main useEffect.
     }
   }, [apiExecute]);
 
@@ -125,7 +125,7 @@ export default function TradePage() {
       ]);
 
       if (priceData.current_price === 0) {
-        throw new Error('Invalid symbol');
+        throw new Error(`No results found for "${symbolToFetch}". Please check the symbol and try again.`);
       }
 
       // set new state
@@ -156,12 +156,36 @@ export default function TradePage() {
   }, [apiExecute, setApiError, resetForm]);
 
 
-  // initial page load effect
+  // PERF FIX #2: INITIAL PAGE LOAD (DATA WATERFALL)
+  // This effect now controls the pageLoading state for ALL
+  // initial data fetches, ensuring the skeleton doesn't
+  // disappear until everything is ready.
   useEffect(() => {
-    fetchPortfolioSummary();
-    if (urlSymbol) {
-      fetchStockData(urlSymbol.toUpperCase());
-    }
+    const loadInitialData = async () => {
+      setPageLoading(true); // Explicitly set loading to true
+      try {
+        // Create a list of all promises we need to resolve
+        const initialDataPromises: Promise<any>[] = [fetchPortfolioSummary()];
+
+        if (urlSymbol) {
+          initialDataPromises.push(fetchStockData(urlSymbol.toUpperCase()));
+        }
+
+        // Wait for ALL of them to finish
+        await Promise.all(initialDataPromises);
+
+      } catch (err) {
+        console.error("Failed to load initial page data:", err);
+        // You could set a page-level error here
+      } finally {
+        // Only stop loading once everything is done
+        setPageLoading(false);
+      }
+    };
+
+    loadInitialData();
+    // We only want this to run once on load, based on the URL symbol
+    // and the memoized fetch functions.
   }, [urlSymbol, fetchPortfolioSummary, fetchStockData]);
 
 
@@ -200,6 +224,10 @@ export default function TradePage() {
     setIsConfirmDialogOpen(true);
   };
 
+  // PERF FIX #3: SLOW ORDER SUBMISSION
+  // This function now provides an "optimistic" response.
+  // It only awaits the critical API call, then immediately
+  // resets the UI and refreshes cash in the background.
   const confirmOrder = async () => {
     try {
       let actionPayload: string;
@@ -209,6 +237,7 @@ export default function TradePage() {
         actionPayload = '';
       }
 
+      // 1. Await ONLY the critical order submission
       await apiExecute('/trading/orders', {
         method: 'POST',
         body: JSON.stringify({
@@ -218,7 +247,7 @@ export default function TradePage() {
         }),
       });
 
-      // success: reset all state
+      // 2. Give INSTANT UI feedback: close dialog & reset form
       setIsConfirmDialogOpen(false);
       setSymbolInput('');
       setSearchQuery('');
@@ -226,7 +255,10 @@ export default function TradePage() {
       setCompanyName('');
       setSharesOwned(0);
       resetForm();
-      await fetchPortfolioSummary(); // refresh cash
+      
+      // 3. Refresh cash balance in the background (no await)
+      // The user doesn't need to wait for this.
+      fetchPortfolioSummary();
       
     } catch (err) {
       // error is automatically set by the useApi hook
@@ -313,10 +345,7 @@ export default function TradePage() {
         />
       </PopInOutEffect>
 
-      <ErrorTile 
-        description={pageError} 
-        className="mt-4" 
-      />
+      <CustomError error={apiError} onClose={() => setApiError(null)} />
 
       <PopInOutEffect isVisible={showStockInfo}>
         <StockPriceDisplay
