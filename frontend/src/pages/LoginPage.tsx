@@ -145,7 +145,7 @@ export default function LoginPage() {
                 <Button1
                   type="submit"
                   className="w-full"
-                  disabled={isLoading || !email.trim() || !password.trim()}
+                  disabled={isLoading}
                 >
                   {isLoading ? 'Signing in...' : 'Log In'}
                 </Button1>

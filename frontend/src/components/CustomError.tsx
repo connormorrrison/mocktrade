@@ -1,5 +1,6 @@
 import { AlertCircle } from "lucide-react";
-import { CustomAlertDialog, AlertDialogHeader, AlertDialogFooter, AlertDialogAction } from "@/components/CustomAlertDialog";
+import { CustomAlertDialog, AlertDialogHeader, AlertDialogFooter } from "@/components/CustomAlertDialog";
+import { Button1 } from "@/components/Button1";
 import { Text3 } from "@/components/Text3";
 import { Text5 } from "@/components/Text5";
 
@@ -19,13 +20,9 @@ export const CustomError = ({ error, onClose }: CustomErrorProps) => {
       </AlertDialogHeader>
       <Text5>{error}</Text5>
       <AlertDialogFooter>
-        <AlertDialogAction
-          onClick={onClose}
-          className="!bg-red-600 hover:!bg-red-700 !w-full"
-          style={{ outline: 'none', boxShadow: 'none' }}
-        >
+        <Button1 variant="danger" onClick={onClose} className="!w-full">
           Dismiss
-        </AlertDialogAction>
+        </Button1>
       </AlertDialogFooter>
     </CustomAlertDialog>
   );

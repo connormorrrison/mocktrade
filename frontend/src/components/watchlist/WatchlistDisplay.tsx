@@ -57,6 +57,7 @@ export const WatchlistDisplay: React.FC<WatchlistDisplayProps> = ({
                             onTrade={onTrade}
                             onRemove={onRemove}
                             onAddToWatchlist={onAddToWatchlist}
+                            removing={hidingSymbols.has(stock.symbol)}
                         />
                     </PopInOutEffect>
                 ))}

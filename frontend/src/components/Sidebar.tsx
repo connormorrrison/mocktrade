@@ -6,7 +6,11 @@ import { useUser } from '@/contexts/UserContext'
 import { ReportBugDialog } from '@/components/ReportBugDialog'
 import logo from '@/assets/mocktrade-logo.png'
 
-export default function Sidebar() {
+interface SidebarProps {
+  onNavigate?: () => void
+}
+
+export default function Sidebar({ onNavigate }: SidebarProps) {
   const location = useLocation()
   const { logout } = useUser()
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
@@ -23,7 +27,7 @@ export default function Sidebar() {
 
   return (
     <div
-      className="flex flex-col h-screen w-full p-8"
+      className="flex flex-col h-full w-full p-8"
     >
       {/* Logo */}
       <div className="flex justify-center mb-6">
@@ -43,6 +47,7 @@ export default function Sidebar() {
               <li key={item.name}>
                 <Link
                   to={item.path}
+                  onClick={onNavigate}
                   className={`flex items-center gap-4 px-4 py-2 rounded-xl text-lg !font-normal transition-colors ${
                     isActive
                       ? '!bg-blue-600/8 !text-blue-600'

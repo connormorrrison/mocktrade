@@ -205,15 +205,7 @@ export default function SignupPage() {
                   <Button1
                     type="submit"
                     className="w-full"
-                    disabled={
-                      isLoading ||
-                      !formData.email.trim() ||
-                      !formData.username.trim() ||
-                      !formData.firstName.trim() ||
-                      !formData.lastName.trim() ||
-                      !formData.password.trim() ||
-                      !formData.confirmPassword.trim()
-                    }
+                    disabled={isLoading}
                   >
                     {isLoading ? 'Creating Account...' : 'Sign Up'}
                   </Button1>

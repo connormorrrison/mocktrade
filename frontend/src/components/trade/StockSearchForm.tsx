@@ -1,8 +1,9 @@
 import React from 'react';
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import { Button2 } from "@/components/Button2";
 import { TextField } from "@/components/TextField";
 import { Title2 } from "@/components/Title2";
+import { cn } from "@/lib/utils";
 
 // component prop types
 interface StockSearchFormProps {
@@ -30,32 +31,13 @@ export const StockSearchForm: React.FC<StockSearchFormProps> = ({
     }
   };
 
-  // --- derived state for the search button ---
-  let buttonText: string;
-  let isButtonDisabled: boolean;
-
-  // set button text based on loading state
-  if (isLoading) {
-    buttonText = 'Searching...';
-  } else {
-    buttonText = 'Search';
-  }
-
-  // set disabled state based on loading or empty input
-  if (isLoading) {
-    isButtonDisabled = true;
-  } else if (!symbol) {
-    isButtonDisabled = true;
-  } else {
-    isButtonDisabled = false;
-  }
-  // ---
+  const isButtonDisabled = isLoading || !symbol;
 
   return (
     <div>
       <Title2>Search</Title2>
       <div className="flex sm:flex-row gap-4">
-        
+
         {/* symbol input field */}
         <TextField
           className="flex-1"
@@ -67,9 +49,16 @@ export const StockSearchForm: React.FC<StockSearchFormProps> = ({
         />
 
         {/* search button */}
-        <Button2 onClick={onSearch} disabled={isButtonDisabled}>
-          <Search />
-          {buttonText}
+        <Button2
+          onClick={onSearch}
+          disabled={isButtonDisabled}
+          className={cn(
+            "transition-all duration-200",
+            isLoading && "opacity-70"
+          )}
+        >
+          {isLoading ? <Loader2 className="animate-spin" /> : <Search />}
+          {isLoading ? 'Searching...' : 'Search'}
         </Button2>
       </div>
     </div>

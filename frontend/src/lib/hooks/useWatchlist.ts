@@ -119,7 +119,7 @@ export const useWatchlist = () => {
         }
     }, [watchlist, fetchWatchlist]); // depends on watchlist and fetchWatchlist
 
-    // remove a stock from the watchlist (still uses optimistic update for smoothness)
+    // remove a stock from the watchlist
     const removeFromWatchlist = useCallback(async (symbol: string) => {
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -129,42 +129,43 @@ export const useWatchlist = () => {
 
         setError(null);
 
-        // 1. optimistic update: store old state and remove immediately
-        const previousWatchlist = [...watchlist];
-        setWatchlist(prev => prev.filter(stock => stock.symbol !== symbol));
-
-        // 2. start hiding animation
+        // 1. mark as hiding (shows "Removing..." in button, starts fade animation)
         setHidingSymbols(prev => new Set(prev).add(symbol));
 
+        const previousWatchlist = [...watchlist];
+
         try {
-            // 3. make api call
+            // 2. make api call
             const response = await fetch(import.meta.env.VITE_API_URL + "/trading/watchlist/" + symbol, {
                 method: "DELETE",
                 headers: { "Authorization": "Bearer " + token }
             });
 
             if (!response.ok) {
-                // 4a. rollback on error
-                setWatchlist(previousWatchlist); 
                 const data = await response.json();
                 throw new Error(data.detail || "Failed to remove stock");
             }
-            // 4b. success: ui already updated
 
-        } catch (err: any) {
-            console.error("Error removing from watchlist:", err);
-            setError(err.message || "Failed to remove stock");
-            setWatchlist(previousWatchlist); // ensure rollback
-
-        } finally {
-            // 5. remove from hiding set after animation
+            // 3. success: remove from list after a brief delay so the user sees the feedback
             setTimeout(() => {
+                setWatchlist(prev => prev.filter(stock => stock.symbol !== symbol));
                 setHidingSymbols(prev => {
                     const next = new Set(prev);
                     next.delete(symbol);
                     return next;
                 });
-            }, 300); // adjust delay to match animation
+            }, 600);
+
+        } catch (err: any) {
+            console.error("Error removing from watchlist:", err);
+            setError(err.message || "Failed to remove stock");
+            setWatchlist(previousWatchlist);
+            // remove from hiding set on error
+            setHidingSymbols(prev => {
+                const next = new Set(prev);
+                next.delete(symbol);
+                return next;
+            });
         }
     }, [watchlist]); 
 

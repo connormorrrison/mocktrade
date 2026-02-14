@@ -20,9 +20,10 @@ interface WatchlistTileProps {
   onTrade?: (symbol: string) => void;
   onRemove?: (symbol: string) => void;
   onAddToWatchlist?: (symbol: string) => void;
+  removing?: boolean;
 }
 
-export function WatchlistTile({ stock, onTrade, onRemove, onAddToWatchlist }: WatchlistTileProps) {
+export function WatchlistTile({ stock, onTrade, onRemove, onAddToWatchlist, removing }: WatchlistTileProps) {
 
   const dailyChange = stock.current_price - stock.previous_price;
   const dailyPercent = stock.previous_price > 0 
@@ -78,6 +79,7 @@ export function WatchlistTile({ stock, onTrade, onRemove, onAddToWatchlist }: Wa
               isInWatchlist={true}
               onAddToWatchlist={onAddToWatchlist}
               onRemoveFromWatchlist={onRemove}
+              removing={removing}
             />
           )}
         </div>

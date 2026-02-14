@@ -18,20 +18,20 @@ export function PageLayout({ title, children }: PageLayoutProps) {
       <div className="w-full flex flex-col">
         {/*
           Header/Title section.
-          - px-6 pt-6: Provides consistent horizontal and top padding around the title.
+          - px-4 lg:px-6 pt-6: Provides consistent horizontal and top padding around the title.
           - mb-6 on Title1 ensures space below the title.
         */}
-        <div className="px-6 pt-6">
+        <div className="px-4 lg:px-6 pt-4 lg:pt-6">
           <Title1 className="mb-6">{title}</Title1>
         </div>
         
         {/*
           Main content area.
-          - px-6 pb-6: Provides consistent horizontal and bottom padding for the content.
+          - px-4 lg:px-6 pb-6: Provides consistent horizontal and bottom padding for the content.
           - space-y-6: Applies vertical spacing between direct children of this div (the elements passed via 'children').
           Note: Scrolling is handled by the parent Routes container in App.tsx
         */}
-        <div className="px-6 pb-6 space-y-6">
+        <div className="px-4 lg:px-6 pb-6 space-y-6">
           {children}
         </div>
       </div>
