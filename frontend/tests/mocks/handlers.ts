@@ -16,8 +16,7 @@ export const handlers = [
     })
   }),
 
-  http.post(`${API_URL}/auth/login`, async ({ request }) => {
-    const body = await request.json()
+  http.post(`${API_URL}/auth/login`, async () => {
     return HttpResponse.json({
       access_token: 'mock_access_token',
       token_type: 'bearer',
@@ -25,7 +24,7 @@ export const handlers = [
   }),
 
   http.post(`${API_URL}/auth/register`, async ({ request }) => {
-    const body = await request.json()
+    const body = await request.json() as Record<string, any>
     return HttpResponse.json({
       id: 1,
       email: body.email,
@@ -115,7 +114,7 @@ export const handlers = [
   }),
 
   http.post(`${API_URL}/trading/orders`, async ({ request }) => {
-    const body = await request.json()
+    const body = await request.json() as Record<string, any>
     return HttpResponse.json(
       {
         id: 100,
@@ -154,7 +153,7 @@ export const handlers = [
   }),
 
   http.post(`${API_URL}/trading/watchlist`, async ({ request }) => {
-    const body = await request.json()
+    const body = await request.json() as Record<string, any>
     return HttpResponse.json(
       {
         id: 3,
@@ -170,10 +169,7 @@ export const handlers = [
   }),
 
   // Stocks endpoints
-  http.get(`${API_URL}/stocks/search`, ({ request }) => {
-    const url = new URL(request.url)
-    const query = url.searchParams.get('q')
-
+  http.get(`${API_URL}/stocks/search`, () => {
     return HttpResponse.json([
       {
         symbol: 'AAPL',
@@ -245,10 +241,7 @@ export const handlers = [
   }),
 
   // Leaderboard endpoints
-  http.get(`${API_URL}/portfolio/leaderboard`, ({ request }) => {
-    const url = new URL(request.url)
-    const timeframe = url.searchParams.get('timeframe') || 'all_time'
-
+  http.get(`${API_URL}/portfolio/leaderboard`, () => {
     return HttpResponse.json([
       {
         rank: 1,
@@ -288,7 +281,7 @@ export const handlers = [
   }),
 
   http.put(`${API_URL}/auth/profile`, async ({ request }) => {
-    const body = await request.json()
+    const body = await request.json() as Record<string, any>
     return HttpResponse.json({
       id: 1,
       email: 'test@example.com',
@@ -310,7 +303,7 @@ export const handlers = [
 
   // Bug report endpoint
   http.post(`${API_URL}/bugs`, async ({ request }) => {
-    const body = await request.json()
+    const body = await request.json() as Record<string, any>
     return HttpResponse.json(
       {
         id: 1,

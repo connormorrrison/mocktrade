@@ -5,7 +5,6 @@ import { useMediaQuery } from '@/lib/hooks/useMediaQuery'
 import Sidebar from '@/components/Sidebar'
 import Profile from '@/components/Profile'
 import { ProfilePicture } from '@/components/ProfilePicture'
-import logo from '@/assets/mocktrade-logo.png'
 import icon from '@/assets/mocktrade-icon.png'
 
 const SIDEBAR_COLUMN_VISUAL_WIDTH = '240px'

@@ -3,7 +3,6 @@ import {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
 import { Button1 } from "@/components/Button1";
 import { Button2 } from "@/components/Button2";

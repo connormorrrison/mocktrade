@@ -200,10 +200,7 @@ export function StockChartAnimation({ className = "", width = 800, height = 400 
     }
 
     // start the racing animation
-    let lastTime = 0;
-    const animate = (currentTime: number) => {
-      const deltaTime = currentTime - lastTime;
-      lastTime = currentTime;
+    const animate = (_currentTime: number) => {
 
       linesRef.current.forEach((line) => {
         // only scrolling phase: full flowing motion within boundary

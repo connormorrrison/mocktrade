@@ -118,6 +118,8 @@ const ChartTooltipContent = React.forwardRef<
       indicator?: "line" | "dot" | "dashed"
       nameKey?: string
       labelKey?: string
+      payload?: any[]
+      label?: any
     }
 >(
   (
@@ -187,7 +189,7 @@ const ChartTooltipContent = React.forwardRef<
           </div>
         ) : null}
         <div className="grid gap-1.5">
-          {payload.map((item, index) => {
+          {payload.map((item: any, index: number) => {
             const key = `${nameKey || item.name || item.dataKey || "value"}`
             const itemConfig = getPayloadConfigFromPayload(config, item, key)
             const indicatorColor = color || item.payload.fill || item.color
@@ -234,6 +236,7 @@ const ChartTooltipContent = React.forwardRef<
                     ) : null}
                     <div className="flex items-center gap-0.5 text-muted-foreground">
                       {itemConfig?.icon && (
+                        // @ts-expect-error recharts icon type does not include className
                         <itemConfig.icon className="h-3 w-3" />
                       )}
                       {itemConfig?.label || item.name}
@@ -261,8 +264,9 @@ const ChartLegend = RechartsPrimitive.Legend
 
 const ChartLegendContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div"> &
-    Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
+  React.ComponentProps<"div"> & {
+      payload?: any[]
+      verticalAlign?: "top" | "bottom" | "middle"
       hideIcon?: boolean
       nameKey?: string
     }
@@ -283,7 +287,7 @@ const ChartLegendContent = React.forwardRef<
           className
         )}
       >
-        {payload.map((item) => {
+        {payload.map((item: any) => {
           const key = `${nameKey || item.dataKey || "value"}`
           const itemConfig = getPayloadConfigFromPayload(config, item, key)
 

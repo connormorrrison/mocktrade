@@ -149,7 +149,7 @@ export default function WatchlistPage() {
         );
     }
 
-    const showStockInfo = searchQuery && price && !apiError;
+    const showStockInfo = !!(searchQuery && price && !apiError);
 
     return (
         <PageLayout title="Watchlist">

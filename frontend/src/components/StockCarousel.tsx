@@ -35,8 +35,8 @@ interface StockCarouselProps {
  * built with shadcn/ui Carousel and Embla Autoplay.
  */
 export function StockCarousel({ stocks, variant, isMarketOpen = false }: StockCarouselProps) {
-  const [api, setApi] = React.useState<CarouselApi>();
-  const intervalRef = useRef<ReturnType<typeof setInterval>>();
+  const [api, setApi] = React.useState<CarouselApi | undefined>(undefined);
+  const intervalRef = useRef<ReturnType<typeof setInterval>>(undefined);
 
   useEffect(() => {
     if (!api) return;

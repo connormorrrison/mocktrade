@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { PublicLayout } from "@/components/PublicLayout";
-import { AuthTile } from "@/components/AuthTile";
 import { CustomError } from "@/components/CustomError";
 import { CustomSkeleton } from "@/components/CustomSkeleton";
 import { Text2 } from "@/components/Text2";
