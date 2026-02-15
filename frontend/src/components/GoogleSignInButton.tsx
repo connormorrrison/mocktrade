@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 declare global {
   interface Window {
@@ -21,6 +21,15 @@ interface GoogleSignInButtonProps {
 
 export function GoogleSignInButton({ onSuccess, onStart, text = "signin_with" }: GoogleSignInButtonProps) {
   const buttonRef = useRef<HTMLDivElement>(null);
+  const onSuccessRef = useRef(onSuccess);
+  const onStartRef = useRef(onStart);
+  onSuccessRef.current = onSuccess;
+  onStartRef.current = onStart;
+
+  const stableCallback = useCallback((response: { credential: string }) => {
+    onStartRef.current?.();
+    onSuccessRef.current(response.credential);
+  }, []);
 
   useEffect(() => {
     const renderBtn = () => {
@@ -28,10 +37,7 @@ export function GoogleSignInButton({ onSuccess, onStart, text = "signin_with" }:
 
       window.google.accounts.id.initialize({
         client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-        callback: (response: { credential: string }) => {
-          onStart?.();
-          onSuccess(response.credential);
-        },
+        callback: stableCallback,
       });
 
       window.google.accounts.id.renderButton(buttonRef.current, {
@@ -40,7 +46,7 @@ export function GoogleSignInButton({ onSuccess, onStart, text = "signin_with" }:
         size: "large",
         shape: "pill",
         text,
-        width: buttonRef.current.offsetWidth,
+        width: 300,
       });
     };
 
@@ -56,7 +62,7 @@ export function GoogleSignInButton({ onSuccess, onStart, text = "signin_with" }:
       }, 100);
       return () => clearInterval(interval);
     }
-  }, [onSuccess, text]);
+  }, [stableCallback, text]);
 
   return <div ref={buttonRef} className="w-full flex justify-center" />;
 }

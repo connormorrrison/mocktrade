@@ -108,6 +108,7 @@ export default function SignupPage() {
       if (loginResponse.ok) {
         const loginData = await loginResponse.json();
         localStorage.setItem('access_token', loginData.access_token);
+        await refreshUserData();
         navigate('/home');
       } else {
         navigate('/login');
