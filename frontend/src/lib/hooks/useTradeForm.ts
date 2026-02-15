@@ -96,8 +96,9 @@ export const useTradeForm = (
       return { error: null, isSubmittable: false };
     }
     
-    // 2. must have a valid quantity
-    if (numericQuantity < 0.001) {
+    // 2. must have a valid quantity (skip for full position sells)
+    const isFullSell = action === 'sell' && Math.abs(numericQuantity - sharesOwned) < 0.000001;
+    if (numericQuantity < 0.0001 && !isFullSell) {
       return { error: null, isSubmittable: false };
     }
 
