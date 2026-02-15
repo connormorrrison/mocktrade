@@ -15,10 +15,11 @@ declare global {
 
 interface GoogleSignInButtonProps {
   onSuccess: (credential: string) => void;
+  onStart?: () => void;
   text?: "signin_with" | "signup_with" | "continue_with";
 }
 
-export function GoogleSignInButton({ onSuccess, text = "signin_with" }: GoogleSignInButtonProps) {
+export function GoogleSignInButton({ onSuccess, onStart, text = "signin_with" }: GoogleSignInButtonProps) {
   const buttonRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -28,6 +29,7 @@ export function GoogleSignInButton({ onSuccess, text = "signin_with" }: GoogleSi
       window.google.accounts.id.initialize({
         client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
         callback: (response: { credential: string }) => {
+          onStart?.();
           onSuccess(response.credential);
         },
       });

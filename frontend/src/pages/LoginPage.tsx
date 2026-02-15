@@ -4,6 +4,7 @@ import { useUser } from '@/contexts/UserContext';
 import { PublicLayout } from "@/components/PublicLayout";
 import { AuthTile } from "@/components/AuthTile";
 import { CustomError } from "@/components/CustomError";
+import { CustomSkeleton } from "@/components/CustomSkeleton";
 import { Text2 } from "@/components/Text2";
 import { Text4 } from "@/components/Text4";
 import { Text5 } from "@/components/Text5";
@@ -99,60 +100,65 @@ export default function LoginPage() {
   return (
     <PublicLayout showAuthButtons={false}>
       <div className="h-screen flex items-center justify-center p-8">
-        <div className="w-full max-w-3xl">
-          <div className="text-center space-y-2 mb-8">
-            <Text2>Login</Text2>
-            <Text5>Log in to your MockTrade account</Text5>
-          </div>
-
-          <CustomError error={error} onClose={() => setError('')} />
-
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-8 items-center">
-            {/* left pane — Google sign-in */}
-            <div className="flex flex-col items-center justify-center space-y-6">
-              <GoogleSignInButton onSuccess={handleGoogleSuccess} />
-              <Text4>
-                Don't have an account?{" "}
-                <Link to="/signup" className="!text-blue-600 hover:!text-blue-700">
-                  Sign Up
-                </Link>
-              </Text4>
+        {isLoading ? (
+          <CustomSkeleton />
+        ) : (
+          <div className="w-full max-w-3xl">
+            <div className="text-center space-y-2 mb-8">
+              <Text2>Login</Text2>
+              <Text5>Log in to your MockTrade account</Text5>
             </div>
 
-            {/* vertical divider */}
-            <div className="hidden md:block w-px self-stretch bg-zinc-700" />
+            <CustomError error={error} onClose={() => setError('')} />
 
-            {/* right pane — email/password form */}
-            <form onSubmit={handleLogin}>
-              <div className="space-y-4">
-                <TextField
-                  label="Email"
-                  placeholder="Email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  autoFocus
-                />
-                <TextField
-                  label="Password"
-                  placeholder="Password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <Button1
-                  type="submit"
-                  className="w-full"
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Signing in...' : 'Log In'}
-                </Button1>
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-8 items-center">
+              {/* left pane — Google sign-in */}
+              <div className="flex flex-col items-center justify-center space-y-6">
+                <GoogleSignInButton onSuccess={handleGoogleSuccess} onStart={() => setIsLoading(true)} />
+                <Text4>
+                  Don't have an account?{" "}
+                  <Link to="/signup" className="!text-blue-600 hover:!text-blue-700">
+                    Sign Up
+                  </Link>
+                </Text4>
               </div>
-            </form>
+
+              {/* divider */}
+              <div className="md:hidden h-px w-full bg-zinc-700" />
+              <div className="hidden md:block w-px self-stretch bg-zinc-700" />
+
+              {/* right pane — email/password form */}
+              <form onSubmit={handleLogin}>
+                <div className="space-y-4">
+                  <TextField
+                    label="Email"
+                    placeholder="Email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoFocus
+                  />
+                  <TextField
+                    label="Password"
+                    placeholder="Password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <Button1
+                    type="submit"
+                    className="w-full"
+                    disabled={isLoading}
+                  >
+                    Log In
+                  </Button1>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </PublicLayout>
   );

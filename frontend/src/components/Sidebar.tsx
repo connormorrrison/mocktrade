@@ -8,9 +8,10 @@ import logo from '@/assets/mocktrade-logo.png'
 
 interface SidebarProps {
   onNavigate?: () => void
+  mobile?: boolean
 }
 
-export default function Sidebar({ onNavigate }: SidebarProps) {
+export default function Sidebar({ onNavigate, mobile }: SidebarProps) {
   const location = useLocation()
   const { logout } = useUser()
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
@@ -27,17 +28,17 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
 
   return (
     <div
-      className="flex flex-col h-full w-full p-8"
+      className={`flex flex-col h-full w-full ${mobile ? 'p-4' : 'p-8'}`}
     >
       {/* logo */}
-      <div className="flex justify-center mb-6">
-        <Link to="/home">
+      <div className={`flex justify-center ${mobile ? 'mb-4' : 'mb-6'}`}>
+        <Link to="/home" onClick={onNavigate}>
           <img src={logo} alt="MockTrade" className="h-12 w-auto cursor-pointer" />
         </Link>
       </div>
 
       <nav className="flex-1">
-        <ul className="space-y-1">
+        <ul className={mobile ? 'space-y-0' : 'space-y-1'}>
           {menuItems.map(item => {
             const IconComponent = item.icon
             const isActive = item.path === '/leaderboard'

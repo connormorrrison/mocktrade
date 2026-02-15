@@ -60,7 +60,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       {/* header bar */}
-      <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between p-4 bg-background">
+      <header
+        className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between p-4 bg-background"
+        style={{ paddingTop: 'max(16px, env(safe-area-inset-top))' }}
+      >
         <button
           onClick={() => setDrawerOpen(true)}
           className="!flex !items-center !justify-center !p-2 !text-white !bg-zinc-800/55 !border !border-[oklch(1_0_0_/_10%)] !rounded-xl hover:!bg-zinc-700 transition-colors"
@@ -103,7 +106,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <X size={20} />
         </button>
         <div className="h-full pt-10 overflow-y-auto">
-          <Sidebar onNavigate={() => setDrawerOpen(false)} />
+          <Sidebar onNavigate={() => setDrawerOpen(false)} mobile />
         </div>
       </div>
     </div>
