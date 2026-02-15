@@ -19,7 +19,7 @@ def _build_engine():
             connect_args={"check_same_thread": False},
         )
 
-    # PostgreSQL (Supabase)
+    # postgreSQL (Supabase)
     return create_engine(
         url,
         pool_pre_ping=True,
@@ -34,15 +34,15 @@ def _build_engine():
 
 engine = _build_engine()
 
-# Create session factory
+# create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Create base class for models
+# create base class for models
 Base = declarative_base()
 
 def create_tables():
     """Create all database tables"""
-    # Import all models to ensure they're registered
+    # import all models to ensure they're registered
     from app.domains.auth.models import User
     from app.domains.trading.models import Position, Activity, Watchlist
     from app.domains.portfolio.models import PortfolioSnapshot

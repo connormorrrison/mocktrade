@@ -22,9 +22,9 @@ export function UserProfileTiles({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Performance Tiles - Row 1 */}
+      {/* performance tiles - row 1 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Profit/Loss */}
+        {/* profit/loss */}
         <Tile>
           <div className="p-2">
             <Text4>Profit/Loss</Text4>
@@ -36,7 +36,7 @@ export function UserProfileTiles({
           </div>
         </Tile>
 
-        {/* Return */}
+        {/* return */}
         <Tile>
           <div className="p-2">
             <Text4>Return</Text4>
@@ -49,9 +49,9 @@ export function UserProfileTiles({
         </Tile>
       </div>
 
-      {/* Portfolio Tiles - Row 2 */}
+      {/* portfolio tiles - row 2 */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        {/* Portfolio Value */}
+        {/* portfolio value */}
         <Tile>
           <div className="p-2">
             <Text4>Portfolio Value</Text4>
@@ -59,7 +59,7 @@ export function UserProfileTiles({
           </div>
         </Tile>
 
-        {/* Positions Value */}
+        {/* positions value */}
         <Tile>
           <div className="p-2">
             <Text4>Positions Value</Text4>
@@ -67,7 +67,7 @@ export function UserProfileTiles({
           </div>
         </Tile>
 
-        {/* Cash Balance */}
+        {/* cash balance */}
         <Tile>
           <div className="p-2">
             <Text4>Cash Balance</Text4>
@@ -75,7 +75,7 @@ export function UserProfileTiles({
           </div>
         </Tile>
 
-        {/* Total Trades */}
+        {/* total trades */}
         <Tile>
           <div className="p-2">
             <Text4>Total Trades</Text4>

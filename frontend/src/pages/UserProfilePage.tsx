@@ -49,11 +49,11 @@ interface UserData {
 }
 
 export default function UserProfilePage() {
-  // Loading state first
+  // loading state first
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Other state
+  // other state
   const { userData: currentUser } = useUser();
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
@@ -68,7 +68,7 @@ export default function UserProfilePage() {
 
   const ACTIVITIES_LIMIT = 10;
 
-  // Watchlist hook for real API integration
+  // watchlist hook for real API integration
   const {
     watchlist: watchlistData,
     addToWatchlist,
@@ -91,14 +91,14 @@ export default function UserProfilePage() {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      // Single fetch that includes activities
+      // single fetch that includes activities
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/portfolio/user/${username}?include_activities=true&activities_limit=${ACTIVITIES_LIMIT}&activities_offset=0`,
         { headers }
       );
 
       if (response.status === 404) {
-        setError("User not found");
+        setError("User not found.");
         return;
       }
 
@@ -109,7 +109,7 @@ export default function UserProfilePage() {
       const data = await response.json();
       setUserData(data);
 
-      // Set activities from the same response
+      // set activities from the same response
       if (data.activity_count !== undefined) {
         setTotalActivityCount(data.activity_count);
       }
@@ -133,7 +133,7 @@ export default function UserProfilePage() {
       }
     } catch (err) {
       console.error('Error fetching user data:', err);
-      setError('Failed to load user data');
+      setError('Failed to load user data.');
     } finally {
       setLoading(false);
     }
@@ -195,7 +195,7 @@ export default function UserProfilePage() {
   }, [username]);
 
 
-  // Loading check first - show skeleton if either main data or activities are loading
+  // loading check first - show skeleton if either main data or activities are loading
   if (loading) {
     return (
       <PageLayout title="">
@@ -221,7 +221,7 @@ export default function UserProfilePage() {
     navigate("/trade/" + symbol);
   };
 
-  // Check if a symbol is in the watchlist
+  // check if a symbol is in the watchlist
   const isInWatchlist = (symbol: string) => {
     return watchlistData.some(stock => stock.symbol === symbol);
   };
@@ -230,7 +230,7 @@ export default function UserProfilePage() {
   return (
     <PageLayout title="">
       <div className="flex flex-col gap-8">
-        {/* Back Button */}
+        {/* back button */}
         <PopInOutEffect isVisible={!loading} delay={50}>
           <Link to="/leaderboard">
             <Button2>
@@ -240,7 +240,7 @@ export default function UserProfilePage() {
           </Link>
         </PopInOutEffect>
         
-        {/* Profile Header */}
+        {/* profile header */}
         <PopInOutEffect isVisible={!loading} delay={100}>
           <UserProfileHeader
             username={username!}
@@ -249,7 +249,7 @@ export default function UserProfilePage() {
           />
         </PopInOutEffect>
 
-        {/* Overview Section */}
+        {/* overview section */}
         <PopInOutEffect isVisible={!loading} delay={150}>
           <div className="space-y-2">
             <Title2>Overview</Title2>
@@ -263,7 +263,7 @@ export default function UserProfilePage() {
         </PopInOutEffect>
       </div>
 
-      {/* Portfolio Chart */}
+      {/* portfolio chart */}
       <PopInOutEffect isVisible={!loading} delay={200}>
         <div>
           <Title2>Performance</Title2>
@@ -287,7 +287,7 @@ export default function UserProfilePage() {
         </div>
       </PopInOutEffect>
 
-      {/* Current Positions */}
+      {/* current positions */}
       <div>
         <PopInOutEffect isVisible={!loading} delay={250}>
           <Title2>Positions</Title2>
@@ -332,14 +332,14 @@ export default function UserProfilePage() {
                 }
               })
               .map((pos, index) => {
-                // Transform API position data to match PositionTile interface
+                // transform API position data to match PositionTile interface
                 const transformedPos = {
                   symbol: pos.symbol,
                   company_name: pos.company_name || pos.symbol,
                   shares: pos.shares,
                   current_price: pos.current_price,
                   average_price: pos.average_price,
-                  previous_price: pos.current_price, // Mock previous price
+                  previous_price: pos.current_price, // mock previous price
                 };
                 
                 return (
@@ -359,7 +359,7 @@ export default function UserProfilePage() {
         </div>
       </div>
 
-      {/* Activity History */}
+      {/* activity history */}
       <PopInOutEffect isVisible={!loading} delay={350}>
         <div>
           <Title2>Activity</Title2>

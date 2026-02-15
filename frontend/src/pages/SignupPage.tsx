@@ -43,7 +43,7 @@ export default function SignupPage() {
         navigate('/home');
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Google sign-up failed');
+        throw new Error(errorData.detail || 'Google sign-up failed.');
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Google sign-up failed. Please try again.');
@@ -79,7 +79,7 @@ export default function SignupPage() {
         last_name: formData.lastName
       };
 
-      // Make API call to backend
+      // make API call to backend
       const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
         method: 'POST',
         headers: {
@@ -90,10 +90,10 @@ export default function SignupPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Registration failed');
+        throw new Error(errorData.detail || 'Registration failed.');
       }
 
-      // Auto-login after successful registration
+      // auto-login after successful registration
       const loginResponse = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
         method: 'POST',
         headers: {
@@ -131,7 +131,7 @@ export default function SignupPage() {
             <CustomError error={error} onClose={() => setError('')} />
 
             <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-8 items-center">
-              {/* Left pane — Google sign-in */}
+              {/* left pane — Google sign-in */}
               <div className="flex flex-col items-center justify-center space-y-6">
                 <GoogleSignInButton onSuccess={handleGoogleSuccess} text="signup_with" />
                 <Text4>
@@ -142,10 +142,10 @@ export default function SignupPage() {
                 </Text4>
               </div>
 
-              {/* Vertical divider */}
+              {/* vertical divider */}
               <div className="hidden md:block w-px self-stretch bg-zinc-700" />
 
-              {/* Right pane — email/password form */}
+              {/* right pane — email/password form */}
               <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">

@@ -20,13 +20,13 @@ class UserRepository:
         return self.db.query(User).filter(User.username == username).first()
 
     def create(self, user_data: UserCreate, hashed_password: str) -> User:
-        # Check if email already exists
+        # check if email already exists
         if self.get_by_email(user_data.email):
-            raise EmailAlreadyExistsError(f"Email {user_data.email} already registered")
+            raise EmailAlreadyExistsError(f"Email {user_data.email} already registered.")
         
-        # Check if username already exists
+        # check if username already exists
         if self.get_by_username(user_data.username):
-            raise UsernameAlreadyExistsError(f"Username {user_data.username} already taken")
+            raise UsernameAlreadyExistsError(f"Username {user_data.username} already taken.")
 
         db_user = User(
             first_name=user_data.first_name,
@@ -34,7 +34,7 @@ class UserRepository:
             email=user_data.email,
             username=user_data.username,
             hashed_password=hashed_password,
-            cash_balance=100000.0,  # Starting balance
+            cash_balance=100000.0,  # starting balance
             is_active=True
         )
         
@@ -46,15 +46,15 @@ class UserRepository:
     def create_google_user(self, email: str, first_name: str, last_name: str) -> User:
         """Create a user from Google Sign-In (no password)."""
         if self.get_by_email(email):
-            raise EmailAlreadyExistsError(f"Email {email} already registered")
+            raise EmailAlreadyExistsError(f"Email {email} already registered.")
 
-        # Auto-generate username from email prefix
+        # auto-generate username from email prefix
         base_username = email.split("@")[0].lower()
-        # Keep only valid username chars
+        # keep only valid username chars
         base_username = "".join(c for c in base_username if c.isalnum() or c in "_.")
-        # Strip leading/trailing dots
+        # strip leading/trailing dots
         base_username = base_username.strip(".")
-        # Ensure minimum length
+        # ensure minimum length
         if len(base_username) < 3:
             base_username = "user"
 
@@ -81,17 +81,17 @@ class UserRepository:
         return db_user
 
     def update(self, user: User, user_data: UserUpdate) -> User:
-        # Check email uniqueness if being updated
+        # check email uniqueness if being updated
         if user_data.email and user_data.email != user.email:
             if self.get_by_email(user_data.email):
-                raise EmailAlreadyExistsError(f"Email {user_data.email} already registered")
+                raise EmailAlreadyExistsError(f"Email {user_data.email} already registered.")
         
-        # Check username uniqueness if being updated
+        # check username uniqueness if being updated
         if user_data.username and user_data.username != user.username:
             if self.get_by_username(user_data.username):
-                raise UsernameAlreadyExistsError(f"Username {user_data.username} already taken")
+                raise UsernameAlreadyExistsError(f"Username {user_data.username} already taken.")
 
-        # Update fields
+        # update fields
         update_data = user_data.dict(exclude_unset=True)
         for field, value in update_data.items():
             setattr(user, field, value)

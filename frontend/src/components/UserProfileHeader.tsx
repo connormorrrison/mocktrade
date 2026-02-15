@@ -27,7 +27,7 @@ export function UserProfileHeader({ firstName, lastName, username, joinedDate, v
       <ProfilePicture size="lg" className="!w-16 !h-16" />
       <div className="flex flex-col">
         {variant === "profile" ? (
-          // Own profile: show name + username
+          // own profile: show name + username
           <>
             {firstName && lastName ? (
               <>
@@ -39,7 +39,7 @@ export function UserProfileHeader({ firstName, lastName, username, joinedDate, v
             )}
           </>
         ) : (
-          // Public profile: show username + join date
+          // public profile: show username + join date
           <>
             <Text2>@{username}</Text2>
             <Text4 className="text-muted-foreground">{formatJoinDate(joinedDate)}</Text4>

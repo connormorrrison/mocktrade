@@ -29,8 +29,8 @@ export default function Profile() {
   }, []);
 
   useEffect(() => {
-    // Calculate width: profile picture (40px) + gap (12px) + text content + padding (24px each side)
-    // Let's measure the text content specifically
+    // calculate width: profile picture (40px) + gap (12px) + text content + padding (24px each side)
+    // let's measure the text content specifically
     const measureWidth = () => {
       if (contentRef.current) {
         const textElement = contentRef.current.querySelector('.text-content') as HTMLElement;
@@ -39,7 +39,7 @@ export default function Profile() {
           // 40px (profile) + 12px (gap) + textWidth + 32px (16px padding each side)
           setExpandedWidth(40 + 12 + textWidth + 32);
         } else {
-          // Fallback: reasonable estimate
+          // fallback: reasonable estimate
           setExpandedWidth(200);
         }
       }

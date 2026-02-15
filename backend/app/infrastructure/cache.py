@@ -22,7 +22,7 @@ class CacheService:
         if settings.REDIS_URL:
             try:
                 self.redis_client = redis.from_url(settings.REDIS_URL)
-                # Test connection
+                # test connection
                 self.redis_client.ping()
                 logger.info("Redis cache service initialized")
             except Exception as e:
@@ -37,7 +37,7 @@ class CacheService:
             return False
         
         try:
-            # Serialize value to JSON
+            # serialize value to JSON
             serialized_value = json.dumps(value, default=str)
             
             if expire:
@@ -90,5 +90,5 @@ class CacheService:
             logger.error(f"Cache exists error: {e}")
             return False
 
-# Global cache service instance
+# global cache service instance
 cache_service = CacheService()

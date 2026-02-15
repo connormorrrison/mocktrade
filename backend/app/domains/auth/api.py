@@ -32,7 +32,7 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
         auth_service = AuthService(db)
         user = auth_service.register_user(user_data)
         
-        # Create initial portfolio snapshot
+        # create initial portfolio snapshot
         try:
             from app.domains.portfolio.services import PortfolioService
             portfolio_service = PortfolioService(db)
@@ -40,7 +40,7 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
             logger.info(f"Created initial portfolio snapshot for user: {user.email}")
         except Exception as e:
             logger.warning(f"Failed to create initial portfolio snapshot: {e}")
-            # Don't fail registration if snapshot creation fails
+            # don't fail registration if snapshot creation fails
         
         return user
         
@@ -48,7 +48,7 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         logger.error(f"Unexpected error during registration: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Registration failed")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Registration failed.")
 
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -68,13 +68,13 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
         )
     except Exception as e:
         logger.error(f"Unexpected error during login: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Login failed")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Login failed.")
 
 @router.post("/google", response_model=Token)
 async def google_login(body: GoogleLoginRequest, db: Session = Depends(get_db)):
     """Authenticate or register a user via Google Sign-In"""
     try:
-        # Verify the Google ID token
+        # verify the Google ID token
         id_info = google_id_token.verify_oauth2_token(
             body.credential,
             google_requests.Request(),
@@ -84,7 +84,7 @@ async def google_login(body: GoogleLoginRequest, db: Session = Depends(get_db)):
         auth_service = AuthService(db)
         user, is_new = auth_service.google_login(id_info)
 
-        # Create initial portfolio snapshot for new users
+        # create initial portfolio snapshot for new users
         if is_new:
             try:
                 from app.domains.portfolio.services import PortfolioService
@@ -100,12 +100,12 @@ async def google_login(body: GoogleLoginRequest, db: Session = Depends(get_db)):
     except ValueError as e:
         # google-auth raises ValueError for invalid tokens
         logger.warning(f"Invalid Google token: {e}")
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Google token")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Google token.")
     except (GoogleAuthError, UserInactiveError) as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         logger.error(f"Unexpected error during Google login: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Google login failed")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Google login failed.")
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_info(current_user: User = Depends(get_current_user)):
@@ -128,7 +128,7 @@ async def update_profile(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         logger.error(f"Error updating profile: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Profile update failed")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Profile update failed.")
 
 @router.post("/change-password")
 async def change_password(
@@ -146,7 +146,7 @@ async def change_password(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         logger.error(f"Error changing password: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Password change failed")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Password change failed.")
 
 @router.delete("/me")
 async def delete_account(
@@ -161,4 +161,4 @@ async def delete_account(
         
     except Exception as e:
         logger.error(f"Error deleting account: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Account deletion failed")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Account deletion failed.")

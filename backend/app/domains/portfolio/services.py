@@ -33,10 +33,10 @@ class PortfolioService:
     async def get_portfolio_summary(self, user_id: int) -> PortfolioSummary:
         """Get current portfolio summary with real-time values"""
         try:
-            # Get user's current positions
+            # get user's current positions
             positions = self.position_repo.get_all_by_user(user_id)
 
-            # Get user's cash balance
+            # get user's cash balance
             from app.domains.auth.repositories import UserRepository
             user_repo = UserRepository(self.db)
             user = user_repo.get_by_id(user_id)
@@ -46,7 +46,7 @@ class PortfolioService:
 
             cash_balance = user.cash_balance
 
-            # Fetch all stock data in parallel (get_stock_data returns current_price + company_name)
+            # fetch all stock data in parallel (get_stock_data returns current_price + company_name)
             async def _fetch_position_data(position):
                 try:
                     stock_data = await self.stock_service.get_stock_data(position.symbol)
@@ -56,7 +56,7 @@ class PortfolioService:
 
             results = await asyncio.gather(*[_fetch_position_data(p) for p in positions])
 
-            # Build enriched positions and calculate total value in one pass
+            # build enriched positions and calculate total value in one pass
             positions_value = 0.0
             enriched_positions = []
             for position, stock_data, err in results:
@@ -80,7 +80,7 @@ class PortfolioService:
 
             portfolio_value = positions_value + cash_balance
 
-            # Calculate day change (compare to previous snapshot if available)
+            # calculate day change (compare to previous snapshot if available)
             day_change = None
             day_change_percent = None
 
@@ -91,7 +91,7 @@ class PortfolioService:
                 day_change = portfolio_value - previous_snapshot.portfolio_value
                 day_change_percent = (day_change / previous_snapshot.portfolio_value) * 100 if previous_snapshot.portfolio_value > 0 else 0
 
-            # Get activity count efficiently
+            # get activity count efficiently
             from app.domains.trading.repositories import ActivityRepository
             activity_repo = ActivityRepository(self.db)
             activity_count = activity_repo.count_by_user(user_id)
@@ -117,10 +117,10 @@ class PortfolioService:
             if snapshot_date is None:
                 snapshot_date = date.today()
             
-            # Check if snapshot already exists for this date
+            # check if snapshot already exists for this date
             existing_snapshot = self.portfolio_repo.get_snapshot_by_date(user_id, snapshot_date)
             
-            # Get current portfolio values
+            # get current portfolio values
             summary = await self.get_portfolio_summary(user_id)
             
             snapshot_data = PortfolioSnapshotCreate(
@@ -132,7 +132,7 @@ class PortfolioService:
             )
             
             if existing_snapshot:
-                # Update existing snapshot
+                # update existing snapshot
                 self.portfolio_repo.update_snapshot(
                     existing_snapshot,
                     summary.portfolio_value,
@@ -141,7 +141,7 @@ class PortfolioService:
                 )
                 logger.info(f"Updated portfolio snapshot for user {user_id} on {snapshot_date}")
             else:
-                # Create new snapshot
+                # create new snapshot
                 self.portfolio_repo.create_snapshot(snapshot_data)
                 logger.info(f"Created portfolio snapshot for user {user_id} on {snapshot_date}")
                 
@@ -152,7 +152,7 @@ class PortfolioService:
     def get_portfolio_history(self, user_id: int, period: str = "1mo") -> PortfolioHistory:
         """Get portfolio history for a specified period"""
         try:
-            # Calculate date range based on period
+            # calculate date range based on period
             end_date = date.today()
             
             if period == "1d":
@@ -170,15 +170,15 @@ class PortfolioService:
             elif period == "5y":
                 start_date = end_date - timedelta(days=365*5)
             elif period == "max":
-                # Get all snapshots
+                # get all snapshots
                 snapshots = self.portfolio_repo.get_all_snapshots(user_id)
             else:
-                start_date = end_date - timedelta(days=30)  # Default to 1mo
+                start_date = end_date - timedelta(days=30)  # default to 1mo
             
             if period != "max":
                 snapshots = self.portfolio_repo.get_snapshots_by_date_range(user_id, start_date, end_date)
             
-            # Convert to history points
+            # convert to history points
             history_points = []
             for snapshot in snapshots:
                 history_points.append(PortfolioHistoryPoint(
@@ -203,10 +203,10 @@ class PortfolioService:
             from app.domains.auth.repositories import UserRepository
             user_repo = UserRepository(self.db)
 
-            # Get all active users
+            # get all active users
             all_users = user_repo.get_all_active()
 
-            # Pre-compute target_date once (same for all users)
+            # pre-compute target_date once (same for all users)
             today = date.today()
             target_date = None
             if timeframe != "all":
@@ -221,7 +221,7 @@ class PortfolioService:
                 else:
                     target_date = today - timedelta(days=1)
 
-            # Fetch all user summaries in parallel with concurrency limit
+            # fetch all user summaries in parallel with concurrency limit
             sem = asyncio.Semaphore(10)
 
             async def _get_user_entry(user):
@@ -256,10 +256,10 @@ class PortfolioService:
                     continue
                 leaderboard_data.append(result)
 
-            # Sort by total value descending
+            # sort by total value descending
             leaderboard_data.sort(key=lambda x: x["total_value"], reverse=True)
 
-            # Add rank
+            # add rank
             for idx, entry in enumerate(leaderboard_data):
                 entry["rank"] = idx + 1
 

@@ -27,38 +27,38 @@ def get_current_user(
     """Get current authenticated user"""
     token = credentials.credentials
     
-    # Verify token
+    # verify token
     payload = verify_token(token)
     if payload is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
+            detail="Could not validate credentials.",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Get user email from token
+    # get user email from token
     email: str = payload.get("sub")
     if email is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
+            detail="Could not validate credentials.",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Get user from database
+    # get user from database
     user_repo = UserRepository(db)
     user = user_repo.get_by_email(email)
     
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
+            detail="User not found.",
         )
     
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Inactive user"
+            detail="Inactive user."
         )
     
     return user
@@ -78,17 +78,17 @@ def get_optional_user(
     try:
         token = credentials.credentials
 
-        # Verify token
+        # verify token
         payload = verify_token(token)
         if payload is None:
             return None
 
-        # Get user email from token
+        # get user email from token
         email: str = payload.get("sub")
         if email is None:
             return None
 
-        # Get user from database
+        # get user from database
         user_repo = UserRepository(db)
         user = user_repo.get_by_email(email)
 

@@ -58,7 +58,7 @@ export const useProfileForm = () => {
         try {
             const token = localStorage.getItem('access_token');
             if (!token) {
-                throw new Error('no authentication token found');
+                throw new Error('No authentication token found.');
             }
 
             const response = await fetch(import.meta.env.VITE_API_URL + "/auth/profile", {
@@ -84,7 +84,7 @@ export const useProfileForm = () => {
                 if (errorData.detail) {
                     errorMessage = errorData.detail;
                 } else {
-                    errorMessage = 'failed to update profile';
+                    errorMessage = 'Failed to update profile.';
                 }
                 throw new Error(errorMessage);
             }
@@ -93,13 +93,15 @@ export const useProfileForm = () => {
             if (err instanceof Error) {
                 errorMessage = err.message;
             } else {
-                errorMessage = 'failed to update profile';
+                errorMessage = 'Failed to update profile.';
             }
             setError(errorMessage);
         } finally {
             setIsLoading(false);
         }
     };
+
+    const isGoogleUser = userData?.auth_provider === "google";
 
     return {
         firstName, setFirstName,
@@ -108,6 +110,7 @@ export const useProfileForm = () => {
         username, setUsername,
         isEditing,
         isLoading,
+        isGoogleUser,
         error,
         clearError: () => setError(null),
         handleEdit,

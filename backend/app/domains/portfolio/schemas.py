@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import date, datetime
 
-# Portfolio snapshot schemas
+# portfolio snapshot schemas
 class PortfolioSnapshotCreate(BaseModel):
     user_id: int
     snapshot_date: date
@@ -25,16 +25,16 @@ class PortfolioSnapshot(BaseModel):
     class Config:
         from_attributes = True
 
-# Portfolio position schema (defined first for forward reference)
+# portfolio position schema (defined first for forward reference)
 class PortfolioPosition(BaseModel):
     symbol: str
     company_name: Optional[str] = None
-    shares: float  # Using 'shares' to match frontend expectation
+    shares: float  # using 'shares' to match frontend expectation
     current_price: float
     average_price: float
     current_value: float
 
-# Portfolio summary schemas
+# portfolio summary schemas
 class PortfolioSummary(BaseModel):
     portfolio_value: float
     positions_value: float

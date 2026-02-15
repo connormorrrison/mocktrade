@@ -28,14 +28,14 @@ class AuthService:
         """Register a new user with validation"""
         logger.info(f"Attempting to register user: {user_data.email}")
         
-        # Additional password validation
+        # additional password validation
         if len(user_data.password) < 8:
-            raise WeakPasswordError("Password must be at least 8 characters long")
+            raise WeakPasswordError("Password must be at least 8 characters long.")
         
-        # Hash password
+        # hash password
         hashed_password = get_password_hash(user_data.password)
-        
-        # Create user
+
+        # create user
         user = self.user_repository.create(user_data, hashed_password)
         
         logger.info(f"Successfully registered user: {user.email}")
@@ -46,16 +46,16 @@ class AuthService:
         user = self.user_repository.get_by_email(email)
 
         if not user:
-            raise InvalidCredentialsError("Invalid email or password")
+            raise InvalidCredentialsError("Invalid email or password.")
 
         if not user.is_active:
-            raise UserInactiveError("Account is deactivated")
+            raise UserInactiveError("Account is deactivated.")
 
         if user.hashed_password is None:
             raise InvalidCredentialsError("This account uses Google Sign-In. Please log in with Google.")
 
         if not verify_password(password, user.hashed_password):
-            raise InvalidCredentialsError("Invalid email or password")
+            raise InvalidCredentialsError("Invalid email or password.")
         
         logger.info(f"Successful authentication for user: {email}")
         return user
@@ -85,16 +85,16 @@ class AuthService:
         """Find or create a user from Google ID token info. Returns (user, is_new)."""
         email = google_id_info.get("email")
         if not email:
-            raise GoogleAuthError("Google token did not contain an email address")
+            raise GoogleAuthError("Google token did not contain an email address.")
 
         existing_user = self.user_repository.get_by_email(email)
         if existing_user:
             if not existing_user.is_active:
-                raise UserInactiveError("Account is deactivated")
+                raise UserInactiveError("Account is deactivated.")
             logger.info(f"Google login for existing user: {email}")
             return existing_user, False
 
-        # Create new user from Google info
+        # create new user from Google info
         first_name = google_id_info.get("given_name", "")
         last_name = google_id_info.get("family_name", "")
         user = self.user_repository.create_google_user(email, first_name, last_name)
@@ -106,17 +106,17 @@ class AuthService:
         logger.info(f"Password change requested for user: {user.email}")
 
         if user.hashed_password is None:
-            raise InvalidCredentialsError("Cannot change password for a Google Sign-In account")
+            raise InvalidCredentialsError("Cannot change password for a Google Sign-In account.")
 
-        # Verify current password
+        # verify current password
         if not verify_password(passwords.current_password, user.hashed_password):
-            raise InvalidCredentialsError("Current password is incorrect")
+            raise InvalidCredentialsError("Current password is incorrect.")
         
-        # Validate new password
+        # validate new password
         if len(passwords.new_password) < 8:
-            raise WeakPasswordError("Password must be at least 8 characters long")
+            raise WeakPasswordError("Password must be at least 8 characters long.")
         
-        # Hash and update password
+        # hash and update password
         hashed_password = get_password_hash(passwords.new_password)
         self.user_repository.update_password(user, hashed_password)
         

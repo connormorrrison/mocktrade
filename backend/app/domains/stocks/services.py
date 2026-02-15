@@ -26,12 +26,12 @@ class StockService:
         """Get complete stock data with caching"""
         cache_key = f"stock_data_{symbol.upper()}"
         
-        # Check cache
+        # check cache
         if self._is_cache_valid(cache_key):
             logger.info(f"Returning cached stock data for {symbol}")
             return self._cache[cache_key]['data']
         
-        # Fetch fresh data
+        # fetch fresh data
         stock_data = await self.client.get_stock_data(symbol)
         
         if stock_data:
@@ -44,7 +44,7 @@ class StockService:
                 "timestamp": stock_data.timestamp
             }
             
-            # Cache the result
+            # cache the result
             self._cache[cache_key] = {
                 'data': result,
                 'timestamp': datetime.now()
@@ -59,12 +59,12 @@ class StockService:
         """Get current price only - faster endpoint"""
         cache_key = f"price_{symbol.upper()}"
         
-        # Check cache (shorter cache for prices)
+        # check cache (shorter cache for prices)
         if self._is_cache_valid(cache_key, duration_minutes=1):
             logger.info(f"Returning cached price for {symbol}")
             return self._cache[cache_key]['data']
         
-        # Fetch fresh price
+        # fetch fresh price
         price = await self.client.get_current_price(symbol)
         
         if price is not None:
@@ -74,7 +74,7 @@ class StockService:
                 "timestamp": datetime.now().isoformat()
             }
             
-            # Cache the result
+            # cache the result
             self._cache[cache_key] = {
                 'data': result,
                 'timestamp': datetime.now()
@@ -89,16 +89,16 @@ class StockService:
         """Get market indices with caching"""
         cache_key = "market_indices"
         
-        # Check cache
+        # check cache
         if self._is_cache_valid(cache_key):
             logger.info("Returning cached market indices")
             return MarketIndicesResponse(indices=self._cache[cache_key]['data'])
         
-        # Fetch real market indices data
+        # fetch real market indices data
         try:
             indices_data = await self.client.get_market_indices()
             
-            # Convert to dict format for caching and response
+            # convert to dict format for caching and response
             indices_list = []
             for index in indices_data:
                 indices_list.append({
@@ -109,7 +109,7 @@ class StockService:
                     "percent": index.percent
                 })
             
-            # Cache the result
+            # cache the result
             self._cache[cache_key] = {
                 'data': indices_list,
                 'timestamp': datetime.now()
@@ -120,14 +120,14 @@ class StockService:
             
         except Exception as e:
             logger.error(f"Error fetching market indices: {e}")
-            # Fall back to empty list on error
+            # fall back to empty list on error
             return MarketIndicesResponse(indices=[])
     
     async def get_market_movers(self) -> MarketMoversResponse:
         """Get market movers with caching"""
         cache_key = "market_movers"
         
-        # Check cache
+        # check cache
         if self._is_cache_valid(cache_key):
             logger.info("Returning cached market movers")
             cached_data = self._cache[cache_key]['data']
@@ -136,11 +136,11 @@ class StockService:
                 losers=cached_data['losers']
             )
         
-        # Fetch real market movers data
+        # fetch real market movers data
         try:
             movers_data = await self.client.get_market_movers()
             
-            # Convert to dict format for caching and response
+            # convert to dict format for caching and response
             gainers_list = []
             for gainer in movers_data['gainers']:
                 gainers_list.append({
@@ -166,7 +166,7 @@ class StockService:
                 'losers': losers_list
             }
             
-            # Cache the result
+            # cache the result
             self._cache[cache_key] = {
                 'data': movers_dict,
                 'timestamp': datetime.now()
@@ -180,21 +180,21 @@ class StockService:
             
         except Exception as e:
             logger.error(f"Error fetching market movers: {e}")
-            # Fall back to empty lists on error
+            # fall back to empty lists on error
             return MarketMoversResponse(gainers=[], losers=[])
     
     async def validate_symbol(self, symbol: str) -> bool:
         """Validate if a stock symbol exists"""
         cache_key = f"valid_{symbol.upper()}"
         
-        # Check cache (longer cache for validation)
+        # check cache (longer cache for validation)
         if self._is_cache_valid(cache_key, duration_minutes=60):
             return self._cache[cache_key]['data']
         
-        # Validate symbol
+        # validate symbol
         is_valid = await self.client.validate_symbol(symbol)
         
-        # Cache the result
+        # cache the result
         self._cache[cache_key] = {
             'data': is_valid,
             'timestamp': datetime.now()

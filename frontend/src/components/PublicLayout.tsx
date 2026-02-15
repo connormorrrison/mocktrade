@@ -7,22 +7,22 @@ import { Button2 } from "@/components/Button2";
 
 interface PublicLayoutProps {
   children: ReactNode;
-  showAuthButtons?: boolean; // New optional prop to control button visibility
+  showAuthButtons?: boolean; // new optional prop to control button visibility
 }
 
 export function PublicLayout({ children, showAuthButtons = true }: PublicLayoutProps) {
   return (
     <div className="min-h-screen w-screen bg-background">
-      {/* Logo - Fixed Position */}
+      {/* logo - fixed position */}
       <div className="fixed top-8 left-8 z-20">
         <Link to="/">
           <img src={logo} alt="MockTrade" className="h-12 w-auto cursor-pointer" />
         </Link>
       </div>
 
-      {/* Top Navigation Buttons - Fixed Position and Conditional Rendering */}
-      {showAuthButtons && ( // Conditionally render the button div
-        <div className="fixed top-8 right-8 z-20"> {/* Changed absolute to fixed */}
+      {/* top navigation buttons - fixed position and conditional rendering */}
+      {showAuthButtons && ( // conditionally render the button div
+        <div className="fixed top-8 right-8 z-20"> {/* changed absolute to fixed */}
           <div className="flex gap-4">
             <Link to="/signup">
               <Button1>Sign Up</Button1>

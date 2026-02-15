@@ -9,28 +9,28 @@ from app.core.middleware import setup_middleware
 from app.core.scheduler import start_scheduler, shutdown_scheduler
 from app.infrastructure.database import create_tables
 
-# Domain API routers
+# domain API routers
 from app.domains.auth.api import router as auth_router
 from app.domains.trading.api import router as trading_router
 from app.domains.stocks.api import router as stocks_router
 from app.domains.portfolio.api import router as portfolio_router
 from app.domains.bugs.api import router as bugs_router
 
-# Configure logging
+# configure logging
 logging.basicConfig(level=getattr(logging, settings.LOG_LEVEL))
 logger = logging.getLogger(__name__)
 
-# Create FastAPI app
+# create FastAPI app
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     openapi_url="/openapi.json"
 )
 
-# Setup middleware (CORS, logging, etc.)
+# setup middleware (CORS, logging, etc.)
 setup_middleware(app)
 
-# Include domain routers
+# include domain routers
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
 app.include_router(trading_router, prefix="/trading", tags=["trading"])
 app.include_router(stocks_router, prefix="/stocks", tags=["stocks"])
@@ -44,7 +44,7 @@ async def startup_event():
     masked_url = re.sub(r"://([^:]+):([^@]+)@", r"://\1:****@", settings.DATABASE_URL)
     logger.info(f"Database: {masked_url}")
 
-    # Create database tables
+    # create database tables
     try:
         create_tables()
         logger.info("Database tables created successfully")
@@ -52,13 +52,13 @@ async def startup_event():
         logger.error(f"Error creating database tables: {e}")
         raise
 
-    # Start background scheduler for daily snapshots
+    # start background scheduler for daily snapshots
     try:
         start_scheduler()
         logger.info("Background scheduler started successfully")
     except Exception as e:
         logger.error(f"Error starting scheduler: {e}")
-        # Don't raise - app can still function without scheduler
+        # don't raise - app can still function without scheduler
 
 @app.on_event("shutdown")
 async def shutdown_event():

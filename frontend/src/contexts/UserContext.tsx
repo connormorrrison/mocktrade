@@ -55,7 +55,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
           auth_provider: userData.auth_provider
         });
       } else {
-        // Token is invalid, clear it
+        // token is invalid, clear it
         console.log('UserContext: /auth/me failed, clearing token. Status:', response.status);
         const errorText = await response.text();
         console.log('UserContext: Error response:', errorText);
@@ -64,7 +64,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error('UserContext: Error fetching user data:', error);
-      // Clear user data on error
+      // clear user data on error
       setUserData(null);
     } finally {
       setIsLoading(false);
@@ -73,11 +73,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUserData(null);
-    // Clear any stored tokens/session data
+    // clear any stored tokens/session data
     localStorage.removeItem('access_token');
     localStorage.removeItem('auth_token');
     sessionStorage.removeItem('auth_token');
-    // Navigate to landing page
+    // navigate to landing page
     window.location.href = '/';
   };
 

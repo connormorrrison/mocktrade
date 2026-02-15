@@ -19,7 +19,7 @@ export function ReportBugDialog({ isOpen, onOpenChange }: ReportBugDialogProps) 
 
   const handleSubmit = async () => {
     if (!title.trim() || !description.trim()) {
-      setError("Please fill in both title and description");
+      setError("Please fill in both title and description.");
       return;
     }
 
@@ -32,7 +32,7 @@ export function ReportBugDialog({ isOpen, onOpenChange }: ReportBugDialogProps) 
         'Content-Type': 'application/json',
       };
 
-      // Include auth token if available (optional)
+      // include auth token if available (optional)
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
@@ -50,24 +50,24 @@ export function ReportBugDialog({ isOpen, onOpenChange }: ReportBugDialogProps) 
       if (!response.ok) {
         const errorData = await response.json();
 
-        // Check for validation errors
+        // check for validation errors
         if (response.status === 422 && errorData.detail) {
-          // Handle Pydantic validation errors
+          // handle Pydantic validation errors
           const validationErrors = errorData.detail;
           if (Array.isArray(validationErrors)) {
             const emailError = validationErrors.find((err: any) =>
               err.loc && err.loc.includes('email')
             );
             if (emailError) {
-              throw new Error('Invalid email format');
+              throw new Error('Invalid email format.');
             }
           }
         }
 
-        throw new Error(errorData.detail || 'Failed to submit bug report');
+        throw new Error(errorData.detail || 'Failed to submit bug report.');
       }
 
-      // Reset form and close dialog immediately after successful submission
+      // reset form and close dialog immediately after successful submission
       setTitle("");
       setDescription("");
       setEmail("");
@@ -104,10 +104,10 @@ export function ReportBugDialog({ isOpen, onOpenChange }: ReportBugDialogProps) 
         </div>
       </AlertDialogHeader>
 
-      {/* Error Display */}
+      {/* error display */}
       <CustomError error={error} onClose={() => setError('')} />
 
-      {/* Form */}
+      {/* form */}
       <div className="space-y-4">
         <TextField
           label="Title"

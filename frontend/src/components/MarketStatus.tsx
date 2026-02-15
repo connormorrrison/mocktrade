@@ -62,7 +62,7 @@ export function useMarketStatus() {
   const isAfterOpen = currentHour > 9 || (currentHour === 9 && currentMinute >= 30);
   
   // market closes at 4:00 pm (16:00)
-  // it is "open" *until* 16:00. at 16:00:00, it is closed.
+  // it is "open" *until* 16:00. at 16:00:00, it is closed
   const isBeforeClose = currentHour < 16;
 
   const isMarketHours = isAfterOpen && isBeforeClose;
@@ -78,9 +78,9 @@ export function MarketStatus({ className }: MarketStatusProps) {
   let statusText = "Market Closed";
   let indicatorColor = "bg-red-600";
 
-  // --- THIS IS THE FIX ---
-  // explicitly type the variable to match the 'variant' prop's expected type.
-  // this tells typescript that this variable will only ever be "red" or "green".
+  // --- this is the fix ---
+  // explicitly type the variable to match the 'variant' prop's expected type
+  // this tells typescript that this variable will only ever be "red" or "green"
   let textColorVariant: "red" | "green" = "red";
   
   let pulseClass = ""; // the animation class

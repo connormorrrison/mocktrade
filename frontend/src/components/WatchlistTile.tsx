@@ -33,13 +33,13 @@ export function WatchlistTile({ stock, onTrade, onRemove, onAddToWatchlist, remo
   return (
     <Tile>
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_1fr_1fr_auto] lg:items-center gap-4 w-full text-left">
-        {/* Symbol & Name */}
+        {/* symbol & name */}
         <div className="ml-2">
           <Text6>{stock.symbol}</Text6>
           <Text4 className="break-words">{stock.name}</Text4>
         </div>
 
-        {/* Current Price */}
+        {/* current price */}
         <div className="text-left">
           <Text4>Current Price</Text4>
           <Text5 className="break-words">
@@ -47,7 +47,7 @@ export function WatchlistTile({ stock, onTrade, onRemove, onAddToWatchlist, remo
           </Text5>
         </div>
 
-        {/* Change (Daily) */}
+        {/* change (daily) */}
         <div className="text-left">
           <Text4>Change (Daily)</Text4>
           <Text5 variant={dailyChange >= 0 ? "green" : "red"} className="break-words">
@@ -59,7 +59,7 @@ export function WatchlistTile({ stock, onTrade, onRemove, onAddToWatchlist, remo
           </Text5>
         </div>
 
-        {/* Market Cap */}
+        {/* market cap */}
         <div className="text-left">
           <Text4>Market Capitalization</Text4>
           <Text5 className="break-words">
@@ -67,7 +67,7 @@ export function WatchlistTile({ stock, onTrade, onRemove, onAddToWatchlist, remo
           </Text5>
         </div>
 
-        {/* Action Buttons */}
+        {/* action buttons */}
         <div className="flex flex-wrap gap-4 mr-2 justify-end">
           <Button1 onClick={() => onTrade?.(stock.symbol)}>
             <TrendingUp />

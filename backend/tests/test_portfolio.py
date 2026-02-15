@@ -21,7 +21,7 @@ class TestPortfolioAPI:
     @patch('app.domains.portfolio.services.PortfolioService.get_portfolio_summary')
     def test_get_portfolio_summary_success(self, mock_get_summary, client, authenticated_user):
         """Test successful portfolio summary retrieval"""
-        # Mock the service response
+        # mock the service response
         mock_summary = PortfolioSummary(
             portfolio_value=105000.0,
             positions_value=5000.0,
@@ -49,7 +49,7 @@ class TestPortfolioAPI:
     @patch('app.domains.portfolio.services.PortfolioService.get_portfolio_history')
     def test_get_portfolio_history_success(self, mock_get_history, client, authenticated_user):
         """Test successful portfolio history retrieval"""
-        # Mock the service response
+        # mock the service response
         mock_history = {
             "history": [
                 {
@@ -128,7 +128,7 @@ class TestPortfolioService:
         
         position_repo = PositionRepository(db)
         
-        # Create test positions
+        # create test positions
         positions = []
         
         position1 = position_repo.create(
@@ -152,7 +152,7 @@ class TestPortfolioService:
     @patch('app.domains.stocks.services.StockService.get_current_price')
     async def test_get_portfolio_summary_success(self, mock_get_price, portfolio_service, test_user, test_positions):
         """Test successful portfolio summary calculation"""
-        # Mock stock service responses - using async side_effect
+        # mock stock service responses - using async side_effect
         async def side_effect(symbol):
             prices = {
                 "AAPL": {"current_price": 160.0},
@@ -164,7 +164,7 @@ class TestPortfolioService:
         
         summary = await portfolio_service.get_portfolio_summary(test_user.id)
         
-        assert summary.cash_balance == 100000.0  # Default starting balance
+        assert summary.cash_balance == 100000.0  # default starting balance
         assert summary.positions_value == (10 * 160.0) + (5 * 2600.0)  # 1600 + 13000 = 14600
         assert summary.portfolio_value == summary.cash_balance + summary.positions_value
         assert summary.positions_count == 2
@@ -186,21 +186,21 @@ class TestPortfolioService:
     @patch('app.domains.stocks.services.StockService.get_current_price')
     async def test_get_portfolio_summary_stock_price_error(self, mock_get_price, portfolio_service, test_user, test_positions):
         """Test portfolio summary when stock price fetch fails"""
-        # Mock stock service to raise exception
+        # mock stock service to raise exception
         mock_get_price.side_effect = Exception("API Error")
-        
-        # Should use average price as fallback
+
+        # should use average price as fallback
         summary = await portfolio_service.get_portfolio_summary(test_user.id)
         
         assert summary.cash_balance == 100000.0
-        # Should use average prices: (10 * 150.0) + (5 * 2500.0) = 1500 + 12500 = 14000
+        # should use average prices: (10 * 150.0) + (5 * 2500.0) = 1500 + 12500 = 14000
         assert summary.positions_value == 14000.0
         assert summary.portfolio_value == 114000.0
 
     @patch('app.domains.portfolio.services.PortfolioService.get_portfolio_summary')
     async def test_create_portfolio_snapshot_success(self, mock_get_summary, portfolio_service, test_user):
         """Test successful portfolio snapshot creation"""
-        # Mock summary response
+        # mock summary response
         mock_get_summary.return_value = PortfolioSummary(
             portfolio_value=105000.0,
             positions_value=5000.0,
@@ -210,10 +210,10 @@ class TestPortfolioService:
             day_change_percent=None
         )
         
-        # Should not raise exception
+        # should not raise exception
         await portfolio_service.create_portfolio_snapshot(test_user.id)
-        
-        # Verify snapshot was created
+
+        # verify snapshot was created
         snapshot = portfolio_service.portfolio_repo.get_snapshot_by_date(test_user.id, date.today())
         assert snapshot is not None
         assert snapshot.portfolio_value == 105000.0
@@ -221,7 +221,7 @@ class TestPortfolioService:
     @patch('app.domains.portfolio.services.PortfolioService.get_portfolio_summary')  
     async def test_create_portfolio_snapshot_update_existing(self, mock_get_summary, portfolio_service, test_user):
         """Test updating existing portfolio snapshot"""
-        # Create initial snapshot
+        # create initial snapshot
         initial_summary = PortfolioSummary(
             portfolio_value=100000.0,
             positions_value=0.0,
@@ -234,7 +234,7 @@ class TestPortfolioService:
         
         await portfolio_service.create_portfolio_snapshot(test_user.id)
         
-        # Update with new values
+        # update with new values
         updated_summary = PortfolioSummary(
             portfolio_value=105000.0,
             positions_value=5000.0,
@@ -247,20 +247,20 @@ class TestPortfolioService:
         
         await portfolio_service.create_portfolio_snapshot(test_user.id)
         
-        # Verify snapshot was updated, not duplicated
+        # verify snapshot was updated, not duplicated
         snapshot = portfolio_service.portfolio_repo.get_snapshot_by_date(test_user.id, date.today())
         assert snapshot.portfolio_value == 105000.0
 
     def test_get_portfolio_history_success(self, portfolio_service, test_user):
         """Test successful portfolio history retrieval"""
-        # Create some test snapshots
+        # create some test snapshots
         today = date.today()
         yesterday = today - timedelta(days=1)
         
         from app.domains.portfolio.repositories import PortfolioRepository
         repo = PortfolioRepository(portfolio_service.db)
         
-        # Create snapshots
+        # create snapshots
         snapshot1_data = PortfolioSnapshotCreate(
             user_id=test_user.id,
             snapshot_date=yesterday,
@@ -374,7 +374,7 @@ class TestPortfolioRepository:
         today = date.today()
         yesterday = today - timedelta(days=1)
         
-        # Create snapshots for both days
+        # create snapshots for both days
         snapshot1_data = PortfolioSnapshotCreate(
             user_id=test_user.id,
             snapshot_date=yesterday,
@@ -411,7 +411,7 @@ class TestPortfolioRepository:
         
         snapshot = portfolio_repo.create_snapshot(snapshot_data)
         
-        # Update the snapshot
+        # update the snapshot
         updated_snapshot = portfolio_repo.update_snapshot(
             snapshot,
             portfolio_value=110000.0,
@@ -425,7 +425,7 @@ class TestPortfolioRepository:
 
     def test_get_all_snapshots(self, portfolio_repo, test_user):
         """Test getting all snapshots for a user"""
-        # Create multiple snapshots
+        # create multiple snapshots
         dates = [date.today() - timedelta(days=i) for i in range(3)]
         
         for i, snapshot_date in enumerate(dates):

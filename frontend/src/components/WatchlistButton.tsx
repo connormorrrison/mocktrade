@@ -22,7 +22,7 @@ export function WatchlistButton({
   const [justChanged, setJustChanged] = useState(false);
   const prevInWatchlist = useRef(isInWatchlist);
 
-  // Detect when isInWatchlist changes (API responded) and show brief success state
+  // detect when isInWatchlist changes (API responded) and show brief success state
   useEffect(() => {
     if (prevInWatchlist.current !== isInWatchlist) {
       setAdding(false);

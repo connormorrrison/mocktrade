@@ -4,7 +4,7 @@ from pydantic import BaseModel, validator
 from typing import Optional, List
 from datetime import datetime
 
-# Request schemas
+# request schemas
 class OrderCreate(BaseModel):
     symbol: str
     action: str  # "buy" or "sell"
@@ -13,19 +13,19 @@ class OrderCreate(BaseModel):
     @validator('action')
     def validate_action(cls, v):
         if v.lower() not in ['buy', 'sell']:
-            raise ValueError('Action must be either "buy" or "sell"')
+            raise ValueError('Action must be either "buy" or "sell".')
         return v.lower()
 
     @validator('quantity')
     def validate_quantity(cls, v):
         if v <= 0:
-            raise ValueError('Quantity must be greater than 0')
+            raise ValueError('Quantity must be greater than 0.')
         return v
 
     @validator('symbol')
     def validate_symbol(cls, v):
         if not v or len(v.strip()) == 0:
-            raise ValueError('Symbol cannot be empty')
+            raise ValueError('Symbol cannot be empty.')
         return v.upper().strip()
 
 class PositionCreate(BaseModel):
@@ -37,13 +37,13 @@ class PositionCreate(BaseModel):
     @validator('symbol')
     def validate_symbol(cls, v):
         if not v or len(v.strip()) == 0:
-            raise ValueError('Symbol cannot be empty')
+            raise ValueError('Symbol cannot be empty.')
         return v.upper().strip()
 
     @validator('quantity', 'average_price')
     def validate_positive(cls, v):
         if v <= 0:
-            raise ValueError('Quantity and price must be greater than 0')
+            raise ValueError('Quantity and price must be greater than 0.')
         return v
 
 class WatchlistCreate(BaseModel):
@@ -52,12 +52,12 @@ class WatchlistCreate(BaseModel):
     @validator('symbol')
     def validate_symbol(cls, v):
         if not v or len(v.strip()) == 0:
-            raise ValueError('Symbol cannot be empty')
+            raise ValueError('Symbol cannot be empty.')
         return v.upper().strip()
 
-# Response schemas
+# response schemas
 class Position(BaseModel):
-    id: Optional[int] = None  # None for empty positions (user doesn't own this stock)
+    id: Optional[int] = None  # none for empty positions (user doesn't own this stock)
     user_id: int
     symbol: str
     quantity: float

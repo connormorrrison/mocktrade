@@ -22,11 +22,11 @@ interface ActivityTableProps {
 export const ActivityTable = ({ activities, isLoading = false }: ActivityTableProps) => {
 
   return (
-    // CRITICAL: Use relative positioning to establish a containing block
+    // critical: use relative positioning to establish a containing block
     <div className="relative w-full">
-      {/* Scrollable container */}
+      {/* scrollable container */}
       <div className="overflow-x-auto rounded-xl border !border-[oklch(1_0_0_/_10%)]">
-        {/* Table with explicit minimum width to force scrolling */}
+        {/* table with explicit minimum width to force scrolling */}
         <table className="w-full min-w-[700px] divide-y divide-zinc-800">
           <thead className="bg-zinc-800/55">
             <tr>

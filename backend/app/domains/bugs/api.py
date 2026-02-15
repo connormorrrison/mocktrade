@@ -36,5 +36,5 @@ async def create_bug_report(
         logger.error(f"Error creating bug report: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to submit bug report"
+            detail="Failed to submit bug report."
         )

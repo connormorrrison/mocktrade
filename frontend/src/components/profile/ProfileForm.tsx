@@ -17,6 +17,7 @@ export const ProfileForm: React.FC = () => {
         username, setUsername,
         isEditing,
         isLoading,
+        isGoogleUser,
         error,
         clearError,
         handleEdit,
@@ -70,10 +71,10 @@ export const ProfileForm: React.FC = () => {
                         disabled={!isEditing}
                     />
                     <TextField
-                        label="Email"
+                        label={isGoogleUser ? "Email (managed by Google)" : "Email"}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        disabled={!isEditing}
+                        disabled={!isEditing || isGoogleUser}
                     />
                     <TextField
                         label="Username"

@@ -25,10 +25,10 @@ class TestTradingAPI:
     @patch('app.domains.trading.services.TradingService.execute_order')
     def test_execute_buy_order_success(self, mock_execute_order, mock_get_price, client, authenticated_user):
         """Test successful buy order execution"""
-        # Mock stock price
+        # mock stock price
         mock_get_price.return_value = {"current_price": 150.0}
-        
-        # Mock trading service response
+
+        # mock trading service response
         from datetime import datetime
         mock_confirmation = TradeConfirmation(
             id=1,
@@ -66,10 +66,10 @@ class TestTradingAPI:
     @patch('app.domains.trading.services.TradingService.execute_order')
     def test_execute_sell_order_success(self, mock_execute_order, mock_get_price, client, authenticated_user):
         """Test successful sell order execution"""
-        # Mock stock price
+        # mock stock price
         mock_get_price.return_value = {"current_price": 160.0}
-        
-        # Mock trading service response
+
+        # mock trading service response
         from datetime import datetime
         mock_confirmation = TradeConfirmation(
             id=2,
@@ -103,7 +103,7 @@ class TestTradingAPI:
     @patch('app.domains.stocks.services.StockService.get_current_price')
     def test_execute_order_insufficient_funds(self, mock_get_price, client, authenticated_user):
         """Test order execution with insufficient funds"""
-        # Mock very high stock price
+        # mock very high stock price
         mock_get_price.return_value = {"current_price": 50000.0}
         
         order_data = {
@@ -158,7 +158,7 @@ class TestTradingAPI:
 
     def test_remove_from_watchlist_success(self, client, authenticated_user):
         """Test removing stock from watchlist"""
-        # First add to watchlist
+        # first add to watchlist
         watchlist_data = {"symbol": "AAPL"}
         client.post(
             "/trading/watchlist",
@@ -166,7 +166,7 @@ class TestTradingAPI:
             headers=authenticated_user["headers"]
         )
         
-        # Then remove
+        # then remove
         response = client.delete(
             "/trading/watchlist/AAPL",
             headers=authenticated_user["headers"]
@@ -237,7 +237,7 @@ class TestTradingService:
         order = OrderCreate(
             symbol="AAPL",
             action="buy",
-            quantity=1000  # Way too many shares
+            quantity=1000  # way too many shares
         )
         
         with pytest.raises(InsufficientFundsError):
@@ -265,7 +265,7 @@ class TestTradingService:
         order = OrderCreate(
             symbol="AAPL",
             action="sell",
-            quantity=20  # More than owned (10)
+            quantity=20  # more than owned (10)
         )
         
         with pytest.raises(InsufficientSharesError):
@@ -292,7 +292,7 @@ class TestTradingService:
         
         await trading_service.execute_order(test_user, order, 2500.0)
         
-        # Verify position was created
+        # verify position was created
         position = trading_service.position_repo.get_by_user_and_symbol(test_user.id, "GOOGL")
         assert position is not None
         assert position.quantity == 2
@@ -300,19 +300,19 @@ class TestTradingService:
 
     async def test_execute_buy_order_updates_existing_position(self, trading_service, test_user_with_position):
         """Test that buy order updates existing position"""
-        # Initial position: 10 shares at $150
+        # initial position: 10 shares at $150
         order = OrderCreate(
             symbol="AAPL",
             action="buy",
-            quantity=5  # Buy 5 more
+            quantity=5  # buy 5 more
         )
         
         await trading_service.execute_order(test_user_with_position, order, 160.0)
         
-        # Verify position was updated
+        # verify position was updated
         position = trading_service.position_repo.get_by_user_and_symbol(test_user_with_position.id, "AAPL")
         assert position.quantity == 15  # 10 + 5
-        # Average price should be weighted: (10*150 + 5*160) / 15 = 153.33
+        # average price should be weighted: (10*150 + 5*160) / 15 = 153.33
         expected_avg = (10 * 150.0 + 5 * 160.0) / 15
         assert abs(position.average_price - expected_avg) < 0.01
 
@@ -326,22 +326,22 @@ class TestTradingService:
         
         await trading_service.execute_order(test_user_with_position, order, 160.0)
         
-        # Verify position quantity was reduced
+        # verify position quantity was reduced
         position = trading_service.position_repo.get_by_user_and_symbol(test_user_with_position.id, "AAPL")
         assert position.quantity == 7  # 10 - 3
-        assert position.average_price == 150.0  # Should remain unchanged
+        assert position.average_price == 150.0  # should remain unchanged
 
     async def test_execute_sell_all_shares_removes_position(self, trading_service, test_user_with_position):
         """Test that selling all shares removes the position"""
         order = OrderCreate(
             symbol="AAPL",
             action="sell",
-            quantity=10  # Sell all
+            quantity=10  # sell all
         )
         
         await trading_service.execute_order(test_user_with_position, order, 160.0)
         
-        # Verify position was removed
+        # verify position was removed
         position = trading_service.position_repo.get_by_user_and_symbol(test_user_with_position.id, "AAPL")
         assert position is None
 
@@ -355,7 +355,7 @@ class TestTradingService:
         
         await trading_service.execute_order(test_user, order, 150.0)
         
-        # Verify activity was created
+        # verify activity was created
         activities = trading_service.activity_repo.get_by_user(test_user.id)
         assert len(activities) == 1
         activity = activities[0]
@@ -369,7 +369,7 @@ class TestTradingService:
         """Test getting user activities"""
         activities = trading_service.get_user_activities(test_user.id)
         assert isinstance(activities, list)
-        # Initially should be empty
+        # initially should be empty
         assert len(activities) == 0
 
     def test_add_to_watchlist_success(self, trading_service, test_user):
@@ -385,10 +385,10 @@ class TestTradingService:
         """Test adding duplicate stock to watchlist"""
         watchlist_data = WatchlistCreate(symbol="AAPL")
         
-        # Add first time
+        # add first time
         trading_service.add_to_watchlist(test_user.id, watchlist_data)
         
-        # Try to add again - should raise error
+        # try to add again - should raise error
         with pytest.raises(TradingError):
             trading_service.add_to_watchlist(test_user.id, watchlist_data)
 
@@ -397,11 +397,11 @@ class TestTradingService:
         watchlist_data = WatchlistCreate(symbol="AAPL")
         trading_service.add_to_watchlist(test_user.id, watchlist_data)
         
-        # Remove from watchlist
+        # remove from watchlist
         result = trading_service.remove_from_watchlist(test_user.id, "AAPL")
-        assert result is None  # Method returns None on success
-        
-        # Verify it was removed
+        assert result is None  # method returns None on success
+
+        # verify it was removed
         watchlist = trading_service.get_user_watchlist(test_user.id)
         aapl_items = [item for item in watchlist if item.symbol == "AAPL"]
         assert len(aapl_items) == 0
@@ -413,7 +413,7 @@ class TestTradingService:
 
     def test_get_user_watchlist(self, trading_service, test_user):
         """Test getting user watchlist"""
-        # Add multiple stocks
+        # add multiple stocks
         symbols = ["AAPL", "GOOGL", "MSFT"]
         for symbol in symbols:
             watchlist_data = WatchlistCreate(symbol=symbol)
@@ -438,4 +438,4 @@ class TestTradingService:
         """Test getting position for symbol user doesn't own"""
         position_detail = trading_service.get_position_by_symbol(test_user.id, "AAPL")
         
-        assert position_detail is None  # No position should exist
+        assert position_detail is None  # no position should exist

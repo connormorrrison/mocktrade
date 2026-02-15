@@ -5,7 +5,7 @@ import * as RechartsPrimitive from "recharts"
 
 import { cn } from "@/lib/utils"
 
-// Chart configuration type
+// chart configuration type
 export type ChartConfig = {
   [k in string]: {
     label?: React.ReactNode
@@ -314,7 +314,7 @@ const ChartLegendContent = React.forwardRef<
 )
 ChartLegendContent.displayName = "ChartLegendContent"
 
-// Helper to extract the payload configuration
+// helper to extract the payload configuration
 function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key: string) {
   if (typeof payload !== "object" || payload === null) {
     return undefined

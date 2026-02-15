@@ -10,7 +10,7 @@ import { formatShares } from "@/lib/formatShares";
  * Escapes a CSV field by wrapping it in quotes if it contains special characters
  */
 const escapeCsvField = (field: string): string => {
-  // If field contains comma, quote, or newline, wrap in quotes and escape internal quotes
+  // if field contains comma, quote, or newline, wrap in quotes and escape internal quotes
   if (field.includes(',') || field.includes('"') || field.includes('\n')) {
     return `"${field.replace(/"/g, '""')}"`;
   }

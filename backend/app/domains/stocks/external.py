@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class YFinanceClient:
     """Clean wrapper for Yahoo Finance API calls"""
     
-    # Predefined indices - no need to query for names
+    # predefined indices - no need to query for names
     INDICES = {
         "^GSPC": "S&P 500",
         "^DJI": "Dow Jones", 
@@ -127,7 +127,7 @@ class YFinanceClient:
                 return []
             
             movers = []
-            for stock in results['quotes'][:10]:  # Top 10
+            for stock in results['quotes'][:10]:  # top 10
                 movers.append(MarketMover(
                     symbol=stock.get('symbol', ''),
                     name=stock.get('longName', stock.get('shortName', stock.get('symbol', ''))),

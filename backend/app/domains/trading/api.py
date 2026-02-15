@@ -32,13 +32,13 @@ async def execute_order(
     try:
         trading_service = TradingService(db)
         
-        # Get current stock price
+        # get current stock price
         from app.domains.stocks.services import StockService
         stock_service = StockService()
         stock_data = await stock_service.get_current_price(order.symbol)
         current_price = stock_data["current_price"]
         
-        # Execute the order
+        # execute the order
         confirmation = await trading_service.execute_order(current_user, order, current_price)
         
         logger.info(f"Order executed: {order.action} {order.quantity} {order.symbol} at ${current_price}")
@@ -50,7 +50,7 @@ async def execute_order(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         logger.error(f"Error executing order: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Order execution failed")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Order execution failed.")
 
 @router.get("/positions", response_model=List[Position])
 async def get_positions(
@@ -65,7 +65,7 @@ async def get_positions(
         
     except Exception as e:
         logger.error(f"Error getting positions: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to retrieve positions")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to retrieve positions.")
 
 @router.get("/positions/{symbol}", response_model=Position)
 async def get_position_by_symbol(
@@ -82,13 +82,13 @@ async def get_position_by_symbol(
         trading_service = TradingService(db)
         symbol_upper = symbol.upper()
 
-        # Debug logging
+        # debug logging
         logger.info(f"Looking for position: user_id={current_user.id}, symbol={symbol_upper}")
 
         position = trading_service.get_position_by_symbol(current_user.id, symbol_upper)
 
         if not position:
-            # Return empty position instead of 404
+            # return empty position instead of 404
             logger.info(f"No position found for user {current_user.id} and symbol {symbol_upper}, returning empty position")
             from datetime import datetime
             return {
@@ -106,7 +106,7 @@ async def get_position_by_symbol(
                 "updated_at": datetime.now()
             }
 
-        # Enrich position with current stock data
+        # enrich position with current stock data
         from app.domains.stocks.services import StockService
         stock_service = StockService()
 
@@ -117,7 +117,7 @@ async def get_position_by_symbol(
             unrealized_gain_loss = current_value - (position.quantity * position.average_price)
             unrealized_gain_loss_percent = (unrealized_gain_loss / (position.quantity * position.average_price)) * 100 if position.average_price > 0 else 0
 
-            # Create enriched response
+            # create enriched response
             position_data = {
                 "id": position.id,
                 "user_id": position.user_id,
@@ -128,7 +128,7 @@ async def get_position_by_symbol(
                 "current_value": current_value,
                 "unrealized_gain_loss": unrealized_gain_loss,
                 "unrealized_gain_loss_percent": unrealized_gain_loss_percent,
-                "company_name": position.symbol,  # Could be enhanced with actual company name
+                "company_name": position.symbol,  # could be enhanced with actual company name
                 "created_at": position.created_at,
                 "updated_at": position.updated_at
             }
@@ -137,14 +137,14 @@ async def get_position_by_symbol(
 
         except Exception as e:
             logger.warning(f"Could not get current price for {position.symbol}: {e}")
-            # Return position without current price data
+            # return position without current price data
             return position
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error getting position for {symbol}: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to retrieve position")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to retrieve position.")
 
 @router.get("/activities", response_model=List[Activity])
 async def get_activities(
@@ -163,9 +163,9 @@ async def get_activities(
 
     except Exception as e:
         logger.error(f"Error getting activities: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to retrieve activities")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to retrieve activities.")
 
-# Watchlist endpoints
+# watchlist endpoints
 @router.get("/watchlist", response_model=List[WatchlistResponse])
 async def get_watchlist(
     current_user: User = Depends(get_current_user),
@@ -179,14 +179,14 @@ async def get_watchlist(
         if not watchlist_items:
             return []
         
-        # Get current stock data for each watchlist item
+        # get current stock data for each watchlist item
         from app.domains.stocks.services import StockService
         stock_service = StockService()
         watchlist_with_data = []
         
         for item in watchlist_items:
             try:
-                # Get current stock price and details
+                # get current stock price and details
                 stock_data = await stock_service.get_stock_data(item.symbol)
                 
                 watchlist_with_data.append(WatchlistResponse(
@@ -202,7 +202,7 @@ async def get_watchlist(
                 ))
             except Exception as e:
                 logger.warning(f"Could not get stock data for {item.symbol}: {e}")
-                # Return basic data if stock service fails
+                # return basic data if stock service fails
                 watchlist_with_data.append(WatchlistResponse(
                     id=item.id,
                     symbol=item.symbol,
@@ -219,7 +219,7 @@ async def get_watchlist(
         
     except Exception as e:
         logger.error(f"Error getting watchlist: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to retrieve watchlist")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to retrieve watchlist.")
 
 @router.post("/watchlist", response_model=WatchlistItem)
 async def add_to_watchlist(
@@ -231,7 +231,7 @@ async def add_to_watchlist(
     try:
         trading_service = TradingService(db)
         
-        # Validate stock symbol exists (optional - comment out if you want to allow any symbol)
+        # validate stock symbol exists (optional - comment out if you want to allow any symbol)
         try:
             from app.domains.stocks.services import StockService
             stock_service = StockService()
@@ -239,7 +239,7 @@ async def add_to_watchlist(
         except Exception:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid stock symbol: {watchlist_data.symbol}"
+                detail=f"Invalid stock symbol: {watchlist_data.symbol}."
             )
         
         watchlist_item = trading_service.add_to_watchlist(current_user.id, watchlist_data)
@@ -253,7 +253,7 @@ async def add_to_watchlist(
         raise
     except Exception as e:
         logger.error(f"Error adding to watchlist: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to add stock to watchlist")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to add stock to watchlist.")
 
 @router.delete("/watchlist/{symbol}")
 async def remove_from_watchlist(
@@ -273,4 +273,4 @@ async def remove_from_watchlist(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         logger.error(f"Error removing from watchlist: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to remove stock from watchlist")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to remove stock from watchlist.")

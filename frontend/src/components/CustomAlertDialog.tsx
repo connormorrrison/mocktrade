@@ -25,7 +25,7 @@ export const CustomAlertDialog = ({ isOpen, onClose, children }: CustomAlertDial
   );
 };
 
-// Custom components with gap-4
+// custom components with gap-4
 const CustomAlertDialogFooter = ({ className, ...props }: React.ComponentProps<"div">) => {
   return (
     <div

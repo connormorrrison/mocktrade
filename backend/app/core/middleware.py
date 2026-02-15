@@ -16,19 +16,19 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         start_time = time.time()
         
-        # Log request
+        # log request
         logger.info(f"Request: {request.method} {request.url.path}")
         
-        # Process request
+        # process request
         response = await call_next(request)
         
-        # Calculate processing time
+        # calculate processing time
         process_time = time.time() - start_time
         
-        # Log response
+        # log response
         logger.info(f"Response: {response.status_code} - {process_time:.4f}s")
         
-        # Add processing time to headers
+        # add processing time to headers
         response.headers["X-Process-Time"] = str(process_time)
         
         return response

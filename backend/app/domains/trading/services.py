@@ -48,31 +48,31 @@ class TradingService:
         elif order.action == "sell":
             return await self._execute_sell_order(user, order, current_price, total_amount)
         else:
-            raise TradingError(f"Invalid order action: {order.action}")
+            raise TradingError(f"Invalid order action: {order.action}.")
 
     async def _execute_buy_order(self, user: User, order: OrderCreate, current_price: float, total_amount: float) -> TradeConfirmation:
         """Execute a buy order"""
-        # Check if user has sufficient funds
+        # check if user has sufficient funds
         if user.cash_balance < total_amount:
-            raise InsufficientFundsError(f"Insufficient funds. Required: ${total_amount:.2f}, Available: ${user.cash_balance:.2f}")
+            raise InsufficientFundsError(f"Insufficient funds. Required: ${total_amount:.2f}, available: ${user.cash_balance:.2f}.")
         
-        # Get or create position
+        # get or create position
         position = self.position_repo.get_by_user_and_symbol(user.id, order.symbol)
         
         if position:
-            # Update existing position
+            # update existing position
             new_quantity = position.quantity + order.quantity
             new_average_price = ((position.quantity * position.average_price) + total_amount) / new_quantity
             position = self.position_repo.update_quantity_and_price(position, new_quantity, new_average_price)
         else:
-            # Create new position
+            # create new position
             position = self.position_repo.create(user.id, order.symbol, order.quantity, current_price)
         
-        # Update user's cash balance
+        # update user's cash balance
         new_cash_balance = user.cash_balance - total_amount
         self.user_repo.update_cash_balance(user, new_cash_balance)
         
-        # Record the activity
+        # record the activity
         activity = self.activity_repo.create(
             user_id=user.id,
             position_id=position.id,
@@ -98,32 +98,32 @@ class TradingService:
 
     async def _execute_sell_order(self, user: User, order: OrderCreate, current_price: float, total_amount: float) -> TradeConfirmation:
         """Execute a sell order"""
-        # Get existing position
+        # get existing position
         position = self.position_repo.get_by_user_and_symbol(user.id, order.symbol)
         
         if not position:
-            raise InsufficientSharesError(f"No position found for {order.symbol}")
+            raise InsufficientSharesError(f"No position found for {order.symbol}.")
         
         if position.quantity < order.quantity:
-            raise InsufficientSharesError(f"Insufficient shares. Required: {order.quantity}, Available: {position.quantity}")
+            raise InsufficientSharesError(f"Insufficient shares. Required: {order.quantity}, available: {position.quantity}.")
         
-        # Update position
+        # update position
         new_quantity = position.quantity - order.quantity
         
         if new_quantity == 0:
-            # Delete position if no shares left
+            # delete position if no shares left
             self.position_repo.delete(position)
             position_id = None
         else:
-            # Update position quantity (keep same average price)
+            # update position quantity (keep same average price)
             position = self.position_repo.update_quantity_and_price(position, new_quantity, position.average_price)
             position_id = position.id
         
-        # Update user's cash balance
+        # update user's cash balance
         new_cash_balance = user.cash_balance + total_amount
         self.user_repo.update_cash_balance(user, new_cash_balance)
         
-        # Record the activity
+        # record the activity
         activity = self.activity_repo.create(
             user_id=user.id,
             position_id=position_id,
@@ -160,17 +160,17 @@ class TradingService:
         """Get specific position for user and symbol"""
         return self.position_repo.get_by_user_and_symbol(user_id, symbol)
 
-    # Watchlist methods
+    # watchlist methods
     def get_user_watchlist(self, user_id: int) -> List[Watchlist]:
         """Get user's watchlist"""
         return self.watchlist_repo.get_by_user(user_id)
 
     def add_to_watchlist(self, user_id: int, watchlist_data: WatchlistCreate) -> Watchlist:
         """Add stock to user's watchlist"""
-        # Check if already exists
+        # check if already exists
         existing = self.watchlist_repo.get_by_user_and_symbol(user_id, watchlist_data.symbol)
         if existing:
-            raise TradingError(f"Stock {watchlist_data.symbol} is already in your watchlist")
+            raise TradingError(f"Stock {watchlist_data.symbol} is already in your watchlist.")
         
         return self.watchlist_repo.create(user_id, watchlist_data.symbol)
 
@@ -178,6 +178,6 @@ class TradingService:
         """Remove stock from user's watchlist"""
         watchlist_item = self.watchlist_repo.get_by_user_and_symbol(user_id, symbol)
         if not watchlist_item:
-            raise TradingError(f"Stock {symbol} not found in your watchlist")
+            raise TradingError(f"Stock {symbol} not found in your watchlist.")
         
         self.watchlist_repo.delete(watchlist_item)

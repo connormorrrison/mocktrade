@@ -27,7 +27,7 @@ export const TradeConfirm = ({
   const totalValue = quantity * price;
 
   const handleConfirm = () => {
-    // Trigger confetti animation
+    // trigger confetti animation
     confetti({
       particleCount: 100,
       spread: 70,

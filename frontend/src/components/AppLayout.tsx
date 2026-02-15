@@ -21,12 +21,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const location = useLocation()
 
-  // Close drawer on route change
+  // close drawer on route change
   useEffect(() => {
     setDrawerOpen(false)
   }, [location.pathname])
 
-  // Prevent body scroll when drawer is open
+  // prevent body scroll when drawer is open
   useEffect(() => {
     if (drawerOpen) {
       document.body.style.overflow = 'hidden'
@@ -56,10 +56,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
     )
   }
 
-  // Mobile layout
+  // mobile layout
   return (
     <div className="flex flex-col h-screen overflow-hidden">
-      {/* Header bar */}
+      {/* header bar */}
       <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between p-4 bg-background">
         <button
           onClick={() => setDrawerOpen(true)}
@@ -76,12 +76,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
         </Link>
       </header>
 
-      {/* Main content */}
+      {/* main content */}
       <main className="flex-1 overflow-y-auto pt-18 pb-8">
         {children}
       </main>
 
-      {/* Drawer backdrop */}
+      {/* drawer backdrop */}
       <div
         className={`fixed inset-0 z-50 bg-black/60 transition-opacity duration-300 ${
           drawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
@@ -89,7 +89,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         onClick={() => setDrawerOpen(false)}
       />
 
-      {/* Drawer panel */}
+      {/* drawer panel */}
       <div
         className={`fixed inset-y-0 left-0 z-50 w-72 bg-zinc-950 transform transition-transform duration-300 ease-in-out ${
           drawerOpen ? 'translate-x-0' : '-translate-x-full'

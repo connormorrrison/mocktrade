@@ -23,14 +23,14 @@ export function Countdown({ timeframe, className = "", prefix = "Resets in", onR
     
     switch (timeframe) {
       case "Day":
-        // Reset at midnight (next day)
+        // reset at midnight (next day)
         const nextDay = new Date(now);
         nextDay.setDate(now.getDate() + 1);
         nextDay.setHours(0, 0, 0, 0);
         return nextDay;
         
       case "Week":
-        // Reset on Sunday at midnight
+        // reset on Sunday at midnight
         const nextSunday = new Date(now);
         const daysUntilSunday = (7 - now.getDay()) % 7;
         const daysToAdd = daysUntilSunday === 0 ? 7 : daysUntilSunday;
@@ -39,7 +39,7 @@ export function Countdown({ timeframe, className = "", prefix = "Resets in", onR
         return nextSunday;
         
       case "Month":
-        // Reset on the first day of next month
+        // reset on the first day of next month
         const nextMonth = new Date(now);
         nextMonth.setMonth(now.getMonth() + 1);
         nextMonth.setDate(1);
@@ -85,7 +85,7 @@ export function Countdown({ timeframe, className = "", prefix = "Resets in", onR
 
   const formatTime = (value: number) => value.toString().padStart(2, '0');
 
-  // Don't show countdown for "All" timeframe
+  // don't show countdown for "All" timeframe
   if (timeframe === "All") {
     return null;
   }

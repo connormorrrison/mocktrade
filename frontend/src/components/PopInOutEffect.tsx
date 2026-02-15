@@ -20,14 +20,14 @@ export const PopInOutEffect = ({
 
   useEffect(() => {
     if (isVisible && !showElement) {
-      // Show with enter animation after delay
+      // show with enter animation after delay
       const timer = setTimeout(() => {
         setShowElement(true);
         setIsExiting(false);
       }, delay);
       return () => clearTimeout(timer);
     } else if (!isVisible && showElement) {
-      // Hide with exit animation (no delay on exit)
+      // hide with exit animation (no delay on exit)
       setIsExiting(true);
       const timer = setTimeout(() => {
         setShowElement(false);

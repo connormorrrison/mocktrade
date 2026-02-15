@@ -64,8 +64,9 @@ export default function TradePage() {
   // page state
   const [symbolInput, setSymbolInput] = useState(initialSymbol);
   const [searchQuery, setSearchQuery] = useState(initialSymbol);
-  const [pageLoading, setPageLoading] = useState(true); // Default to true
+  const [pageLoading, setPageLoading] = useState(true); // default to true
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
   // data state (fetched from api)
   const [availableCash, setAvailableCash] = useState<number | null>(null);
@@ -100,8 +101,8 @@ export default function TradePage() {
       }
     } catch (err) {
       console.error('failed to load portfolio summary:', err);
-      // PERF FIX #2: Removed the `finally` block that set pageLoading(false).
-      // This will now be handled by the main useEffect.
+      // PERF FIX #2: removed the `finally` block that set pageLoading(false)
+      // this will now be handled by the main useEffect
     }
   }, [apiExecute]);
 
@@ -117,6 +118,7 @@ export default function TradePage() {
     setSharesOwned(0);
     resetForm();
 
+    setIsSearching(true);
     try {
       // fetch price and position in parallel
       const [priceData, positionData] = await Promise.all([
@@ -152,40 +154,42 @@ export default function TradePage() {
     } catch (err: any) {
       setApiError(err.message);
       setSearchQuery('');
+    } finally {
+      setIsSearching(false);
     }
   }, [apiExecute, setApiError, resetForm]);
 
 
   // PERF FIX #2: INITIAL PAGE LOAD (DATA WATERFALL)
-  // This effect now controls the pageLoading state for ALL
+  // this effect now controls the pageLoading state for ALL
   // initial data fetches, ensuring the skeleton doesn't
-  // disappear until everything is ready.
+  // disappear until everything is ready
   useEffect(() => {
     const loadInitialData = async () => {
-      setPageLoading(true); // Explicitly set loading to true
+      setPageLoading(true); // explicitly set loading to true
       try {
-        // Create a list of all promises we need to resolve
+        // create a list of all promises we need to resolve
         const initialDataPromises: Promise<any>[] = [fetchPortfolioSummary()];
 
         if (urlSymbol) {
           initialDataPromises.push(fetchStockData(urlSymbol.toUpperCase()));
         }
 
-        // Wait for ALL of them to finish
+        // wait for ALL of them to finish
         await Promise.all(initialDataPromises);
 
       } catch (err) {
         console.error("Failed to load initial page data:", err);
-        // You could set a page-level error here
+        // you could set a page-level error here
       } finally {
-        // Only stop loading once everything is done
+        // only stop loading once everything is done
         setPageLoading(false);
       }
     };
 
     loadInitialData();
-    // We only want this to run once on load, based on the URL symbol
-    // and the memoized fetch functions.
+    // we only want this to run once on load, based on the URL symbol
+    // and the memoized fetch functions
   }, [urlSymbol, fetchPortfolioSummary, fetchStockData]);
 
 
@@ -214,7 +218,7 @@ export default function TradePage() {
       if (validationError) {
         errorMsg = validationError;
       } else {
-        errorMsg = "order cannot be submitted";
+        errorMsg = "Order cannot be submitted.";
       }
       setApiError(errorMsg);
       return;
@@ -225,9 +229,9 @@ export default function TradePage() {
   };
 
   // PERF FIX #3: SLOW ORDER SUBMISSION
-  // This function now provides an "optimistic" response.
-  // It only awaits the critical API call, then immediately
-  // resets the UI and refreshes cash in the background.
+  // this function now provides an "optimistic" response
+  // it only awaits the critical API call, then immediately
+  // resets the UI and refreshes cash in the background
   const confirmOrder = async () => {
     try {
       let actionPayload: string;
@@ -237,7 +241,7 @@ export default function TradePage() {
         actionPayload = '';
       }
 
-      // 1. Await ONLY the critical order submission
+      // 1. await ONLY the critical order submission
       await apiExecute('/trading/orders', {
         method: 'POST',
         body: JSON.stringify({
@@ -247,7 +251,7 @@ export default function TradePage() {
         }),
       });
 
-      // 2. Give INSTANT UI feedback: close dialog & reset form
+      // 2. give INSTANT UI feedback: close dialog & reset form
       setIsConfirmDialogOpen(false);
       setSymbolInput('');
       setSearchQuery('');
@@ -256,8 +260,8 @@ export default function TradePage() {
       setSharesOwned(0);
       resetForm();
       
-      // 3. Refresh cash balance in the background (no await)
-      // The user doesn't need to wait for this.
+      // 3. refresh cash balance in the background (no await)
+      // the user doesn't need to wait for this
       fetchPortfolioSummary();
       
     } catch (err) {
@@ -341,7 +345,7 @@ export default function TradePage() {
           symbol={symbolInput}
           onSymbolChange={handleSymbolInputChange}
           onSearch={handleSearch}
-          isLoading={isApiLoading}
+          isLoading={isSearching}
         />
       </PopInOutEffect>
 

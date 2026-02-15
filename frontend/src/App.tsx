@@ -32,12 +32,12 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function AppRoutes() {
   return (
     <Routes>
-      {/* Landing and auth routes - no sidebar */}
+      {/* landing and auth routes - no sidebar */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
 
-      {/* Main app routes - with sidebar, protected */}
+      {/* main app routes - with sidebar, protected */}
       <Route path="/home" element={
         <ProtectedRoute><AppLayout><HomePage /></AppLayout></ProtectedRoute>
       } />

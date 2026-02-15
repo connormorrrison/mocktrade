@@ -22,7 +22,7 @@ async def get_portfolio_summary(
         portfolio_service = PortfolioService(db)
         summary = await portfolio_service.get_portfolio_summary(current_user.id)
 
-        # Auto-snapshot: create/update today's snapshot using already-computed values
+        # auto-snapshot: create/update today's snapshot using already-computed values
         try:
             from datetime import date
             from app.domains.portfolio.repositories import PortfolioRepository
@@ -51,7 +51,7 @@ async def get_portfolio_summary(
         logger.error(f"Error fetching portfolio summary for user {current_user.id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve portfolio summary"
+            detail="Failed to retrieve portfolio summary."
         )
 
 @router.post("/snapshot")
@@ -73,7 +73,7 @@ async def create_portfolio_snapshot(
         logger.error(f"Error creating portfolio snapshot for user {current_user.id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to create portfolio snapshot"
+            detail="Failed to create portfolio snapshot."
         )
 
 @router.get("/leaderboard")
@@ -96,7 +96,7 @@ async def get_leaderboard(
         logger.error(f"Error fetching leaderboard: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve leaderboard"
+            detail="Failed to retrieve leaderboard."
         )
 
 @router.get("/user/{username}")
@@ -110,22 +110,22 @@ async def get_user_profile(
 ):
     """Get user profile data by username"""
     try:
-        # Get user by username
+        # get user by username
         from app.domains.auth.repositories import UserRepository
         user_repo = UserRepository(db)
         target_user = user_repo.get_by_username(username)
         
         if not target_user:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
         
         portfolio_service = PortfolioService(db)
         summary = await portfolio_service.get_portfolio_summary(target_user.id)
         
-        # Use a standard starting value - could be made configurable later
-        # For now, all users start with the same amount as defined in user creation
-        starting_value = 100000.0  # This matches the default cash_balance in User model
+        # use a standard starting value - could be made configurable later
+        # for now, all users start with the same amount as defined in user creation
+        starting_value = 100000.0  # this matches the default cash_balance in User model
         
-        # Base response with correct order
+        # base response with correct order
         user_profile = {
             "first_name": target_user.first_name,
             "last_name": target_user.last_name,
@@ -136,18 +136,18 @@ async def get_user_profile(
             "starting_value": starting_value,
             "total_return": summary.portfolio_value - starting_value,
             "return_percentage": ((summary.portfolio_value - starting_value) / starting_value) * 100 if starting_value > 0 else 0,
-            "activity_count": 0,  # Will be populated if activities requested
-            "positions": summary.positions  # Use enriched positions from summary
+            "activity_count": 0,  # will be populated if activities requested
+            "positions": summary.positions  # use enriched positions from summary
         }
         
-        # Add activities if requested
+        # add activities if requested
         if include_activities:
             from app.domains.trading.repositories import ActivityRepository
             activity_repo = ActivityRepository(db)
-            # Get total count efficiently
+            # get total count efficiently
             user_profile["activity_count"] = activity_repo.count_by_user(target_user.id)
 
-            # Get paginated activities
+            # get paginated activities
             activities = activity_repo.get_by_user(target_user.id, activities_limit, activities_offset)
             user_profile["activities"] = [
                 {
@@ -171,7 +171,7 @@ async def get_user_profile(
         logger.error(f"Error fetching user profile for {username}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve user profile"
+            detail="Failed to retrieve user profile."
         )
 
 @router.get("/history", response_model=PortfolioHistory)
@@ -194,5 +194,5 @@ async def get_portfolio_history(
         logger.error(f"Error fetching portfolio history for user {current_user.id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve portfolio history"
+            detail="Failed to retrieve portfolio history."
         )

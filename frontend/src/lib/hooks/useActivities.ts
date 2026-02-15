@@ -14,7 +14,7 @@ export const useActivities = (fromDate?: Date, toDate?: Date) => {
     const [hasMore, setHasMore] = useState(true);
     const [offset, setOffset] = useState(0);
 
-    const LIMIT = 10; // Load 10 activities at a time
+    const LIMIT = 10; // load 10 activities at a time
 
     const fetchActivities = useCallback(async (reset: boolean = false) => {
         if (reset) {
@@ -79,7 +79,7 @@ export const useActivities = (fromDate?: Date, toDate?: Date) => {
                 setOffset(prev => prev + LIMIT);
             }
 
-            // If we got fewer items than the limit, there's no more data
+            // if we got fewer items than the limit, there's no more data
             setHasMore(validActivities.length === LIMIT);
         } catch (err) {
             console.error('Error fetching activities:', err);

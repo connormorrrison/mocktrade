@@ -15,11 +15,11 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     hashed_password = Column(String, nullable=True)
     auth_provider = Column(String, default="local")
-    cash_balance = Column(Float, default=100000.0)  # Start with $100k
+    cash_balance = Column(Float, default=100000.0)  # start with $100k
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     is_active = Column(Boolean, default=True)
 
-    # Relationships - using string names to avoid circular imports
+    # relationships - using string names to avoid circular imports
     positions = relationship("Position", back_populates="user", lazy="dynamic")
     activities = relationship("Activity", back_populates="user", lazy="dynamic")
     watchlist = relationship("Watchlist", back_populates="user", lazy="dynamic")

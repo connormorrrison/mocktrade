@@ -3,7 +3,7 @@
 from pydantic import BaseModel, validator
 from typing import List
 
-# Core stock data - contains everything we might need
+# core stock data - contains everything we might need
 class StockData(BaseModel):
     symbol: str
     company_name: str
@@ -12,7 +12,7 @@ class StockData(BaseModel):
     market_capitalization: str
     timestamp: str
 
-# Market data schemas
+# market data schemas
 class MarketIndex(BaseModel):
     symbol: str
     ticker: str
@@ -27,7 +27,7 @@ class MarketMover(BaseModel):
     change: float
     change_percent: float
 
-# Response containers
+# response containers
 class MarketIndicesResponse(BaseModel):
     indices: List[MarketIndex]
 
@@ -35,7 +35,7 @@ class MarketMoversResponse(BaseModel):
     gainers: List[MarketMover]
     losers: List[MarketMover]
 
-# Simple request validation
+# simple request validation
 class SymbolRequest(BaseModel):
     symbol: str
 

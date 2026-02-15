@@ -29,7 +29,7 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
     <div
       className="flex flex-col h-full w-full p-8"
     >
-      {/* Logo */}
+      {/* logo */}
       <div className="flex justify-center mb-6">
         <Link to="/home">
           <img src={logo} alt="MockTrade" className="h-12 w-auto cursor-pointer" />
@@ -63,7 +63,7 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
         </ul>
       </nav>
 
-      {/* Bottom buttons stacked vertically */}
+      {/* bottom buttons stacked vertically */}
       <div className="mt-4 flex flex-col gap-2 items-start">
         <Button2 onClick={() => setIsReportDialogOpen(true)}>
           <Bug className="!text-orange-600" />
@@ -75,7 +75,7 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
         </Button2>
       </div>
 
-      {/* Report Bug Dialog */}
+      {/* report bug dialog */}
       <ReportBugDialog
         isOpen={isReportDialogOpen}
         onOpenChange={setIsReportDialogOpen}

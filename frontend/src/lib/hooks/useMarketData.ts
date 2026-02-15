@@ -83,7 +83,7 @@ export const useMarketData = () => {
       if (err instanceof Error) {
         errorMessage = err.message;
       } else {
-        errorMessage = 'failed to load market data';
+        errorMessage = 'Failed to load market data.';
       }
       setError(errorMessage);
     } finally {

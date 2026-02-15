@@ -37,7 +37,7 @@ export default function LoginPage() {
         navigate('/home');
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Google login failed');
+        throw new Error(errorData.detail || 'Google login failed.');
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Google login failed. Please try again.');
@@ -55,7 +55,7 @@ export default function LoginPage() {
     try {
       console.log('Login: Calling auth API');
       
-      // Make API call to backend
+      // make API call to backend
       const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
         method: 'POST',
         headers: {
@@ -74,11 +74,11 @@ export default function LoginPage() {
         localStorage.setItem('access_token', data.access_token);
         console.log('Login: Token saved to localStorage');
         
-        // Verify the token was stored
+        // verify the token was stored
         const storedToken = localStorage.getItem('access_token');
         console.log('Login: Verified stored token:', storedToken ? storedToken.substring(0, 20) + '...' : 'NO TOKEN FOUND');
         
-        // Refresh user data immediately after login
+        // refresh user data immediately after login
         console.log('Login: Refreshing user data...');
         await refreshUserData();
         
@@ -86,7 +86,7 @@ export default function LoginPage() {
         navigate('/home');
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Login failed');
+        throw new Error(errorData.detail || 'Login failed.');
       }
     } catch (error) {
       console.error('Login Error:', error);
@@ -108,7 +108,7 @@ export default function LoginPage() {
           <CustomError error={error} onClose={() => setError('')} />
 
           <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-8 items-center">
-            {/* Left pane — Google sign-in */}
+            {/* left pane — Google sign-in */}
             <div className="flex flex-col items-center justify-center space-y-6">
               <GoogleSignInButton onSuccess={handleGoogleSuccess} />
               <Text4>
@@ -119,10 +119,10 @@ export default function LoginPage() {
               </Text4>
             </div>
 
-            {/* Vertical divider */}
+            {/* vertical divider */}
             <div className="hidden md:block w-px self-stretch bg-zinc-700" />
 
-            {/* Right pane — email/password form */}
+            {/* right pane — email/password form */}
             <form onSubmit={handleLogin}>
               <div className="space-y-4">
                 <TextField

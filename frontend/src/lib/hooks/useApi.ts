@@ -39,7 +39,7 @@ export const useApi = () => {
           if (response.statusText) {
             errorMessage = response.statusText;
           } else {
-            errorMessage = 'an unknown error occurred';
+            errorMessage = 'An unknown error occurred.';
           }
           throw new Error(errorMessage);
         }
@@ -48,7 +48,7 @@ export const useApi = () => {
         if (errorData && errorData.detail) {
           errorMessage = errorData.detail;
         } else {
-          errorMessage = 'an unknown error occurred';
+          errorMessage = 'An unknown error occurred.';
         }
         throw new Error(errorMessage);
       }

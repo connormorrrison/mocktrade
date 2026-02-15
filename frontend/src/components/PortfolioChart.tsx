@@ -74,13 +74,13 @@ export function PortfolioChart({ timeframe = "1mo" }: PortfolioChartProps) {
     );
   }
 
-  // Transform data for the chart
+  // transform data for the chart
   const chartData = data.map(item => ({
     date: item.date,
     value: item.portfolio_value
   }));
 
-  // If no data, show empty state
+  // if no data, show empty state
   if (chartData.length === 0) {
     return (
       <div className="py-2 w-full flex items-center justify-center">
@@ -91,11 +91,11 @@ export function PortfolioChart({ timeframe = "1mo" }: PortfolioChartProps) {
     );
   }
 
-  // Calculate dynamic width based on max value
+  // calculate dynamic width based on max value
   const maxValue = Math.max(...chartData.map(item => item.value));
   const maxValueLength = formatMoney(Math.round(maxValue)).length;
   
-  // Calculate width: roughly 8px per character + some padding
+  // calculate width: roughly 8px per character + some padding
   const yAxisWidth = Math.max(40, maxValueLength * 8 + 10);
 
   return (

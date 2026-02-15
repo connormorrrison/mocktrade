@@ -17,5 +17,5 @@ class PortfolioSnapshot(Base):
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     
-    # Relationships
+    # relationships
     user = relationship("User", back_populates="portfolio_snapshots")

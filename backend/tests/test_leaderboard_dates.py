@@ -9,7 +9,7 @@ from app.domains.portfolio.schemas import PortfolioSnapshotCreate
 
 
 # ---------------------------------------------------------------------------
-# Pure date-math helpers (mirrors the logic in PortfolioService.get_leaderboard)
+# pure date-math helpers (mirrors the logic in PortfolioService.get_leaderboard)
 # ---------------------------------------------------------------------------
 
 def _leaderboard_target_date(timeframe: str, today: date) -> date:
@@ -17,7 +17,7 @@ def _leaderboard_target_date(timeframe: str, today: date) -> date:
     if timeframe == "day":
         return today - timedelta(days=1)
     elif timeframe == "week":
-        # Week resets Sunday midnight. Target = Saturday before last Sunday.
+        # week resets Sunday midnight. Target = Saturday before last Sunday
         days_since_sunday = (today.weekday() + 1) % 7
         return today - timedelta(days=days_since_sunday + 1)
     elif timeframe == "month":
@@ -30,47 +30,47 @@ def _leaderboard_target_date(timeframe: str, today: date) -> date:
 class TestLeaderboardTargetDates:
     """Verify the target date calculation for each timeframe."""
 
-    # --- Day ---
+    # --- day ---
 
     def test_day_target_is_yesterday(self):
-        today = date(2025, 6, 18)  # Wednesday
+        today = date(2025, 6, 18)  # wednesday
         assert _leaderboard_target_date("day", today) == date(2025, 6, 17)
 
-    # --- Week (resets Sunday midnight, so target = previous Saturday) ---
+    # --- week (resets Sunday midnight, so target = previous Saturday) ---
 
     def test_week_target_on_sunday(self):
         """On Sunday the period just started; target = yesterday (Saturday)."""
-        sunday = date(2025, 6, 15)  # Sunday
+        sunday = date(2025, 6, 15)  # sunday
         assert sunday.weekday() == 6
-        assert _leaderboard_target_date("week", sunday) == date(2025, 6, 14)  # Saturday
+        assert _leaderboard_target_date("week", sunday) == date(2025, 6, 14)  # saturday
 
     def test_week_target_on_monday(self):
         monday = date(2025, 6, 16)
         assert monday.weekday() == 0
-        assert _leaderboard_target_date("week", monday) == date(2025, 6, 14)  # Saturday
+        assert _leaderboard_target_date("week", monday) == date(2025, 6, 14)  # saturday
 
     def test_week_target_on_wednesday(self):
         wednesday = date(2025, 6, 18)
         assert wednesday.weekday() == 2
-        assert _leaderboard_target_date("week", wednesday) == date(2025, 6, 14)  # Saturday
+        assert _leaderboard_target_date("week", wednesday) == date(2025, 6, 14)  # saturday
 
     def test_week_target_on_saturday(self):
         """Saturday is the last day of the period; target still = the Saturday before last Sunday."""
         saturday = date(2025, 6, 21)
         assert saturday.weekday() == 5
-        assert _leaderboard_target_date("week", saturday) == date(2025, 6, 14)  # previous Saturday
+        assert _leaderboard_target_date("week", saturday) == date(2025, 6, 14)  # previous saturday
 
     def test_week_all_days_same_target(self):
         """Every day in the same Sun-Sat week should produce the same target."""
-        # Week of Sun Jun 15 – Sat Jun 21, 2025
-        expected_target = date(2025, 6, 14)  # Saturday before the week started
+        # week of Sun Jun 15 - Sat Jun 21, 2025
+        expected_target = date(2025, 6, 14)  # saturday before the week started
         for offset in range(7):
             day = date(2025, 6, 15) + timedelta(days=offset)
             assert _leaderboard_target_date("week", day) == expected_target, (
                 f"Failed for {day} ({day.strftime('%A')})"
             )
 
-    # --- Month ---
+    # --- month ---
 
     def test_month_target_on_first(self):
         """On the 1st, the period just started; target = last day of previous month."""
@@ -137,7 +137,7 @@ class TestGetSnapshotOnOrBefore:
         """If target date has no snapshot, return the most recent one before it."""
         self._create_snapshot(repo, test_user.id, date(2025, 6, 12), 100000.0)
         self._create_snapshot(repo, test_user.id, date(2025, 6, 14), 102000.0)
-        # Ask for Jun 15 — no snapshot exists, should get Jun 14
+        # ask for Jun 15 - no snapshot exists, should get Jun 14
         snap = repo.get_snapshot_on_or_before(test_user.id, date(2025, 6, 15))
         assert snap is not None
         assert snap.portfolio_value == 102000.0

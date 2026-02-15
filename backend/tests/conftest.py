@@ -8,7 +8,7 @@ from app.main import app
 from app.infrastructure.database import Base
 from app.core.dependencies import get_db
 
-# Create in-memory SQLite database for testing
+# create in-memory SQLite database for testing
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 
 engine = create_engine(
@@ -82,10 +82,10 @@ def create_test_user(client, sample_user_data):
 @pytest.fixture
 def authenticated_user(client, sample_user_data):
     """Create user and return auth token"""
-    # Register user
+    # register user
     client.post("/auth/register", json=sample_user_data)
-    
-    # Login user
+
+    # login user
     login_response = client.post(
         "/auth/login",
         data={

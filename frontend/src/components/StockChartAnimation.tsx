@@ -20,7 +20,7 @@ interface LineData {
   isInitialized: boolean;
 }
 
-// Function to create smooth curved paths using quadratic Bézier curves
+// function to create smooth curved paths using quadratic Bézier curves
 function createSmoothPath(points: { x: number; y: number }[]): string {
   if (points.length < 2) return '';
   
@@ -31,21 +31,21 @@ function createSmoothPath(points: { x: number; y: number }[]): string {
     const previous = points[i - 1];
     
     if (i === 1) {
-      // First curve, use simple quadratic
+      // first curve, use simple quadratic
       const midX = (previous.x + current.x) / 2;
       const midY = (previous.y + current.y) / 2;
       path += ` Q ${previous.x},${previous.y} ${midX},${midY}`;
     } else {
-      // Smooth curves using control points
+      // smooth curves using control points
       const next = points[i + 1] || current;
       const controlX = current.x;
       const controlY = current.y;
       
       if (i === points.length - 1) {
-        // Last point
+        // last point
         path += ` Q ${controlX},${controlY} ${current.x},${current.y}`;
       } else {
-        // Middle points - smooth curve
+        // middle points - smooth curve
         const midX = (current.x + next.x) / 2;
         const midY = (current.y + next.y) / 2;
         path += ` Q ${controlX},${controlY} ${midX},${midY}`;
@@ -67,11 +67,11 @@ export function StockChartAnimation({ className = "", width = 800, height = 400 
     const svg = svgRef.current;
     const numLines = 5;
     const colors = ['#dc2626', '#2563eb', '#059669', '#ea580c', '#7c3aed']; // red-600, blue-600, green-600, orange-600, violet-600   
-    // Clear any existing content
+    // clear any existing content
     svg.innerHTML = '';
     linesRef.current = [];
 
-    // Create mask for left and right edge fade
+    // create mask for left and right edge fade
     const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
     
     const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
@@ -122,13 +122,13 @@ export function StockChartAnimation({ className = "", width = 800, height = 400 
     svg.appendChild(defs);
 
 
-    // Define line lengths as percentages: 50%, 62.5%, 75%, 87.5%, 100%
+    // define line lengths as percentages: 50%, 62.5%, 75%, 87.5%, 100%
     const linePercentages = [0.5, 0.625, 0.75, 0.875, 1.0];
     
-    // Shuffle the percentages to randomize which line gets which length
+    // shuffle the percentages to randomize which line gets which length
     const shuffledPercentages = [...linePercentages].sort(() => Math.random() - 0.5);
     
-    // Create racing lines
+    // create racing lines
     for (let i = 0; i < numLines; i++) {
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       path.setAttribute('fill', 'none');
@@ -139,44 +139,44 @@ export function StockChartAnimation({ className = "", width = 800, height = 400 
       path.setAttribute('mask', 'url(#leftRightFadeMask)');
       svg.appendChild(path);
 
-      // Remove dots - just using lines
+      // remove dots - just using lines
 
-      // Initialize line data
-      const startY = height * (0.3 + (i * 0.08)); // Spread starting Y positions
-      const targetX = i * (width / 8) + 180 + 220; // Target X positions moved forward by 220px more
+      // initialize line data
+      const startY = height * (0.3 + (i * 0.08)); // spread starting Y positions
+      const targetX = i * (width / 8) + 180 + 220; // target X positions moved forward by 220px more
       
-      // Calculate max length based on assigned percentage
+      // calculate max length based on assigned percentage
       const maxX = width * shuffledPercentages[i];
       
-      // Pre-populate line with points from start to max length with high randomness
+      // pre-populate line with points from start to max length with high randomness
       const prePopulatedPoints = [];
       let currentY = startY;
-      let currentTrend = (Math.random() - 0.5) * 0.5; // Random initial trend
+      let currentTrend = (Math.random() - 0.5) * 0.5; // random initial trend
       
       for (let x = 0; x <= maxX; x += 4) {
-        // Random walk with good volatility for natural movement
-        const volatility = 0.7 + Math.random() * 0.6; // Moderate volatility (0.7-1.3)
+        // random walk with good volatility for natural movement
+        const volatility = 0.7 + Math.random() * 0.6; // moderate volatility (0.7-1.3)
         const randomWalk = (Math.random() - 0.5) * volatility * 10;
         
-        // Trend component for smoother curves
+        // trend component for smoother curves
         const trendComponent = currentTrend * 1.5;
         
-        // Apply movement
+        // apply movement
         currentY += randomWalk + trendComponent;
         
-        // Keep within bounds with more breathing room
+        // keep within bounds with more breathing room
         currentY = Math.max(height * 0.1, Math.min(height * 0.9, currentY));
         
-        // Change trend occasionally for varied paths
+        // change trend occasionally for varied paths
         if (Math.random() < 0.03) {
-          currentTrend = (Math.random() - 0.5) * 0.7; // New random trend
+          currentTrend = (Math.random() - 0.5) * 0.7; // new random trend
         }
         
-        // Only apply gentle correction if lines get very extreme (not aggressive centering)
+        // only apply gentle correction if lines get very extreme (not aggressive centering)
         if (currentY < height * 0.15) {
-          currentTrend += 0.1; // Slight upward bias
+          currentTrend += 0.1; // slight upward bias
         } else if (currentY > height * 0.85) {
-          currentTrend -= 0.1; // Slight downward bias
+          currentTrend -= 0.1; // slight downward bias
         }
         
         prePopulatedPoints.push({ x, y: currentY });
@@ -184,36 +184,36 @@ export function StockChartAnimation({ className = "", width = 800, height = 400 
 
       const lineData: LineData = {
         path,
-        points: prePopulatedPoints, // Start with full line already built
+        points: prePopulatedPoints, // start with full line already built
         color: colors[i],
         currentIndex: 0,
-        speed: 0.8 + Math.random() * 0.4, // Random speed between 0.8-1.2
-        volatility: 0.5 + Math.random() * 0.5, // Random volatility
-        trend: (Math.random() - 0.5) * 0.3, // Random initial trend
+        speed: 0.8 + Math.random() * 0.4, // random speed between 0.8-1.2
+        volatility: 0.5 + Math.random() * 0.5, // random volatility
+        trend: (Math.random() - 0.5) * 0.3, // random initial trend
         targetLineX: targetX,
-        currentLineX: maxX, // Already at max length
-        maxLineX: maxX, // Line goes to its assigned percentage of width
-        isInitialized: true // Skip build phase - go straight to scrolling
+        currentLineX: maxX, // already at max length
+        maxLineX: maxX, // line goes to its assigned percentage of width
+        isInitialized: true // skip build phase - go straight to scrolling
       };
 
       linesRef.current.push(lineData);
     }
 
-    // Start the racing animation
+    // start the racing animation
     let lastTime = 0;
     const animate = (currentTime: number) => {
       const deltaTime = currentTime - lastTime;
       lastTime = currentTime;
 
       linesRef.current.forEach((line) => {
-        // Only scrolling phase: full flowing motion within boundary
+        // only scrolling phase: full flowing motion within boundary
         line.points = line.points.map(p => ({ x: p.x - line.speed, y: p.y }));
         line.points = line.points.filter(p => p.x > -50);
         
-        // Add new point on the right - continue from where the line actually ends
+        // add new point on the right - continue from where the line actually ends
         const lastPoint = line.points[line.points.length - 1];
         if (lastPoint) {
-          const newX = lastPoint.x + line.speed * 2; // Continue building rightward
+          const newX = lastPoint.x + line.speed * 2; // continue building rightward
           
           const randomWalk = (Math.random() - 0.5) * line.volatility * 12;
           const trendComponent = line.trend * 2.5;
@@ -224,17 +224,17 @@ export function StockChartAnimation({ className = "", width = 800, height = 400 
             line.trend = (Math.random() - 0.5) * 0.6;
           }
           
-          // Only gentle correction at very extremes
+          // only gentle correction at very extremes
           if (newY < height * 0.15) {
-            line.trend += 0.08; // Slight upward bias
+            line.trend += 0.08; // slight upward bias
           } else if (newY > height * 0.85) {
-            line.trend -= 0.08; // Slight downward bias
+            line.trend -= 0.08; // slight downward bias
           }
           
           line.points.push({ x: newX, y: newY });
         }
         
-        // Update path - only show points within the line's boundary
+        // update path - only show points within the line's boundary
         const visiblePoints = line.points.filter(p => p.x <= line.maxLineX && p.x >= 0);
         if (visiblePoints.length > 1) {
           const pathData = createSmoothPath(visiblePoints);
@@ -246,7 +246,7 @@ export function StockChartAnimation({ className = "", width = 800, height = 400 
     };
 
 
-    // Start animation after a brief delay
+    // start animation after a brief delay
     setTimeout(() => {
       animationRef.current = requestAnimationFrame(animate);
     }, 500);
@@ -268,7 +268,7 @@ export function StockChartAnimation({ className = "", width = 800, height = 400 
         viewBox={`0 0 ${width} ${height}`}
         preserveAspectRatio="xMidYMid meet"
       >
-        {/* Content will be dynamically added by the effect */}
+        {/* content will be dynamically added by the effect */}
       </svg>
     </div>
   );

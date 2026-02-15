@@ -14,7 +14,7 @@ export const useWatchlist = () => {
     const [adding, setAdding] = useState(false); // keep this for button feedback
     const [hidingSymbols, setHidingSymbols] = useState<Set<string>>(new Set());
 
-    // --- Data Fetching ---
+    // --- data fetching ---
 
     // fetch the complete watchlist from the api
     const fetchWatchlist = useCallback(async (showLoading = true) => {
@@ -65,7 +65,7 @@ export const useWatchlist = () => {
         fetchWatchlist(true); // show loading on first load
     }, [fetchWatchlist]);
 
-    // --- Mutations (Add/Remove) ---
+    // --- mutations (add/remove) ---
 
     // add a new stock to the watchlist (waits for api response then refetches)
     const addToWatchlist = useCallback(async (symbol: string) => {
@@ -74,14 +74,14 @@ export const useWatchlist = () => {
 
         const token = localStorage.getItem("access_token");
         if (!token) {
-            setError("Please log in to add stocks");
+            setError("Please log in to add stocks.");
             return;
         }
 
         // check if already exists to prevent duplicate api calls
         if (watchlist.some(stock => stock.symbol === trimmedSymbol)) {
             // setError(`${trimmedSymbol} is already in your watchlist.`);
-            return; // Exit silently if already present
+            return; // exit silently if already present
         }
 
         setAdding(true); // start loading indicator for the button
@@ -103,7 +103,7 @@ export const useWatchlist = () => {
             if (!response.ok) {
                 // handle api error from the POST request
                 const errorData = await response.json();
-                throw new Error(errorData.detail || "Failed to add stock");
+                throw new Error(errorData.detail || "Failed to add stock.");
             }
             
             // 2. success: trigger a background refresh of the entire watchlist
@@ -112,7 +112,7 @@ export const useWatchlist = () => {
 
         } catch (err: any) {
             console.error("Error adding to watchlist:", err);
-            setError(err.message || "Failed to add stock");
+            setError(err.message || "Failed to add stock.");
             // no rollback needed
         } finally {
             setAdding(false); // stop loading indicator for the button
@@ -123,7 +123,7 @@ export const useWatchlist = () => {
     const removeFromWatchlist = useCallback(async (symbol: string) => {
         const token = localStorage.getItem("access_token");
         if (!token) {
-            setError("Please log in to manage your watchlist");
+            setError("Please log in to manage your watchlist.");
             return;
         }
 
@@ -143,7 +143,7 @@ export const useWatchlist = () => {
 
             if (!response.ok) {
                 const data = await response.json();
-                throw new Error(data.detail || "Failed to remove stock");
+                throw new Error(data.detail || "Failed to remove stock.");
             }
 
             // 3. success: remove from list after a brief delay so the user sees the feedback
@@ -158,7 +158,7 @@ export const useWatchlist = () => {
 
         } catch (err: any) {
             console.error("Error removing from watchlist:", err);
-            setError(err.message || "Failed to remove stock");
+            setError(err.message || "Failed to remove stock.");
             setWatchlist(previousWatchlist);
             // remove from hiding set on error
             setHidingSymbols(prev => {
@@ -169,7 +169,7 @@ export const useWatchlist = () => {
         }
     }, [watchlist]); 
 
-    // --- Return Values ---
+    // --- return values ---
 
     return { 
         watchlist, 

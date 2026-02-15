@@ -8,12 +8,12 @@ class TestIntegrationFlows:
     
     def test_user_registration_and_portfolio_creation_flow(self, client, sample_user_data):
         """Test complete user registration flow with portfolio creation"""
-        # Register user
+        # register user
         response = client.post("/auth/register", json=sample_user_data)
         assert response.status_code == status.HTTP_200_OK
         user_data = response.json()
         
-        # Login user
+        # login user
         login_response = client.post(
             "/auth/login",
             data={
@@ -25,7 +25,7 @@ class TestIntegrationFlows:
         token = login_response.json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
         
-        # Check initial portfolio
+        # check initial portfolio
         portfolio_response = client.get("/portfolio/summary", headers=headers)
         assert portfolio_response.status_code == status.HTTP_200_OK
         portfolio = portfolio_response.json()
@@ -37,12 +37,12 @@ class TestIntegrationFlows:
     @patch('app.domains.stocks.services.StockService.get_current_price')
     def test_complete_trading_flow(self, mock_get_price, client, authenticated_user):
         """Test complete trading flow: buy, hold, sell"""
-        # Mock stock price
+        # mock stock price
         mock_get_price.return_value = {"current_price": 150.0}
-        
+
         headers = authenticated_user["headers"]
-        
-        # Step 1: Buy stocks
+
+        # step 1: buy stocks
         buy_order = {
             "symbol": "AAPL",
             "action": "buy", 
@@ -60,14 +60,14 @@ class TestIntegrationFlows:
         assert buy_data["quantity"] == 10
         assert buy_data["remaining_cash"] == 98500.0  # 100000 - (10 * 150)
         
-        # Step 2: Check portfolio after buy
+        # step 2: check portfolio after buy
         portfolio_response = client.get("/portfolio/summary", headers=headers)
         assert portfolio_response.status_code == status.HTTP_200_OK
         portfolio = portfolio_response.json()
         assert portfolio["cash_balance"] == 98500.0
         assert portfolio["positions_count"] == 1
         
-        # Step 3: Check activities
+        # step 3: check activities
         activities_response = client.get("/trading/activities", headers=headers)
         assert activities_response.status_code == status.HTTP_200_OK
         activities = activities_response.json()
@@ -75,8 +75,8 @@ class TestIntegrationFlows:
         assert activities[0]["action"] == "buy"
         assert activities[0]["symbol"] == "AAPL"
         
-        # Step 4: Sell some stocks
-        mock_get_price.return_value = {"current_price": 160.0}  # Price went up
+        # step 4: sell some stocks
+        mock_get_price.return_value = {"current_price": 160.0}  # price went up
         
         sell_order = {
             "symbol": "AAPL",
@@ -95,14 +95,14 @@ class TestIntegrationFlows:
         assert sell_data["quantity"] == 5
         assert sell_data["remaining_cash"] == 99300.0  # 98500 + (5 * 160)
         
-        # Step 5: Check final portfolio
+        # step 5: check final portfolio
         portfolio_response = client.get("/portfolio/summary", headers=headers)
         assert portfolio_response.status_code == status.HTTP_200_OK
         portfolio = portfolio_response.json()
         assert portfolio["cash_balance"] == 99300.0
-        assert portfolio["positions_count"] == 1  # Still have 5 shares
+        assert portfolio["positions_count"] == 1  # still have 5 shares
         
-        # Step 6: Check final activities
+        # step 6: check final activities
         activities_response = client.get("/trading/activities", headers=headers)
         assert activities_response.status_code == status.HTTP_200_OK
         activities = activities_response.json()
@@ -113,12 +113,12 @@ class TestIntegrationFlows:
         """Test complete watchlist management flow"""
         headers = authenticated_user["headers"]
         
-        # Step 1: Check empty watchlist
+        # step 1: check empty watchlist
         watchlist_response = client.get("/trading/watchlist", headers=headers)
         assert watchlist_response.status_code == status.HTTP_200_OK
         assert len(watchlist_response.json()) == 0
         
-        # Step 2: Add stocks to watchlist
+        # step 2: add stocks to watchlist
         stocks_to_add = ["AAPL", "GOOGL", "MSFT"]
         
         for symbol in stocks_to_add:
@@ -130,7 +130,7 @@ class TestIntegrationFlows:
             assert add_response.status_code == status.HTTP_200_OK
             assert add_response.json()["symbol"] == symbol
         
-        # Step 3: Check watchlist has all stocks
+        # step 3: check watchlist has all stocks
         watchlist_response = client.get("/trading/watchlist", headers=headers)
         assert watchlist_response.status_code == status.HTTP_200_OK
         watchlist = watchlist_response.json()
@@ -139,14 +139,14 @@ class TestIntegrationFlows:
         for symbol in stocks_to_add:
             assert symbol in watchlist_symbols
         
-        # Step 4: Remove one stock
+        # step 4: remove one stock
         remove_response = client.delete(
             "/trading/watchlist/GOOGL",
             headers=headers
         )
         assert remove_response.status_code == status.HTTP_200_OK
         
-        # Step 5: Check final watchlist
+        # step 5: check final watchlist
         watchlist_response = client.get("/trading/watchlist", headers=headers)
         assert watchlist_response.status_code == status.HTTP_200_OK
         watchlist = watchlist_response.json()
@@ -159,16 +159,16 @@ class TestIntegrationFlows:
     @patch('app.domains.stocks.services.StockService.get_current_price')
     def test_insufficient_funds_flow(self, mock_get_price, client, authenticated_user):
         """Test trading flow with insufficient funds"""
-        # Mock very high stock price
+        # mock very high stock price
         mock_get_price.return_value = {"current_price": 50000.0}
         
         headers = authenticated_user["headers"]
         
-        # Try to buy expensive stock
+        # try to buy expensive stock
         expensive_order = {
             "symbol": "EXPENSIVE",
             "action": "buy",
-            "quantity": 10  # Would cost 500,000 but user only has 100,000
+            "quantity": 10  # would cost 500,000 but user only has 100,000
         }
         
         response = client.post(
@@ -180,7 +180,7 @@ class TestIntegrationFlows:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert "insufficient" in response.json()["detail"].lower()
         
-        # Verify portfolio unchanged
+        # verify portfolio unchanged
         portfolio_response = client.get("/portfolio/summary", headers=headers)
         assert portfolio_response.status_code == status.HTTP_200_OK
         portfolio = portfolio_response.json()
@@ -190,12 +190,12 @@ class TestIntegrationFlows:
     @patch('app.domains.stocks.services.StockService.get_current_price')
     def test_insufficient_shares_flow(self, mock_get_price, client, authenticated_user):
         """Test selling more shares than owned"""
-        # Mock stock price
+        # mock stock price
         mock_get_price.return_value = {"current_price": 150.0}
-        
+
         headers = authenticated_user["headers"]
-        
-        # First buy some shares
+
+        # first buy some shares
         buy_order = {
             "symbol": "AAPL",
             "action": "buy",
@@ -209,11 +209,11 @@ class TestIntegrationFlows:
         )
         assert buy_response.status_code == status.HTTP_200_OK
         
-        # Try to sell more shares than owned
+        # try to sell more shares than owned
         sell_order = {
             "symbol": "AAPL",
             "action": "sell",
-            "quantity": 10  # More than the 5 owned
+            "quantity": 10  # more than the 5 owned
         }
         
         sell_response = client.post(
@@ -229,12 +229,12 @@ class TestIntegrationFlows:
         """Test complete user profile management flow"""
         headers = authenticated_user["headers"]
         
-        # Step 1: Get current profile
+        # step 1: get current profile
         profile_response = client.get("/auth/me", headers=headers)
         assert profile_response.status_code == status.HTTP_200_OK
         original_profile = profile_response.json()
         
-        # Step 2: Update profile
+        # step 2: update profile
         update_data = {
             "first_name": "Jane",
             "last_name": "Smith"
@@ -249,9 +249,9 @@ class TestIntegrationFlows:
         updated_profile = update_response.json()
         assert updated_profile["first_name"] == "Jane"
         assert updated_profile["last_name"] == "Smith"
-        assert updated_profile["email"] == original_profile["email"]  # Unchanged
+        assert updated_profile["email"] == original_profile["email"]  # unchanged
         
-        # Step 3: Verify profile was updated
+        # step 3: verify profile was updated
         profile_response = client.get("/auth/me", headers=headers)
         assert profile_response.status_code == status.HTTP_200_OK
         final_profile = profile_response.json()
@@ -263,7 +263,7 @@ class TestIntegrationFlows:
         headers = authenticated_user["headers"]
         original_password = authenticated_user["user_data"]["password"]
         
-        # Step 1: Change password
+        # step 1: change password
         password_data = {
             "current_password": original_password,
             "new_password": "newpassword123"
@@ -276,7 +276,7 @@ class TestIntegrationFlows:
         )
         assert change_response.status_code == status.HTTP_200_OK
         
-        # Step 2: Try logging in with old password (should fail)
+        # step 2: try logging in with old password (should fail)
         old_login_response = client.post(
             "/auth/login",
             data={
@@ -286,7 +286,7 @@ class TestIntegrationFlows:
         )
         assert old_login_response.status_code == status.HTTP_401_UNAUTHORIZED
         
-        # Step 3: Login with new password (should succeed)
+        # step 3: login with new password (should succeed)
         new_login_response = client.post(
             "/auth/login",
             data={
@@ -302,7 +302,7 @@ class TestIntegrationFlows:
         """Test managing multiple stock positions"""
         headers = authenticated_user["headers"]
         
-        # Mock different stock prices
+        # mock different stock prices
         def price_side_effect(symbol):
             prices = {
                 "AAPL": {"current_price": 150.0},
@@ -313,7 +313,7 @@ class TestIntegrationFlows:
         
         mock_get_price.side_effect = price_side_effect
         
-        # Buy multiple different stocks
+        # buy multiple different stocks
         orders = [
             {"symbol": "AAPL", "action": "buy", "quantity": 10},
             {"symbol": "GOOGL", "action": "buy", "quantity": 2},
@@ -329,11 +329,11 @@ class TestIntegrationFlows:
             )
             assert response.status_code == status.HTTP_200_OK
             
-            # Calculate expected cost
+            # calculate expected cost
             price = price_side_effect(order["symbol"])["current_price"]
             total_spent += order["quantity"] * price
         
-        # Check final portfolio
+        # check final portfolio
         portfolio_response = client.get("/portfolio/summary", headers=headers)
         assert portfolio_response.status_code == status.HTTP_200_OK
         portfolio = portfolio_response.json()
@@ -342,7 +342,7 @@ class TestIntegrationFlows:
         assert portfolio["cash_balance"] == expected_cash
         assert portfolio["positions_count"] == 3
         
-        # Check activities show all trades
+        # check activities show all trades
         activities_response = client.get("/trading/activities", headers=headers)
         assert activities_response.status_code == status.HTTP_200_OK
         activities = activities_response.json()
@@ -357,21 +357,21 @@ class TestIntegrationFlows:
         """Test complete account deletion flow"""
         headers = authenticated_user["headers"]
         
-        # Step 1: Verify account is active
+        # step 1: verify account is active
         profile_response = client.get("/auth/me", headers=headers)
         assert profile_response.status_code == status.HTTP_200_OK
         assert profile_response.json()["is_active"] is True
         
-        # Step 2: Delete account
+        # step 2: delete account
         delete_response = client.delete("/auth/me", headers=headers)
         assert delete_response.status_code == status.HTTP_200_OK
         assert "deleted" in delete_response.json()["message"].lower()
         
-        # Step 3: Try to access profile (should fail)
+        # step 3: try to access profile (should fail)
         profile_response = client.get("/auth/me", headers=headers)
         assert profile_response.status_code == status.HTTP_401_UNAUTHORIZED
         
-        # Step 4: Try to login (should fail - account deactivated)
+        # step 4: try to login (should fail - account deactivated)
         login_response = client.post(
             "/auth/login",
             data={
@@ -426,7 +426,7 @@ class TestErrorHandlingIntegration:
     @patch('app.domains.stocks.services.StockService.get_current_price')
     def test_stock_api_error_handling(self, mock_get_price, client, authenticated_user):
         """Test handling of stock API errors during trading"""
-        # Mock stock service to raise exception
+        # mock stock service to raise exception
         mock_get_price.side_effect = Exception("Stock API Error")
         
         headers = authenticated_user["headers"]
@@ -443,20 +443,20 @@ class TestErrorHandlingIntegration:
             headers=headers
         )
         
-        # Should handle the error gracefully
+        # should handle the error gracefully
         assert response.status_code in [status.HTTP_400_BAD_REQUEST, status.HTTP_500_INTERNAL_SERVER_ERROR]
 
     def test_database_transaction_integrity(self, client, authenticated_user):
         """Test that failed operations don't leave database in inconsistent state"""
         headers = authenticated_user["headers"]
         
-        # Get initial portfolio state
+        # get initial portfolio state
         initial_portfolio = client.get("/portfolio/summary", headers=headers)
         initial_cash = initial_portfolio.json()["cash_balance"]
         
-        # Try to execute invalid order (should fail)
+        # try to execute invalid order (should fail)
         invalid_order = {
-            "symbol": "",  # Invalid symbol
+            "symbol": "",  # invalid symbol
             "action": "buy",
             "quantity": 10
         }
@@ -467,10 +467,10 @@ class TestErrorHandlingIntegration:
             headers=headers
         )
         
-        # Should fail
+        # should fail
         assert response.status_code in [status.HTTP_400_BAD_REQUEST, status.HTTP_422_UNPROCESSABLE_ENTITY]
         
-        # Verify portfolio state unchanged
+        # verify portfolio state unchanged
         final_portfolio = client.get("/portfolio/summary", headers=headers)
         final_cash = final_portfolio.json()["cash_balance"]
         assert final_cash == initial_cash

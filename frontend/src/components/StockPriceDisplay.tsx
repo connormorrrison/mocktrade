@@ -32,7 +32,7 @@ export const StockPriceDisplay = ({
   return (
     <Tile>
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_1fr_auto] lg:items-center gap-4 w-full text-left">
-        {/* Company Name & Symbol with Price and Shares */}
+        {/* company name & symbol with price and shares */}
         <div className="ml-2">
           <div className="flex items-baseline gap-2 overflow-hidden">
             <Text6 className="truncate shrink">{companyName}</Text6>
@@ -46,14 +46,14 @@ export const StockPriceDisplay = ({
           </Text5>
         </div>
 
-        {/* Empty spacing columns */}
+        {/* empty spacing columns */}
         <div className="text-left flex items-center">
         </div>
 
         <div className="text-left flex items-center">
         </div>
 
-        {/* Action Buttons */}
+        {/* action buttons */}
         <div className="flex flex-wrap gap-4 mr-2 justify-end">
           <MarketStatus />
           <WatchlistButton

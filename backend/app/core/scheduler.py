@@ -11,7 +11,7 @@ from app.domains.auth.repositories import UserRepository
 
 logger = logging.getLogger(__name__)
 
-# Global scheduler instance
+# global scheduler instance
 scheduler = AsyncIOScheduler()
 
 
@@ -24,13 +24,13 @@ async def create_daily_snapshots():
 
     db: Session = SessionLocal()
     try:
-        # Get all active users
+        # get all active users
         user_repo = UserRepository(db)
         all_users = user_repo.get_all_active()
 
         logger.info(f"Creating snapshots for {len(all_users)} users")
 
-        # Create snapshot for each user
+        # create snapshot for each user
         success_count = 0
         error_count = 0
 
@@ -58,9 +58,9 @@ def start_scheduler():
     Schedules daily portfolio snapshot creation at market close (4:00 PM ET).
     """
     try:
-        # Schedule daily snapshots at 4:00 PM ET (market close)
-        # Using hour=16 for 4 PM in server timezone
-        # Adjust timezone as needed for your deployment
+        # schedule daily snapshots at 4:00 PM ET (market close)
+        # using hour=16 for 4 PM in server timezone
+        # adjust timezone as needed for your deployment
         scheduler.add_job(
             create_daily_snapshots,
             trigger=CronTrigger(hour=16, minute=0),  # 4:00 PM daily
@@ -69,7 +69,7 @@ def start_scheduler():
             replace_existing=True
         )
 
-        # Optional: Add a job that runs at startup to create today's snapshot if missing
+        # optional: add a job that runs at startup to create today's snapshot if missing
         scheduler.add_job(
             create_daily_snapshots,
             id='startup_portfolio_snapshots',

@@ -35,11 +35,11 @@ export const usePasswordForm = () => {
     const handleSave = async () => {
         // 1. validation
         if (newPassword !== confirmPassword) {
-            setError('new passwords do not match');
+            setError('New passwords do not match.');
             return;
         }
         if (newPassword.length < 8) {
-            setError('new password must be at least 8 characters long');
+            setError('New password must be at least 8 characters long.');
             return;
         }
 
@@ -50,7 +50,7 @@ export const usePasswordForm = () => {
         try {
             const token = localStorage.getItem('access_token');
             if (!token) {
-                throw new Error('no authentication token found');
+                throw new Error('No authentication token found.');
             }
 
             const response = await fetch(import.meta.env.VITE_API_URL + "/auth/change-password", {
@@ -74,7 +74,7 @@ export const usePasswordForm = () => {
                 if (errorData.detail) {
                     errorMessage = errorData.detail;
                 } else {
-                    errorMessage = 'failed to change password';
+                    errorMessage = 'Failed to change password.';
                 }
                 throw new Error(errorMessage);
             }
@@ -83,7 +83,7 @@ export const usePasswordForm = () => {
             if (err instanceof Error) {
                 errorMessage = err.message;
             } else {
-                errorMessage = 'failed to change password';
+                errorMessage = 'Failed to change password.';
             }
             setError(errorMessage);
         } finally {

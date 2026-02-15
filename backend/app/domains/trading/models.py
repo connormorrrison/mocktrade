@@ -15,7 +15,7 @@ class Position(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     
-    # Relationships
+    # relationships
     user = relationship("User", back_populates="positions")
     activities = relationship("Activity", back_populates="position")
 
@@ -32,7 +32,7 @@ class Activity(Base):
     total_amount = Column(Float)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
-    # Relationships
+    # relationships
     user = relationship("User", back_populates="activities")
     position = relationship("Position", back_populates="activities")
 
@@ -44,5 +44,5 @@ class Watchlist(Base):
     symbol = Column(String, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
-    # Relationships
+    # relationships
     user = relationship("User", back_populates="watchlist")

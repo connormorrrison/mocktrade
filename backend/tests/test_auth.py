@@ -31,10 +31,10 @@ class TestAuthAPI:
 
     def test_register_duplicate_email(self, client, sample_user_data):
         """Test registration with duplicate email"""
-        # First registration
+        # first registration
         client.post("/auth/register", json=sample_user_data)
-        
-        # Second registration with same email
+
+        # second registration with same email
         duplicate_user = sample_user_data.copy()
         duplicate_user["username"] = "different_username"
         response = client.post("/auth/register", json=duplicate_user)
@@ -44,10 +44,10 @@ class TestAuthAPI:
 
     def test_register_duplicate_username(self, client, sample_user_data):
         """Test registration with duplicate username"""
-        # First registration
+        # first registration
         client.post("/auth/register", json=sample_user_data)
-        
-        # Second registration with same username
+
+        # second registration with same username
         duplicate_user = sample_user_data.copy()
         duplicate_user["email"] = "different@example.com"
         response = client.post("/auth/register", json=duplicate_user)
@@ -228,21 +228,21 @@ class TestAuthService:
         assert user.username == sample_user_data["username"]
         assert user.cash_balance == 100000.0
         assert user.is_active is True
-        assert user.hashed_password != sample_user_data["password"]  # Should be hashed
+        assert user.hashed_password != sample_user_data["password"]  # should be hashed
 
     def test_register_user_weak_password(self, db):
         """Test registration with weak password in service"""
         auth_service = AuthService(db)
-        # Test at service level bypassing Pydantic validation
+        # test at service level bypassing Pydantic validation
         user_data = UserCreate(
             first_name="John",
             last_name="Doe", 
             email="john@example.com",
             username="johndoe",
-            password="password123"  # Valid for Pydantic, will test service validation
+            password="password123"  # valid for Pydantic, will test service validation
         )
         
-        # Override password after creation to bypass Pydantic validation
+        # override password after creation to bypass Pydantic validation
         user_data.password = "123"
         
         with pytest.raises(WeakPasswordError):
@@ -253,10 +253,10 @@ class TestAuthService:
         auth_service = AuthService(db)
         user_create = UserCreate(**sample_user_data)
         
-        # Create user first
+        # create user first
         created_user = auth_service.register_user(user_create)
-        
-        # Authenticate user
+
+        # authenticate user
         authenticated_user = auth_service.authenticate_user(
             sample_user_data["email"], 
             sample_user_data["password"]
@@ -270,10 +270,10 @@ class TestAuthService:
         auth_service = AuthService(db)
         user_create = UserCreate(**sample_user_data)
         
-        # Create user first
+        # create user first
         auth_service.register_user(user_create)
-        
-        # Try to authenticate with wrong password
+
+        # try to authenticate with wrong password
         with pytest.raises(InvalidCredentialsError):
             auth_service.authenticate_user(
                 sample_user_data["email"],
@@ -327,7 +327,7 @@ class TestAuthService:
         
         assert updated_user.first_name == "Jane"
         assert updated_user.last_name == "Smith"
-        assert updated_user.email == sample_user_data["email"]  # Unchanged
+        assert updated_user.email == sample_user_data["email"]  # unchanged
 
     def test_change_password_success(self, db, sample_user_data):
         """Test successful password change"""
@@ -340,10 +340,10 @@ class TestAuthService:
             new_password="newpassword123"
         )
         
-        # Should not raise exception
+        # should not raise exception
         auth_service.change_password(user, password_change)
-        
-        # Verify new password works
+
+        # verify new password works
         authenticated_user = auth_service.authenticate_user(
             user.email, 
             "newpassword123"
@@ -374,7 +374,7 @@ class TestAuthService:
         
         assert deactivated_user.is_active is False
         
-        # Should not be able to authenticate deactivated user
+        # should not be able to authenticate deactivated user
         with pytest.raises(UserInactiveError):
             auth_service.authenticate_user(
                 sample_user_data["email"],

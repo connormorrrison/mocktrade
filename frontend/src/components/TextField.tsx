@@ -19,7 +19,7 @@ export const TextField = ({ label, className, type, uppercase = false, multiline
   const isPassword = type === "password"
   const inputType = isPassword ? (showPassword ? "text" : "password") : type
 
-  // Update display value when props.value changes (only when not focused)
+  // update display value when props.value changes (only when not focused)
   React.useEffect(() => {
     if (!isFocused) {
       if (formatType !== 'default') {
@@ -30,7 +30,7 @@ export const TextField = ({ label, className, type, uppercase = false, multiline
     }
   }, [props.value, formatType, isFocused])
 
-  // Format value for display
+  // format value for display
   const formatValue = (value: string): string => {
     if (!value || formatType === 'default') return value
     
@@ -56,23 +56,23 @@ export const TextField = ({ label, className, type, uppercase = false, multiline
     return value
   }
 
-  // Handle input changes
+  // handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let inputValue = e.target.value
     
-    // For currency, remove $ and commas, keep only numbers and decimal
+    // for currency, remove $ and commas, keep only numbers and decimal
     if (formatType === 'currency') {
       inputValue = inputValue.replace(/[^0-9.]/g, '')
     }
-    // For numbers, remove commas, keep numbers and decimal
+    // for numbers, remove commas, keep numbers and decimal
     else if (formatType === 'number') {
       inputValue = inputValue.replace(/[^0-9.]/g, '')
     }
     
-    // While focused, show raw value to avoid flicker (formats on blur)
+    // while focused, show raw value to avoid flicker (formats on blur)
     setDisplayValue(inputValue)
     
-    // Call original onChange with raw value
+    // call original onChange with raw value
     if (props.onChange) {
       const syntheticEvent = {
         ...e,
@@ -85,7 +85,7 @@ export const TextField = ({ label, className, type, uppercase = false, multiline
     }
   }
 
-  // Handle blur
+  // handle blur
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(false)
     if (props.onBlur) {
@@ -93,7 +93,7 @@ export const TextField = ({ label, className, type, uppercase = false, multiline
     }
   }
 
-  // Handle focus
+  // handle focus
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(true)
     if (props.onFocus) {

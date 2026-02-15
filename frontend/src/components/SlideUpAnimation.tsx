@@ -14,12 +14,12 @@ export default function SlideUpAnimation({
   const location = useLocation();
 
   useEffect(() => {
-    // Reset animation state
+    // reset animation state
     setIsVisible(false);
     
     const timer = setTimeout(() => setIsVisible(true), 200);
     return () => clearTimeout(timer);
-  }, [location.pathname]); // Re-trigger when pathname changes
+  }, [location.pathname]); // re-trigger when pathname changes
 
   const animationClass = `transition-all duration-200 ${
     isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95'

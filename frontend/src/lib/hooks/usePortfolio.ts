@@ -43,13 +43,13 @@ export const usePortfolio = () => {
           setActivityCount(data.activity_count);
         }
       } else {
-        throw new Error('failed to fetch portfolio data');
+        throw new Error('Failed to fetch portfolio data.');
       }
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('an unknown error occurred');
+        setError('An unknown error occurred.');
       }
     } finally {
       setLoading(false);
