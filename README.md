@@ -1,32 +1,44 @@
 # MockTrade
 
-**MockTrade** is a full-stack trading simulator that allows users to **practice trading stocks in a risk-free environment**. Users can search for stocks, execute buy/sell trades, view their portfolio performance, and track their activity history.
+**MockTrade** is a full-stack trading simulator that allows users to **practice trading stocks in a risk-free environment**. Users start with $100,000 in virtual cash, trade real stocks at live market prices, and compete on a leaderboard.
 
 **Live at:** [mocktrade.ca](https://mocktrade.ca)
 
 ## Features
-- **User Authentication:** Register and log in securely.
-- **Stock Search:** Find real-time stock prices.
-- **Portfolio Management:** Track holdings, cash balance, and overall portfolio performance.
-- **Trade Execution:** Buy and sell stocks using virtual cash.
+- **User Authentication:** Register, log in, or sign in with Google.
+- **Stock Search:** Find real-time stock prices and view price history charts.
+- **Portfolio Management:** Track holdings, cash balance, and overall portfolio performance with interactive charts.
+- **Trade Execution:** Buy and sell stocks using virtual cash at live market prices.
+- **Leaderboard:** Compete with other users across Day, Week, Month, and All-Time timeframes ranked by profit and return.
 - **Activity History:** View and filter past trades.
-- **Market Indices Dashboard:** Monitor key market indices such as **DJIA, S&P 500, and Nasdaq**.
-- **Data Visualization:** Enjoy portfolio performance charts and detailed stock price histories.
+- **Market Indices Dashboard:** Monitor key market indices such as DJIA, S&P 500, and Nasdaq.
+- **Watchlist:** Save stocks to a personal watchlist for quick access.
 
 ## Tech Stack
-- **Frontend:** React, TypeScript, TailwindCSS, Chart.js
+- **Frontend:** React, TypeScript, TailwindCSS, Recharts
 - **Backend:** FastAPI, Python, PostgreSQL
-- **Authentication:** JWT for authentication
+- **Authentication:** JWT + Google OAuth
 - **Market Data:** Yahoo Finance API (yfinance)
+- **Hosting:** Vercel (frontend), Render (backend), Supabase (database)
 
 ## Project Structure
 
 ```
 mocktrade/
 ├── backend/          # FastAPI Python backend
+│   ├── app/
+│   │   ├── core/           # Config, security, scheduler, middleware
+│   │   ├── domains/        # Auth, portfolio, trading, stocks
+│   │   └── infrastructure/ # Database setup
+│   └── tests/
 ├── frontend/         # React TypeScript frontend
-├── assets/          # Shared assets (logos, icons)
-└── README.md        # This file
+│   └── src/
+│       ├── components/     # UI components
+│       ├── pages/          # Route pages
+│       ├── lib/            # Hooks, types, utilities
+│       └── contexts/       # React contexts
+├── setup.sh          # One-command local setup script
+└── README.md
 ```
 
 ## Getting Started
@@ -37,59 +49,47 @@ mocktrade/
 
 #### Prerequisites
 - Git
-- Node.js (version 14.x or later)
-- Python 3.x
-- PostgreSQL
+- Node.js (v18+)
+- Python 3.10+
 
-#### Installation
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/connormorrrison/mocktrade.git
-   cd mocktrade/
-   ```
+#### Quick Start
 
-2. **Backend Setup:**
+The setup script handles everything (venv, dependencies, and starts both servers):
+
+```bash
+git clone https://github.com/connormorrrison/mocktrade.git
+cd mocktrade/
+```
+
+Create a `.env` file in the `backend/` directory:
+```
+DATABASE_URL=sqlite:///./development.db
+SECRET_KEY=your-secret-key-here
+```
+
+Then run:
+```bash
+./setup.sh
+```
+
+This starts the backend on `http://localhost:8000` and frontend on `http://localhost:5173`. Press Ctrl+C to stop both.
+
+#### Manual Setup
+
+1. **Backend:**
    ```bash
    cd backend/
+   python3 -m venv venv
+   source venv/bin/activate
    pip install -r requirements.txt
-   ```
-
-3. **Frontend Setup:**
-   ```bash
-   cd frontend/
-   npm install
-   ```
-
-#### Configuration
-1. **Start PostgreSQL:**
-   ```bash
-   brew services start postgresql@14
-   ```
-
-2. **Create database:**
-   ```bash
-   createdb development
-   ```
-
-3. **Create `.env` file in backend directory:**
-   ```
-   DATABASE_URL=postgresql://your_username@localhost:5432/development
-   SECRET_KEY=your-secret-key-here
-   ALGORITHM=HS256
-   ACCESS_TOKEN_EXPIRE_MINUTES=30
-   ```
-
-#### Running the Application
-1. **Start the backend server:**
-   ```bash
-   cd backend/
    uvicorn app.main:app --reload
    ```
 
-2. **Start the frontend:**
+2. **Frontend:**
    ```bash
    cd frontend/
+   npm install
    npm run dev
    ```
 
-The database tables will be created automatically when the backend starts.
+The database tables are created automatically when the backend starts. SQLite is used by default for local development; set `DATABASE_URL` to a PostgreSQL connection string for production.
