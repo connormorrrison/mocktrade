@@ -1,6 +1,6 @@
 import pytest
 from fastapi import status
-from unittest.mock import patch
+from unittest.mock import patch, AsyncMock
 
 
 class TestIntegrationFlows:
@@ -109,8 +109,10 @@ class TestIntegrationFlows:
         assert len(activities) == 2
         assert activities[1]["action"] == "sell"
 
-    def test_watchlist_management_flow(self, client, authenticated_user):
+    @patch('app.domains.stocks.services.StockService.validate_symbol', new_callable=AsyncMock)
+    def test_watchlist_management_flow(self, mock_validate_symbol, client, authenticated_user):
         """Test complete watchlist management flow"""
+        mock_validate_symbol.return_value = True
         headers = authenticated_user["headers"]
         
         # step 1: check empty watchlist
@@ -421,7 +423,7 @@ class TestErrorHandlingIntegration:
             elif method == "POST":
                 response = client.post(endpoint)
             
-            assert response.status_code == status.HTTP_403_FORBIDDEN
+            assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     @patch('app.domains.stocks.services.StockService.get_current_price')
     def test_stock_api_error_handling(self, mock_get_price, client, authenticated_user):

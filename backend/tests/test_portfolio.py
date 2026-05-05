@@ -16,7 +16,7 @@ class TestPortfolioAPI:
     def test_get_portfolio_summary_unauthorized(self, client):
         """Test getting portfolio summary without auth"""
         response = client.get("/portfolio/summary")
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     @patch('app.domains.portfolio.services.PortfolioService.get_portfolio_summary')
     def test_get_portfolio_summary_success(self, mock_get_summary, client, authenticated_user):
@@ -149,21 +149,21 @@ class TestPortfolioService:
         
         return positions
 
-    @patch('app.domains.stocks.services.StockService.get_current_price')
-    async def test_get_portfolio_summary_success(self, mock_get_price, portfolio_service, test_user, test_positions):
+    @patch('app.domains.stocks.services.StockService.get_stock_data')
+    async def test_get_portfolio_summary_success(self, mock_get_data, portfolio_service, test_user, test_positions):
         """Test successful portfolio summary calculation"""
         # mock stock service responses - using async side_effect
         async def side_effect(symbol):
-            prices = {
-                "AAPL": {"current_price": 160.0},
-                "GOOGL": {"current_price": 2600.0}
+            data = {
+                "AAPL": {"current_price": 160.0, "company_name": "Apple Inc."},
+                "GOOGL": {"current_price": 2600.0, "company_name": "Alphabet Inc."}
             }
-            return prices[symbol]
-        
-        mock_get_price.side_effect = side_effect
-        
+            return data[symbol]
+
+        mock_get_data.side_effect = side_effect
+
         summary = await portfolio_service.get_portfolio_summary(test_user.id)
-        
+
         assert summary.cash_balance == 100000.0  # default starting balance
         assert summary.positions_value == (10 * 160.0) + (5 * 2600.0)  # 1600 + 13000 = 14600
         assert summary.portfolio_value == summary.cash_balance + summary.positions_value
@@ -183,15 +183,15 @@ class TestPortfolioService:
         with pytest.raises(PortfolioError):
             await portfolio_service.get_portfolio_summary(999999)
 
-    @patch('app.domains.stocks.services.StockService.get_current_price')
-    async def test_get_portfolio_summary_stock_price_error(self, mock_get_price, portfolio_service, test_user, test_positions):
+    @patch('app.domains.stocks.services.StockService.get_stock_data')
+    async def test_get_portfolio_summary_stock_price_error(self, mock_get_data, portfolio_service, test_user, test_positions):
         """Test portfolio summary when stock price fetch fails"""
         # mock stock service to raise exception
-        mock_get_price.side_effect = Exception("API Error")
+        mock_get_data.side_effect = Exception("API Error")
 
         # should use average price as fallback
         summary = await portfolio_service.get_portfolio_summary(test_user.id)
-        
+
         assert summary.cash_balance == 100000.0
         # should use average prices: (10 * 150.0) + (5 * 2500.0) = 1500 + 12500 = 14000
         assert summary.positions_value == 14000.0

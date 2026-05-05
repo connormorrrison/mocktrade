@@ -230,13 +230,21 @@ async def add_to_watchlist(
     """Add a stock to user's watchlist"""
     try:
         trading_service = TradingService(db)
-        
-        # validate stock symbol exists (optional - comment out if you want to allow any symbol)
+
+        # Validate against yfinance before saving to the watchlist so users can
+        # only track symbols that are also tradable in the app.
+        from app.domains.stocks.services import StockService
+        stock_service = StockService()
+
         try:
-            from app.domains.stocks.services import StockService
-            stock_service = StockService()
-            await stock_service.get_current_price(watchlist_data.symbol)
+            is_valid = await stock_service.validate_symbol(watchlist_data.symbol)
         except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Stock validation is temporarily unavailable. Please try again."
+            )
+
+        if not is_valid:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Invalid stock symbol: {watchlist_data.symbol}."

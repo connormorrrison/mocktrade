@@ -124,7 +124,7 @@ class TestAuthAPI:
     def test_get_current_user_unauthorized(self, client):
         """Test getting current user without auth"""
         response = client.get("/auth/me")
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_get_current_user_invalid_token(self, client):
         """Test getting current user with invalid token"""
@@ -150,7 +150,7 @@ class TestAuthAPI:
     def test_update_profile_unauthorized(self, client, sample_user_update):
         """Test profile update without auth"""
         response = client.put("/auth/profile", json=sample_user_update)
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_change_password_success(self, client, authenticated_user):
         """Test successful password change"""
@@ -211,7 +211,7 @@ class TestAuthAPI:
     def test_delete_account_unauthorized(self, client):
         """Test account deletion without auth"""
         response = client.delete("/auth/me")
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 class TestAuthService:

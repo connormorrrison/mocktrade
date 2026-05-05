@@ -4,7 +4,7 @@ import yfinance as yf
 import asyncio
 import logging
 from typing import Dict, List, Optional
-from datetime import datetime
+from datetime import date, datetime, timedelta
 
 from app.domains.stocks.schemas import StockData, MarketIndex, MarketMover
 
@@ -57,6 +57,59 @@ class YFinanceClient:
             logger.error(f"Error fetching price for {symbol}: {e}")
             return None
     
+    async def get_historical_closes(
+        self, symbols: List[str], start_date: date, end_date: date
+    ) -> Dict[str, Dict[date, float]]:
+        """Batch-fetch historical closing prices for multiple symbols.
+
+        Returns {symbol: {date: close_price, ...}, ...}.
+        Uses a single yf.download() call for efficiency.
+        """
+        if not symbols:
+            return {}
+
+        try:
+            # yf.download end is exclusive, so add one day
+            # Pass symbols as a space-separated string for consistent behavior
+            df = yf.download(
+                " ".join(symbols),
+                start=start_date.isoformat(),
+                end=(end_date + timedelta(days=1)).isoformat(),
+                progress=False,
+            )
+
+            if df.empty:
+                return {}
+
+            result: Dict[str, Dict[date, float]] = {}
+
+            if len(symbols) == 1:
+                # Single symbol: columns are flat ['Close', 'High', ...]
+                sym = symbols[0]
+                result[sym] = {}
+                close_col = df["Close"]
+                if hasattr(close_col, "columns"):
+                    # MultiIndex case — extract the series
+                    close_col = close_col.iloc[:, 0]
+                for ts, price in close_col.dropna().items():
+                    result[sym][ts.date()] = float(price)
+            else:
+                # Multiple symbols: columns are MultiIndex ('Close', 'AAPL'), ...
+                close_df = df["Close"]
+                for sym in symbols:
+                    if sym not in close_df.columns:
+                        continue
+                    result[sym] = {}
+                    series = close_df[sym].dropna()
+                    for ts, price in series.items():
+                        result[sym][ts.date()] = float(price)
+
+            return result
+
+        except Exception as e:
+            logger.error(f"Error fetching historical closes: {e}")
+            raise
+
     async def get_market_indices(self) -> List[MarketIndex]:
         """Get market indices - use predefined names, just fetch prices in parallel"""
 
@@ -101,8 +154,9 @@ class YFinanceClient:
         try:
             info = yf.Ticker(symbol).info
             return bool(info.get('symbol') or info.get('shortName'))
-        except:
-            return False
+        except Exception as e:
+            logger.error(f"Error validating symbol {symbol}: {e}")
+            raise
     
     def _format_market_cap(self, market_cap: int) -> str:
         """Format market cap with appropriate suffix"""

@@ -1,12 +1,15 @@
 # app/domains/portfolio/models.py
 
-from sqlalchemy import Column, Integer, Float, Date, ForeignKey, DateTime, func
+from sqlalchemy import Column, Integer, Float, Date, ForeignKey, DateTime, UniqueConstraint, func
 from sqlalchemy.orm import relationship
 
 from app.infrastructure.database import Base
 
 class PortfolioSnapshot(Base):
     __tablename__ = "portfolio_snapshots"
+    __table_args__ = (
+        UniqueConstraint("user_id", "snapshot_date", name="uq_portfolio_snapshots_user_date"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))

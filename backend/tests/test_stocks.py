@@ -11,7 +11,7 @@ class TestStocksAPI:
     def test_get_stock_quote_unauthorized(self, client):
         """Test getting stock quote without auth"""
         response = client.get("/stocks/quote/AAPL")
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     @patch('app.domains.stocks.services.StockService.get_current_price')
     def test_get_stock_quote_success(self, mock_get_price, client, authenticated_user):

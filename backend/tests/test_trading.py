@@ -19,7 +19,7 @@ class TestTradingAPI:
             "quantity": 10
         }
         response = client.post("/trading/orders", json=order_data)
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     @patch('app.domains.stocks.services.StockService.get_current_price')
     @patch('app.domains.trading.services.TradingService.execute_order')
@@ -142,8 +142,10 @@ class TestTradingAPI:
         data = response.json()
         assert isinstance(data, list)
 
-    def test_add_to_watchlist_success(self, client, authenticated_user):
+    @patch('app.domains.stocks.services.StockService.validate_symbol', new_callable=AsyncMock)
+    def test_add_to_watchlist_success(self, mock_validate_symbol, client, authenticated_user):
         """Test adding stock to watchlist"""
+        mock_validate_symbol.return_value = True
         watchlist_data = {"symbol": "AAPL"}
         
         response = client.post(
@@ -156,8 +158,10 @@ class TestTradingAPI:
         data = response.json()
         assert data["symbol"] == "AAPL"
 
-    def test_remove_from_watchlist_success(self, client, authenticated_user):
+    @patch('app.domains.stocks.services.StockService.validate_symbol', new_callable=AsyncMock)
+    def test_remove_from_watchlist_success(self, mock_validate_symbol, client, authenticated_user):
         """Test removing stock from watchlist"""
+        mock_validate_symbol.return_value = True
         # first add to watchlist
         watchlist_data = {"symbol": "AAPL"}
         client.post(
@@ -173,6 +177,35 @@ class TestTradingAPI:
         )
         
         assert response.status_code == status.HTTP_200_OK
+
+    @patch('app.domains.stocks.services.StockService.validate_symbol', new_callable=AsyncMock)
+    def test_add_to_watchlist_invalid_symbol(self, mock_validate_symbol, client, authenticated_user):
+        """Invalid symbols should be rejected before writing the watchlist row."""
+        mock_validate_symbol.return_value = False
+
+        response = client.post(
+            "/trading/watchlist",
+            json={"symbol": "INVALID"},
+            headers=authenticated_user["headers"]
+        )
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "Invalid stock symbol" in response.json()["detail"]
+
+    @patch('app.domains.stocks.services.StockService.validate_symbol', new_callable=AsyncMock)
+    def test_add_to_watchlist_validation_unavailable(
+        self, mock_validate_symbol, client, authenticated_user
+    ):
+        """Provider outages should surface as temporary unavailability, not invalidity."""
+        mock_validate_symbol.side_effect = Exception("Yahoo unavailable")
+
+        response = client.post(
+            "/trading/watchlist",
+            json={"symbol": "AAPL"},
+            headers=authenticated_user["headers"]
+        )
+
+        assert response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
 
 
 class TestTradingService:

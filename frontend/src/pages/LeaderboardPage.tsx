@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { PageLayout } from "@/components/PageLayout";
 import { Countdown } from "@/components/Countdown";
 import { CustomSkeleton } from "@/components/CustomSkeleton";
@@ -15,11 +16,20 @@ import { useSortedLeaderboards } from "@/lib/hooks/useSortedLeaderboards";
 import { TimeframeSelector } from "@/components/leaderboard/TimeframeSelector";
 import { LeaderboardDisplay } from "@/components/leaderboard/LeaderboardDisplay";
 
+const VALID_TIMEFRAMES: Timeframe[] = ["Day", "Week", "Month", "All"];
+
 export default function LeaderboardPage() {
   // --- state ---
   const { userData } = useUser();
-  // this is the only state this page is responsible for
-  const [timeframe, setTimeframe] = useState<Timeframe>("Day");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const rawTimeframe = searchParams.get("timeframe");
+  const timeframe: Timeframe = VALID_TIMEFRAMES.includes(rawTimeframe as Timeframe)
+    ? (rawTimeframe as Timeframe)
+    : "Day";
+  const setTimeframe = useCallback(
+    (tf: Timeframe) => setSearchParams({ timeframe: tf }, { replace: true }),
+    [setSearchParams]
+  );
 
   // --- data hooks ---
   // data fetching logic

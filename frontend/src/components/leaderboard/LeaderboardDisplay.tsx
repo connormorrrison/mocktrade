@@ -11,8 +11,8 @@ interface LeaderboardDisplayProps {
 }
 
 // formatting helpers are co-located with the component that uses them
-const formatReturn = (value: number) => "+" + value.toFixed(2) + "%";
-const formatProfit = (value: number) => "+" + formatMoney(value);
+const formatReturn = (value: number) => (value < 0 ? "" : "+") + value.toFixed(2) + "%";
+const formatProfit = (value: number) => (value < 0 ? "" : "+") + formatMoney(value);
 
 /**
  * displays the two side-by-side leaderboards for profit and return.
