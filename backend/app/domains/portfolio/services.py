@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import date, datetime, timedelta
 import asyncio
+import math
 import logging
 
 from app.domains.portfolio.repositories import PortfolioRepository
@@ -224,27 +225,37 @@ class PortfolioService:
             # fetch all user summaries in parallel with concurrency limit
             sem = asyncio.Semaphore(10)
 
+            # Max days a snapshot can be before target_date and still be valid
+            max_staleness = timedelta(days=2)
+
             async def _get_user_entry(user):
                 async with sem:
                     summary = await self.get_portfolio_summary(user.id)
 
                     start_value = 100000.0
+                    baseline_missing = False
                     if target_date is not None:
                         snapshot = self.portfolio_repo.get_snapshot_on_or_before(user.id, target_date)
-                        if snapshot:
+                        if snapshot and (target_date - snapshot.snapshot_date) <= max_staleness:
                             start_value = snapshot.portfolio_value
+                        else:
+                            baseline_missing = True
 
                     current_value = summary.portfolio_value
                     return_amount = current_value - start_value
                     return_percentage = (return_amount / start_value * 100) if start_value > 0 else 0
 
+                    def _safe_float(v, default=0.0):
+                        return default if (v is None or math.isnan(v) or math.isinf(v)) else v
+
                     return {
                         "username": user.username,
                         "first_name": user.first_name,
                         "last_name": user.last_name,
-                        "total_value": current_value,
-                        "return_amount": return_amount,
-                        "return_percentage": return_percentage
+                        "total_value": _safe_float(current_value),
+                        "return_amount": _safe_float(return_amount),
+                        "return_percentage": _safe_float(return_percentage),
+                        "baseline_missing": baseline_missing
                     }
 
             results = await asyncio.gather(*[_get_user_entry(u) for u in all_users], return_exceptions=True)
@@ -256,14 +267,25 @@ class PortfolioService:
                     continue
                 leaderboard_data.append(result)
 
-            # sort by total value descending
-            leaderboard_data.sort(key=lambda x: x["total_value"], reverse=True)
+            # Filter out users with missing baselines for period timeframes
+            if target_date is not None:
+                leaderboard_data = [e for e in leaderboard_data if not e.get("baseline_missing")]
 
-            # add rank
+            # Sort: period timeframes by return_amount, "all" by total_value
+            if target_date is not None:
+                leaderboard_data.sort(key=lambda x: x["return_amount"], reverse=True)
+            else:
+                leaderboard_data.sort(key=lambda x: x["total_value"], reverse=True)
+
+            # Rank and truncate
             for idx, entry in enumerate(leaderboard_data):
                 entry["rank"] = idx + 1
 
-            return leaderboard_data
+            # Remove internal flag before returning
+            for entry in leaderboard_data:
+                entry.pop("baseline_missing", None)
+
+            return leaderboard_data[:20]
 
         except Exception as e:
             logger.error(f"Error getting leaderboard: {e}")
