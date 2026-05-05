@@ -7,6 +7,7 @@ import asyncio
 import math
 import logging
 
+from app.core.config import today_et
 from app.domains.portfolio.repositories import PortfolioRepository
 from app.domains.portfolio.schemas import (
     PortfolioSnapshotCreate, 
@@ -85,7 +86,7 @@ class PortfolioService:
             day_change = None
             day_change_percent = None
 
-            yesterday = date.today() - timedelta(days=1)
+            yesterday = today_et() - timedelta(days=1)
             previous_snapshot = self.portfolio_repo.get_snapshot_by_date(user_id, yesterday)
 
             if previous_snapshot:
@@ -116,7 +117,7 @@ class PortfolioService:
         """Create a portfolio snapshot for a specific date"""
         try:
             if snapshot_date is None:
-                snapshot_date = date.today()
+                snapshot_date = today_et()
             
             # check if snapshot already exists for this date
             existing_snapshot = self.portfolio_repo.get_snapshot_by_date(user_id, snapshot_date)
@@ -154,7 +155,7 @@ class PortfolioService:
         """Get portfolio history for a specified period"""
         try:
             # calculate date range based on period
-            end_date = date.today()
+            end_date = today_et()
             
             if period == "1d":
                 start_date = end_date - timedelta(days=1)
@@ -208,7 +209,7 @@ class PortfolioService:
             all_users = user_repo.get_all_active()
 
             # pre-compute target_date once (same for all users)
-            today = date.today()
+            today = today_et()
             target_date = None
             if timeframe != "all":
                 if timeframe == "day":

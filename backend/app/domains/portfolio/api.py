@@ -24,10 +24,10 @@ async def get_portfolio_summary(
 
         # auto-snapshot: create/update today's snapshot using already-computed values
         try:
-            from datetime import date
+            from app.core.config import today_et
             from app.domains.portfolio.repositories import PortfolioRepository
             portfolio_repo = PortfolioRepository(db)
-            today = date.today()
+            today = today_et()
             existing = portfolio_repo.get_snapshot_by_date(current_user.id, today)
             if existing:
                 portfolio_repo.update_snapshot(existing, summary.portfolio_value, summary.positions_value, summary.cash_balance)

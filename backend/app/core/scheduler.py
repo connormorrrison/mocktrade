@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from datetime import date, timedelta
 import logging
 
+from app.core.config import today_et, ET
+
 from app.infrastructure.database import SessionLocal
 from app.domains.portfolio.services import PortfolioService
 from app.domains.portfolio.models import PortfolioSnapshot
@@ -76,7 +78,7 @@ async def backfill_missing_snapshots():
 
     db: Session = SessionLocal()
     try:
-        yesterday = date.today() - timedelta(days=1)
+        yesterday = today_et() - timedelta(days=1)
 
         user_repo = UserRepository(db)
         portfolio_repo = PortfolioRepository(db)
@@ -266,7 +268,7 @@ def start_scheduler():
         # adjust timezone as needed for your deployment
         scheduler.add_job(
             create_daily_snapshots,
-            trigger=CronTrigger(hour=16, minute=0),  # 4:00 PM daily
+            trigger=CronTrigger(hour=16, minute=0, timezone=ET),  # 4:00 PM ET daily
             id='daily_portfolio_snapshots',
             name='Create daily portfolio snapshots',
             replace_existing=True

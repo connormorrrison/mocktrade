@@ -2,8 +2,18 @@
 
 from pydantic_settings import BaseSettings
 import os
+from datetime import date, datetime
+from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
 from typing import List
+
+# All date logic anchored to US Eastern (NYSE market hours)
+ET = ZoneInfo("America/New_York")
+
+
+def today_et() -> date:
+    """Get today's date in US Eastern timezone."""
+    return datetime.now(ET).date()
 
 load_dotenv()
 

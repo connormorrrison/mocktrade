@@ -9,6 +9,7 @@ from app.domains.trading.repositories import PositionRepository
 from app.domains.auth.repositories import UserRepository
 from app.domains.auth.schemas import UserCreate
 from app.domains.stocks.external import YFinanceClient
+from app.core.config import today_et
 from app.core.security import get_password_hash
 from app.core.scheduler import backfill_missing_snapshots
 
@@ -235,7 +236,7 @@ class TestBackfillMissingSnapshots:
     async def test_no_gap(self, mock_session_local, db, user):
         """When the latest snapshot is yesterday or later, no backfill needed."""
         mock_session_local.return_value = _NoCloseSession(db)
-        yesterday = date.today() - timedelta(days=1)
+        yesterday = today_et() - timedelta(days=1)
         _create_snapshot(db, user.id, yesterday, 100000, 0, 100000)
 
         await backfill_missing_snapshots()
@@ -258,13 +259,13 @@ class TestBackfillMissingSnapshots:
         _create_position(db, user.id, "GOOGL", 5, 2800.0)
 
         # Last snapshot was 4 days ago
-        four_days_ago = date.today() - timedelta(days=4)
+        four_days_ago = today_et() - timedelta(days=4)
         _create_snapshot(db, user.id, four_days_ago, 94000 + 80000, 94000, 80000)
 
         # Historical prices for the 3 gap days
-        three_days_ago = date.today() - timedelta(days=3)
-        two_days_ago = date.today() - timedelta(days=2)
-        yesterday = date.today() - timedelta(days=1)
+        three_days_ago = today_et() - timedelta(days=3)
+        two_days_ago = today_et() - timedelta(days=2)
+        yesterday = today_et() - timedelta(days=1)
 
         mock_hist.return_value = {
             "AAPL": {
@@ -329,7 +330,7 @@ class TestBackfillMissingSnapshots:
             "AAPL": {friday: 155.0},
         }
 
-        # Patch date.today() to return Monday June 24
+        # Patch today_et() to return Monday June 24
         monday = date(2024, 6, 24)
         with patch("app.core.scheduler.date") as mock_date:
             mock_date.today.return_value = monday
@@ -369,8 +370,8 @@ class TestBackfillMissingSnapshots:
         _create_position(db, user.id, "AAPL", 10, 150.0)
         _create_position(db, user.id, "OBSCURE", 20, 50.0)
 
-        yesterday = date.today() - timedelta(days=1)
-        two_days_ago = date.today() - timedelta(days=2)
+        yesterday = today_et() - timedelta(days=1)
+        two_days_ago = today_et() - timedelta(days=2)
         _create_snapshot(db, user.id, two_days_ago, 102500, 2500, 100000)
 
         # yfinance succeeds for AAPL, but OBSCURE is still missing.
@@ -394,8 +395,8 @@ class TestBackfillMissingSnapshots:
         """User with no positions should get cash-only snapshots."""
         mock_session_local.return_value = _NoCloseSession(db)
 
-        yesterday = date.today() - timedelta(days=1)
-        two_days_ago = date.today() - timedelta(days=2)
+        yesterday = today_et() - timedelta(days=1)
+        two_days_ago = today_et() - timedelta(days=2)
         _create_snapshot(db, user.id, two_days_ago, 100000, 0, 100000)
 
         mock_hist.return_value = {}
@@ -422,8 +423,8 @@ class TestBackfillMissingSnapshots:
         _create_position(db, user1.id, "AAPL", 10, 150.0)
         _create_position(db, user2.id, "MSFT", 20, 300.0)
 
-        yesterday = date.today() - timedelta(days=1)
-        two_days_ago = date.today() - timedelta(days=2)
+        yesterday = today_et() - timedelta(days=1)
+        two_days_ago = today_et() - timedelta(days=2)
 
         _create_snapshot(db, user1.id, two_days_ago, 101500, 1500, 100000)
         _create_snapshot(db, user2.id, two_days_ago, 106000, 6000, 100000)
@@ -458,8 +459,8 @@ class TestBackfillMissingSnapshots:
 
         _create_position(db, user.id, "AAPL", 10, 150.0)
 
-        yesterday = date.today() - timedelta(days=1)
-        three_days_ago = date.today() - timedelta(days=3)
+        yesterday = today_et() - timedelta(days=1)
+        three_days_ago = today_et() - timedelta(days=3)
 
         _create_snapshot(db, user.id, three_days_ago, 101500, 1500, 100000)
         # Manually create yesterday's snapshot with a specific value
@@ -504,7 +505,7 @@ class TestBackfillMissingSnapshots:
             "AAPL": {friday: 155.0},
         }
 
-        # Patch date.today() to return Monday June 24
+        # Patch today_et() to return Monday June 24
         monday = date(2024, 6, 24)
         with patch("app.core.scheduler.date") as mock_date:
             mock_date.today.return_value = monday
@@ -539,15 +540,15 @@ class TestBackfillMissingSnapshots:
 
         _create_position(db, lagging_user.id, "AAPL", 10, 150.0)
 
-        yesterday = date.today() - timedelta(days=1)
-        three_days_ago = date.today() - timedelta(days=3)
+        yesterday = today_et() - timedelta(days=1)
+        three_days_ago = today_et() - timedelta(days=3)
 
         # current_user has yesterday's snapshot — no gap
         _create_snapshot(db, current_user.id, yesterday, 100000, 0, 100000)
         # lagging_user's last snapshot is 3 days old
         _create_snapshot(db, lagging_user.id, three_days_ago, 101500, 1500, 100000)
 
-        two_days_ago = date.today() - timedelta(days=2)
+        two_days_ago = today_et() - timedelta(days=2)
 
         mock_hist.return_value = {
             "AAPL": {two_days_ago: 160.0, yesterday: 158.0},
@@ -586,8 +587,8 @@ class TestBackfillMissingSnapshots:
 
         _create_position(db, user.id, "AAPL", 10, 150.0)
 
-        yesterday = date.today() - timedelta(days=1)
-        two_days_ago = date.today() - timedelta(days=2)
+        yesterday = today_et() - timedelta(days=1)
+        two_days_ago = today_et() - timedelta(days=2)
         _create_snapshot(db, user.id, two_days_ago, 101500, 1500, 100000)
 
         mock_hist.side_effect = Exception("Yahoo Finance unavailable")
@@ -617,8 +618,8 @@ class TestBackfillMissingSnapshots:
 
         _create_position(db, user.id, "AAPL", 10, 150.0)
 
-        yesterday = date.today() - timedelta(days=1)
-        two_days_ago = date.today() - timedelta(days=2)
+        yesterday = today_et() - timedelta(days=1)
+        two_days_ago = today_et() - timedelta(days=2)
         _create_snapshot(db, user.id, two_days_ago, 101500, 1500, 100000)
 
         mock_hist.return_value = {}
@@ -676,7 +677,7 @@ class TestPortfolioRepository:
         """Creating the same snapshot twice should return the existing row."""
         user = _create_user(db)
         repo = PortfolioRepository(db)
-        snap_date = date.today()
+        snap_date = today_et()
 
         snapshot_data = PortfolioSnapshotCreate(
             user_id=user.id,

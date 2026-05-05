@@ -3,6 +3,7 @@ from fastapi import status
 from datetime import date, timedelta
 from unittest.mock import patch, AsyncMock
 
+from app.core.config import today_et
 from app.domains.portfolio.services import PortfolioService, PortfolioError
 from app.domains.portfolio.schemas import PortfolioSnapshotCreate, PortfolioSummary
 from app.domains.portfolio.models import PortfolioSnapshot
@@ -214,11 +215,11 @@ class TestPortfolioService:
         await portfolio_service.create_portfolio_snapshot(test_user.id)
 
         # verify snapshot was created
-        snapshot = portfolio_service.portfolio_repo.get_snapshot_by_date(test_user.id, date.today())
+        snapshot = portfolio_service.portfolio_repo.get_snapshot_by_date(test_user.id, today_et())
         assert snapshot is not None
         assert snapshot.portfolio_value == 105000.0
 
-    @patch('app.domains.portfolio.services.PortfolioService.get_portfolio_summary')  
+    @patch('app.domains.portfolio.services.PortfolioService.get_portfolio_summary')
     async def test_create_portfolio_snapshot_update_existing(self, mock_get_summary, portfolio_service, test_user):
         """Test updating existing portfolio snapshot"""
         # create initial snapshot
@@ -231,9 +232,9 @@ class TestPortfolioService:
             day_change_percent=None
         )
         mock_get_summary.return_value = initial_summary
-        
+
         await portfolio_service.create_portfolio_snapshot(test_user.id)
-        
+
         # update with new values
         updated_summary = PortfolioSummary(
             portfolio_value=105000.0,
@@ -244,17 +245,17 @@ class TestPortfolioService:
             day_change_percent=None
         )
         mock_get_summary.return_value = updated_summary
-        
+
         await portfolio_service.create_portfolio_snapshot(test_user.id)
-        
+
         # verify snapshot was updated, not duplicated
-        snapshot = portfolio_service.portfolio_repo.get_snapshot_by_date(test_user.id, date.today())
+        snapshot = portfolio_service.portfolio_repo.get_snapshot_by_date(test_user.id, today_et())
         assert snapshot.portfolio_value == 105000.0
 
     def test_get_portfolio_history_success(self, portfolio_service, test_user):
         """Test successful portfolio history retrieval"""
         # create some test snapshots
-        today = date.today()
+        today = today_et()
         yesterday = today - timedelta(days=1)
         
         from app.domains.portfolio.repositories import PortfolioRepository
